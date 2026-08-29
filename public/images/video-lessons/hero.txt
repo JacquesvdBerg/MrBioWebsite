@@ -1,0 +1,14 @@
+SAVE AS: public/images/video-lessons/hero.png
+
+ASPECT RATIO: 16:9
+SIZE: 1920 x 1080 px
+FORMAT: PNG
+
+STYLE
+Warm classroom-science hero. Inclusive teen learners optional, or just a bench of specimens. No text.
+
+PROMPT
+16:9 wide photograph of a bright science classroom bench: microscope, plant samples, anatomical model of a heart, notebooks, afternoon light through windows, inviting Grade 8-12 learning mood, no readable text, no logos.
+
+NEGATIVE PROMPT
+text on posters, brand logos, messy lab hazard, childish toys

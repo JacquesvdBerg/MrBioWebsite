@@ -1,0 +1,14 @@
+SAVE AS: public/images/home/newsletter-science.png
+
+ASPECT RATIO: 1:1
+SIZE: 800 x 800 px
+FORMAT: PNG, preferably transparent or dark navy background
+
+STYLE
+Small decorative graphic for a dark-blue newsletter banner. Simple. No text.
+
+PROMPT
+A stylised atom orbiting electrons next to a small laboratory test tube, gold and mint-green on a dark navy background, simple icon-illustration, educational science community graphic, no text.
+
+NEGATIVE PROMPT
+text, letters, radioactive warning, skull, cartoon explosion

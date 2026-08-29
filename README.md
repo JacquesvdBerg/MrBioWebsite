@@ -886,3 +886,20 @@ If the project needs to be simplified, this is the minimum strong first release:
 - Enquiries
 
 Then add the more complex live chat, diagram tools, AI builders and learner accounts once the foundation is stable.
+
+---
+
+## Development
+
+The app is a **Next.js / React** learning platform with **Supabase** ready for auth, database and storage. React was chosen so the interactive admin, activities and public site can grow as one application, and so the stack can sit more comfortably in a React-oriented hosting environment.
+
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+Copy `.env.example` to `.env.local` and add a Supabase project URL plus publishable key when you are ready to connect the database. The site runs without those values so design and front-end work can continue first.
+
+Drop page mockups in the matching `vision/` folders.

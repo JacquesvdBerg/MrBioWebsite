@@ -1,0 +1,14 @@
+SAVE AS: public/images/home/fact-eye.png
+
+ASPECT RATIO: 1:1
+SIZE: 1200 x 1200 px
+FORMAT: PNG
+
+STYLE
+Square editorial photo. Extreme macro. Beautiful, not creepy. No text.
+
+PROMPT
+1:1 ultra high-resolution macro photograph of a human iris and pupil, intricate fibrous colour, catchlight, shallow depth of field, scientific beauty, educational fact card, no eyelashes dominating the frame, no text.
+
+NEGATIVE PROMPT
+text, bloodshot, horror, extra pupils, watermark, makeup close-up brand

@@ -1,0 +1,14 @@
+SAVE AS: public/images/comments/hero.png
+
+ASPECT RATIO: 4:3
+SIZE: 1400 x 1050 px
+FORMAT: PNG
+
+STYLE
+Community / ideas. No readable notes.
+
+PROMPT
+4:3 photograph of colourful sticky notes and sketched cell diagrams on a corkboard in a science classroom, soft light, suggestion-box mood, all writing abstract scribbles, no real words.
+
+NEGATIVE PROMPT
+readable text, logos, messy graffiti

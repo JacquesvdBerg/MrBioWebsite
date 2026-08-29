@@ -1,0 +1,14 @@
+SAVE AS: public/images/live-chat/hero.png
+
+ASPECT RATIO: 4:3
+SIZE: 1400 x 1050 px
+FORMAT: PNG
+
+STYLE
+Friendly science Q&A mood. No text bubbles with words.
+
+PROMPT
+4:3 warm illustration-photo hybrid of a teacher and a teenage learner looking at a plant under a microscope together, kind and professional, Afrikaans school science feeling, cream and green palette, faces natural, no speech-bubble text, no logos.
+
+NEGATIVE PROMPT
+text, chat UI, emojis, cartoon, classroom posters with writing

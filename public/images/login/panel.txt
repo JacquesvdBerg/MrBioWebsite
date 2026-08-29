@@ -1,0 +1,14 @@
+SAVE AS: public/images/login/panel.png
+
+ASPECT RATIO: 4:5
+SIZE: 960 x 1200 px
+FORMAT: PNG
+
+STYLE
+Quiet admin / teacher login atmosphere. Professional. No form UI.
+
+PROMPT
+4:5 photograph of a dark-green laboratory shelf with glassware and a closed leather notebook, moody but calm, teacher workspace, no screens with UI, no text.
+
+NEGATIVE PROMPT
+login form, keyboard close-up branding, text, skull
