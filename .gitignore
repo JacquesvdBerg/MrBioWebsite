@@ -1,0 +1,45 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Nuxt / Nitro
+.nuxt
+.output
+.nitro
+.cache
+dist
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor
+.idea
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# Testing / coverage
+coverage
+.nyc_output
+playwright-report
+test-results
+
+# Supabase
+supabase/.temp
+supabase/.branches
