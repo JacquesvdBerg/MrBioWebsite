@@ -66,7 +66,7 @@ export function defaultThemePage(theme: {
       },
       {
         title: "Aktiwiteite",
-        body: "Toets jouself met vasvrae en speletjies.",
+        body: "Toets jouself met vasvrae en oefeninge.",
         href: "/play-and-learn",
         image: "",
       },

@@ -1,15 +1,116 @@
-export const siteName = "WetenskapWêreld";
+export const siteName = "MrBio";
 export const siteTagline = "Lewenswetenskappe";
 
-export const publicNav = [
+export type NavChild = {
+  href: string;
+  label: string;
+  description: string;
+  icon: "book" | "play" | "leaf" | "puzzle" | "chat" | "forum" | "cart";
+};
+
+export type NavItem = {
+  href: string;
+  label: string;
+  children?: readonly NavChild[];
+};
+
+export const publicNav: readonly NavItem[] = [
   { href: "/", label: "Tuis" },
+  {
+    href: "/shop",
+    label: "Studiemateriaal",
+    children: [
+      {
+        href: "/shop",
+        label: "Notas & eksamenpakke",
+        description: "Sillabusgerigte hulpbronne per graad, PDF of gedruk.",
+        icon: "cart",
+      },
+      {
+        href: "/shop#bundels",
+        label: "Klasbundels",
+        description: "Afslag vir onderwysers en studiegroepe.",
+        icon: "book",
+      },
+    ],
+  },
+  {
+    href: "/video-lessons",
+    label: "Leer",
+    children: [
+      {
+        href: "/video-lessons",
+        label: "Videolesse",
+        description: "Kort, duidelike lesse in Afrikaans.",
+        icon: "play",
+      },
+      {
+        href: "/#temas",
+        label: "Temas",
+        description: "Die groot idees van die sillabus, een vir een.",
+        icon: "leaf",
+      },
+      {
+        href: "/weekly-facts",
+        label: "Weeklikse feite",
+        description: "Een feit per week wat jy nooit vergeet.",
+        icon: "leaf",
+      },
+      {
+        href: "/play-and-learn",
+        label: "Oefen & toets",
+        description: "Vasvrae, kruiswoorde en meer om kennis vas te lê.",
+        icon: "puzzle",
+      },
+    ],
+  },
+  {
+    href: "/comments",
+    label: "Gemeenskap",
+    children: [
+      {
+        href: "/live-chat",
+        label: "Vra die onderwyser",
+        description: "Stuur ’n vraag, kry ’n regte antwoord.",
+        icon: "chat",
+      },
+      {
+        href: "/comments",
+        label: "Forum",
+        description: "Stel onderwerpe voor en stem.",
+        icon: "forum",
+      },
+    ],
+  },
   { href: "/about", label: "Oor ons" },
-  { href: "/#leer", label: "Leer" },
-  { href: "/video-lessons", label: "Video's" },
-  { href: "/play-and-learn", label: "Aktiwiteite" },
-  { href: "/shop", label: "Winkel" },
-  { href: "/comments", label: "Forum" },
-  { href: "/contact", label: "Kontak" },
+];
+
+export const footerNav = [
+  {
+    title: "Leer",
+    links: [
+      { href: "/shop", label: "Studiemateriaal" },
+      { href: "/video-lessons", label: "Videolesse" },
+      { href: "/weekly-facts", label: "Weeklikse feite" },
+      { href: "/#temas", label: "Temas" },
+      { href: "/play-and-learn", label: "Oefen & toets" },
+    ],
+  },
+  {
+    title: "Gemeenskap",
+    links: [
+      { href: "/comments", label: "Forum" },
+      { href: "/live-chat", label: "Vra die onderwyser" },
+    ],
+  },
+  {
+    title: "MrBio",
+    links: [
+      { href: "/about", label: "Oor ons" },
+      { href: "/contact", label: "Kontak" },
+      { href: "/login", label: "Onderwyser teken in" },
+    ],
+  },
 ] as const;
 
 export const destinations = [
@@ -28,7 +129,7 @@ export const destinations = [
   {
     href: "/video-lessons",
     title: "Videolesse",
-    description: "Gratis sillabuslesse vir graad 8 tot 12.",
+    description: "Gratis sillabuslesse vir graad 10 tot 12.",
     vision: "vision/public/video-lessons",
   },
   {
@@ -45,7 +146,7 @@ export const destinations = [
   },
   {
     href: "/play-and-learn",
-    title: "Speel & leer",
+    title: "Oefen & toets",
     description: "Vasvrae, woordsoektogte en interaktiewe aktiwiteite.",
     vision: "vision/public/play-and-learn",
   },
@@ -60,7 +161,7 @@ export const homeFeatures = [
   },
   {
     title: "Duidelike lesse",
-    description: "Gr. 8 – 12 en meer",
+    description: "Gr. 10 – 12 en meer",
     href: "/video-lessons",
     icon: "book",
   },
@@ -79,9 +180,10 @@ export const homeFeatures = [
 ] as const;
 
 export const homeStats = [
-  { value: "40+", label: "Videolesse" },
-  { value: "8–12", label: "Grade" },
-  { value: "100%", label: "Afrikaans" },
+  { value: 3, suffix: "", label: "Grade (10–12)" },
+  { value: 40, suffix: "+", label: "Notas & eksamenpakke" },
+  { value: 60, suffix: "+", label: "Videolesse" },
+  { value: 100, suffix: "%", label: "Afrikaans, CAPS-gerig" },
 ] as const;
 
 export const homeShortcuts = [
@@ -92,20 +194,103 @@ export const homeShortcuts = [
   { title: "Winkel", href: "/shop", icon: "cart" },
 ] as const;
 
-export const grades = [8, 9, 10, 11, 12] as const;
+export const grades = [10, 11, 12] as const;
+
+export type Grade = (typeof grades)[number];
+
+export function isGrade(value: string | number): value is Grade {
+  const grade = typeof value === "string" ? Number(value) : value;
+  return (grades as readonly number[]).includes(grade);
+}
+
+export function gradeActivitiesPath(grade: number) {
+  return `/play-and-learn/graad/${grade}`;
+}
 
 export const activityTypes = [
-  { slug: "quiz", title: "Vasvra", description: "Meerkeusevrae met telling en verduidelikings." },
-  { slug: "true-or-false", title: "Waar of onwaar", description: "Vinnige stellings om kennis te toets." },
-  { slug: "word-search", title: "Woordsoektog", description: "Vind vakterme in 'n gegenereerde rooster." },
-  { slug: "crossword", title: "Kruiswoord", description: "Leidrade en antwoorde wat die rooster bou." },
-  { slug: "match-the-pairs", title: "Pas die pare", description: "Koppel terme aan die regte betekenis." },
-  { slug: "put-in-order", title: "Sit in volgorde", description: "Rangskik prosesse soos mitose of vertering." },
-  { slug: "diagram", title: "Diagramme", description: "Merk strukture en sleep etikette op sketse." },
-  { slug: "memory-cards", title: "Geheuekaarte", description: "Draai kaarte om om pare te onthou." },
-  { slug: "sorting", title: "Sorteer", description: "Groepeer items in die regte kategorieë." },
-  { slug: "speed-quiz", title: "Spoedvasvra", description: "Getimede vrae vir hersiening onder druk." },
+  {
+    slug: "quiz",
+    title: "Vasvra",
+    description: "Meerkeusevrae met telling en verduidelikings.",
+    accent: "var(--lime)",
+    minutes: "5–15 min",
+  },
+  {
+    slug: "true-or-false",
+    title: "Waar of onwaar",
+    description: "Vinnige stellings om kennis te toets.",
+    accent: "var(--mint)",
+    minutes: "3–10 min",
+  },
+  {
+    slug: "word-search",
+    title: "Woordsoektog",
+    description: "Vind vakterme in ’n gegenereerde rooster.",
+    accent: "var(--sky)",
+    minutes: "5 min",
+  },
+  {
+    slug: "crossword",
+    title: "Kruiswoord",
+    description: "Leidrade en antwoorde wat die rooster bou.",
+    accent: "var(--sun)",
+    minutes: "10 min",
+  },
+  {
+    slug: "match-the-pairs",
+    title: "Pas die pare",
+    description: "Koppel terme aan die regte betekenis.",
+    accent: "var(--violet)",
+    minutes: "4 min",
+  },
+  {
+    slug: "put-in-order",
+    title: "Sit in volgorde",
+    description: "Rangskik prosesse soos mitose of vertering.",
+    accent: "var(--coral)",
+    minutes: "5 min",
+  },
+  {
+    slug: "diagram",
+    title: "Diagramme",
+    description: "Merk strukture en plaas etikette op sketse.",
+    accent: "var(--sky)",
+    minutes: "6 min",
+  },
+  {
+    slug: "memory-cards",
+    title: "Geheuekaarte",
+    description: "Draai kaarte om om pare te onthou.",
+    accent: "var(--violet)",
+    minutes: "4 min",
+  },
+  {
+    slug: "sorting",
+    title: "Sorteer",
+    description: "Groepeer items in die regte kategorieë.",
+    accent: "var(--mint)",
+    minutes: "5 min",
+  },
+  {
+    slug: "speed-quiz",
+    title: "Spoedvasvra",
+    description: "Getimede vrae vir hersiening onder druk.",
+    accent: "var(--coral)",
+    minutes: "3 min",
+  },
 ] as const;
+
+export const gradeAccents: Record<Grade, string> = {
+  10: "var(--sky)",
+  11: "var(--violet)",
+  12: "var(--sun)",
+};
+
+export const gradeBlurbs: Record<Grade, string> = {
+  10: "Chemie van lewe, selle, weefsels, ekosisteme en biodiversiteit.",
+  11: "Klassifikasie, lewensprosesse, gaswisseling en die omgewing.",
+  12: "DNA, voortplanting, homeostase, genetika en evolusie.",
+};
 
 export type ActivitySlug = (typeof activityTypes)[number]["slug"];
 
@@ -113,16 +298,8 @@ export function isActivitySlug(value: string): value is ActivitySlug {
   return activityTypes.some((activity) => activity.slug === value);
 }
 
-export const adminNav = [
-  { href: "/admin", label: "Oorsig" },
-  { href: "/admin/themes", label: "Temas" },
-  { href: "/admin/products", label: "Produkte" },
-  { href: "/admin/videos", label: "Video's" },
-  { href: "/admin/weekly-facts", label: "Weeklikse feite" },
-  { href: "/admin/activities", label: "Aktiwiteite" },
-  { href: "/admin/live-chat", label: "Lewendige klets" },
-  { href: "/admin/comments", label: "Kommentaar" },
-  { href: "/admin/enquiries", label: "Navrae" },
-  { href: "/admin/media", label: "Media" },
-  { href: "/admin/settings", label: "Instellings" },
-] as const;
+export function gradeTypePath(grade: number, type: ActivitySlug) {
+  return `/play-and-learn/graad/${grade}/${type}`;
+}
+
+export { adminNavItems as adminNav } from "@/lib/admin";

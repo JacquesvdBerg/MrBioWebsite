@@ -1,33 +1,53 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-type ButtonTone = "navy" | "green" | "purple" | "ghost";
+type ButtonTone = "lime" | "white" | "ghost" | "coral" | "navy" | "green" | "purple";
 
 const buttonTone: Record<ButtonTone, string> = {
-  navy: "bg-navy text-white hover:bg-navy-deep shadow-[0_12px_28px_rgba(16,40,63,0.28)]",
-  green:
-    "bg-green text-white hover:bg-green-deep shadow-[0_12px_28px_rgba(47,163,74,0.3)]",
-  purple:
-    "bg-purple text-white hover:brightness-110 shadow-[0_12px_28px_rgba(94,59,150,0.3)]",
-  ghost: "border border-navy/15 bg-white text-navy hover:bg-cream-dark",
+  lime: "btn-lime",
+  white: "btn-white",
+  ghost: "btn-ghost",
+  coral: "btn-coral",
+  navy: "btn-navy",
+  green: "btn-lime",
+  purple: "btn-coral",
+};
+
+type ButtonSize = "sm" | "md" | "lg";
+
+const buttonSize: Record<ButtonSize, string> = {
+  sm: "btn-sm",
+  md: "",
+  lg: "btn-lg",
 };
 
 export function ButtonLink({
   href,
-  tone = "navy",
+  tone = "lime",
+  size = "md",
   children,
   className = "",
+  external = false,
 }: {
   href: string;
   tone?: ButtonTone;
+  size?: ButtonSize;
   children: ReactNode;
   className?: string;
+  external?: boolean;
 }) {
+  const classes = `btn ${buttonTone[tone]} ${buttonSize[size]} ${className}`;
+
+  if (external) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className={classes}>
+        {children}
+      </a>
+    );
+  }
+
   return (
-    <Link
-      href={href}
-      className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-all ${buttonTone[tone]} ${className}`}
-    >
+    <Link href={href} className={classes}>
       {children}
     </Link>
   );
@@ -40,13 +60,7 @@ export function Eyebrow({
   children: ReactNode;
   className?: string;
 }) {
-  return (
-    <span
-      className={`inline-flex items-center gap-2 rounded-full border border-line bg-white/80 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-green ${className}`}
-    >
-      {children}
-    </span>
-  );
+  return <span className={`eyebrow ${className}`}>{children}</span>;
 }
 
 export function SectionHeading({
@@ -54,24 +68,51 @@ export function SectionHeading({
   title,
   description,
   action,
+  align = "left",
 }: {
-  eyebrow: string;
-  title: string;
+  eyebrow?: string;
+  title: ReactNode;
   description?: string;
   action?: ReactNode;
+  align?: "left" | "center";
 }) {
+  const centered = align === "center";
+
   return (
-    <div className="mb-7 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-      <div className="max-w-2xl">
-        <Eyebrow>{eyebrow}</Eyebrow>
-        <h2 className="mt-3 font-display text-3xl font-bold text-navy md:text-4xl">
+    <div
+      className={`mb-10 flex flex-col gap-5 ${
+        centered
+          ? "items-center text-center"
+          : "md:flex-row md:items-end md:justify-between"
+      }`}
+    >
+      <div className={centered ? "max-w-2xl" : "max-w-2xl"}>
+        {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
+        <h2 className="mt-4 font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.03em] text-white md:text-[2.6rem]">
           {title}
         </h2>
         {description ? (
-          <p className="mt-3 text-[17px] leading-7 text-muted">{description}</p>
+          <p className="mt-4 text-[17px] leading-7 text-white/60">{description}</p>
         ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
     </div>
+  );
+}
+
+export function Arrow({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
   );
 }

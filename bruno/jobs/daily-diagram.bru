@@ -1,0 +1,30 @@
+meta {
+  name: Daily diagram
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/api/jobs/daily-diagram
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{cronSecret}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "grade": 10
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 300000
+}

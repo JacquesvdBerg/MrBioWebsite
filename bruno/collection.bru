@@ -1,0 +1,15 @@
+meta {
+  name: MrBio Daily Jobs
+}
+
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{cronSecret}}
+}
+
+headers {
+  Content-Type: application/json
+}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { saveThemePage } from "@/app/(admin)/admin/actions";
 import { AdminPage } from "@/components/admin-page";
+import { AdminBtn, deskField } from "@/components/admin-ui";
 import { ImageUploadField } from "@/components/image-upload-field";
 import { themeCardSlots } from "@/lib/theme-page";
 import { getAdminTheme } from "@/lib/themes";
@@ -13,8 +14,6 @@ type EditorPageProps = {
 };
 
 const tones = ["green", "teal", "blue", "purple", "orange", "navy"] as const;
-const inputClass =
-  "mt-1 w-full rounded-lg border border-line bg-cream/60 px-3 py-2 text-sm";
 
 export async function generateMetadata({ params }: EditorPageProps) {
   const { slug } = await params;
@@ -41,26 +40,26 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
       description={`Vul die template vir ${theme.href}. Leë velde word weggesteek op die publieke bladsy.`}
     >
       <p className="mb-6 text-sm">
-        <Link href="/admin/themes" className="font-semibold text-green">
+        <Link href="/admin/themes" className="font-semibold text-lime">
           ← Terug na temas
         </Link>
         {" · "}
-        <Link href={theme.href} className="font-semibold text-green">
+        <Link href={theme.href} className="font-semibold text-lime">
           Sien publieke bladsy
         </Link>
       </p>
 
-      <form action={saveThemePage} className="space-y-8">
+      <form action={saveThemePage} className="space-y-6">
         <input type="hidden" name="existingSlug" value={theme.slug} />
 
-        <section className="grid gap-3 rounded-2xl border border-line bg-white p-5 md:grid-cols-2">
-          <h2 className="font-display text-lg font-bold text-navy md:col-span-2">
+        <section className="desk-panel desk-panel-body grid gap-3 md:grid-cols-2">
+          <h2 className="font-display text-lg font-bold text-white md:col-span-2">
             Kaart & hero
           </h2>
           <label className="text-sm font-semibold">
             Titel
             <input
-              className={inputClass}
+              className={deskField}
               name="title"
               defaultValue={theme.title}
               required
@@ -69,7 +68,7 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           <label className="text-sm font-semibold">
             Kicker
             <input
-              className={inputClass}
+              className={deskField}
               name="kicker"
               defaultValue={page.kicker}
             />
@@ -77,14 +76,14 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           <label className="text-sm font-semibold md:col-span-2">
             Kort beskrywing
             <input
-              className={inputClass}
+              className={deskField}
               name="blurb"
               defaultValue={theme.blurb}
             />
           </label>
           <label className="text-sm font-semibold">
             Kleur
-            <select className={inputClass} name="tone" defaultValue={theme.tone}>
+            <select className={deskField} name="tone" defaultValue={theme.tone}>
               {tones.map((tone) => (
                 <option key={tone}>{tone}</option>
               ))}
@@ -93,7 +92,7 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           <label className="text-sm font-semibold">
             Volgorde
             <input
-              className={inputClass}
+              className={deskField}
               name="sort_order"
               type="number"
               defaultValue={theme.sortOrder}
@@ -113,12 +112,12 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           </label>
         </section>
 
-        <section className="grid gap-3 rounded-2xl border border-line bg-white p-5">
-          <h2 className="font-display text-lg font-bold text-navy">Inleiding</h2>
+        <section className="desk-panel desk-panel-body grid gap-3">
+          <h2 className="font-display text-lg font-bold text-white">Inleiding</h2>
           <label className="text-sm font-semibold">
             Opskrif
             <input
-              className={inputClass}
+              className={deskField}
               name="introHeading"
               defaultValue={page.introHeading}
             />
@@ -126,7 +125,7 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           <label className="text-sm font-semibold">
             Teks
             <textarea
-              className={`${inputClass} min-h-28`}
+              className={`${deskField} min-h-28`}
               name="introBody"
               defaultValue={page.introBody}
             />
@@ -134,15 +133,15 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           <label className="text-sm font-semibold">
             Wat jy sal leer (een per reël)
             <textarea
-              className={`${inputClass} min-h-28`}
+              className={`${deskField} min-h-28`}
               name="outcomes"
               defaultValue={page.outcomes.join("\n")}
             />
           </label>
         </section>
 
-        <section className="grid gap-4 rounded-2xl border border-line bg-white p-5">
-          <h2 className="font-display text-lg font-bold text-navy">
+        <section className="desk-panel desk-panel-body grid gap-4">
+          <h2 className="font-display text-lg font-bold text-white">
             Drie inhoudbokse
           </h2>
           <div className="grid gap-4 lg:grid-cols-3">
@@ -150,24 +149,24 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
               const card = page.cards[index];
 
               return (
-                <div key={index} className="space-y-2 rounded-xl bg-cream/50 p-3">
-                  <p className="text-xs font-bold uppercase tracking-wide text-muted">
+                <div key={index} className="space-y-2 rounded-xl bg-white/5 p-3">
+                  <p className="text-xs font-bold uppercase tracking-wide text-white/55">
                     Boks {index + 1}
                   </p>
                   <input
-                    className={inputClass}
+                    className={deskField}
                     name={`card_${index}_title`}
                     defaultValue={card?.title}
                     placeholder="Titel"
                   />
                   <textarea
-                    className={`${inputClass} min-h-20`}
+                    className={`${deskField} min-h-20`}
                     name={`card_${index}_body`}
                     defaultValue={card?.body}
                     placeholder="Teks"
                   />
                   <input
-                    className={inputClass}
+                    className={deskField}
                     name={`card_${index}_href`}
                     defaultValue={card?.href}
                     placeholder="/video-lessons"
@@ -183,14 +182,14 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           </div>
         </section>
 
-        <section className="grid gap-3 rounded-2xl border border-line bg-white p-5">
-          <h2 className="font-display text-lg font-bold text-navy">
+        <section className="desk-panel desk-panel-body grid gap-3">
+          <h2 className="font-display text-lg font-bold text-white">
             Uitgeligte les
           </h2>
           <label className="text-sm font-semibold">
             Eyebrow
             <input
-              className={inputClass}
+              className={deskField}
               name="featuredEyebrow"
               defaultValue={page.featuredEyebrow}
             />
@@ -198,7 +197,7 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           <label className="text-sm font-semibold">
             Titel
             <input
-              className={inputClass}
+              className={deskField}
               name="featuredTitle"
               defaultValue={page.featuredTitle}
             />
@@ -206,7 +205,7 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           <label className="text-sm font-semibold">
             Teks
             <textarea
-              className={`${inputClass} min-h-24`}
+              className={`${deskField} min-h-24`}
               name="featuredBody"
               defaultValue={page.featuredBody}
             />
@@ -214,7 +213,7 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           <label className="text-sm font-semibold">
             YouTube-skakel
             <input
-              className={inputClass}
+              className={deskField}
               name="featuredVideoUrl"
               defaultValue={page.featuredVideoUrl}
               placeholder="https://www.youtube.com/watch?v="
@@ -227,14 +226,14 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           />
         </section>
 
-        <section className="grid gap-3 rounded-2xl border border-line bg-white p-5 md:grid-cols-2">
-          <h2 className="font-display text-lg font-bold text-navy md:col-span-2">
+        <section className="desk-panel desk-panel-body grid gap-3 md:grid-cols-2">
+          <h2 className="font-display text-lg font-bold text-white md:col-span-2">
             Nota en CTA
           </h2>
           <label className="text-sm font-semibold">
             Nota-opskrif
             <input
-              className={inputClass}
+              className={deskField}
               name="noteEyebrow"
               defaultValue={page.noteEyebrow}
             />
@@ -242,7 +241,7 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           <label className="text-sm font-semibold">
             Nota
             <input
-              className={inputClass}
+              className={deskField}
               name="noteBody"
               defaultValue={page.noteBody}
             />
@@ -250,7 +249,7 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           <label className="text-sm font-semibold">
             CTA-opskrif
             <input
-              className={inputClass}
+              className={deskField}
               name="ctaHeading"
               defaultValue={page.ctaHeading}
             />
@@ -258,7 +257,7 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           <label className="text-sm font-semibold">
             CTA-teks
             <input
-              className={inputClass}
+              className={deskField}
               name="ctaBody"
               defaultValue={page.ctaBody}
             />
@@ -266,7 +265,7 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           <label className="text-sm font-semibold">
             Knoppie
             <input
-              className={inputClass}
+              className={deskField}
               name="ctaLabel"
               defaultValue={page.ctaLabel}
             />
@@ -274,19 +273,14 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           <label className="text-sm font-semibold">
             Knoppie-skakel
             <input
-              className={inputClass}
+              className={deskField}
               name="ctaHref"
               defaultValue={page.ctaHref}
             />
           </label>
         </section>
 
-        <button
-          type="submit"
-          className="rounded-full bg-navy px-6 py-3 text-sm font-bold text-white"
-        >
-          Stoor bladsy
-        </button>
+        <AdminBtn type="submit">Stoor bladsy</AdminBtn>
       </form>
     </AdminPage>
   );

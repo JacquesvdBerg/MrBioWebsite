@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { deleteTheme, upsertTheme } from "@/app/(admin)/admin/actions";
 import { AdminPage } from "@/components/admin-page";
+import { AdminBadge, AdminBtn, AdminEmpty, AdminPanel, deskField } from "@/components/admin-ui";
 import { ImageUploadField } from "@/components/image-upload-field";
 import { getAllThemes } from "@/lib/themes";
 
@@ -11,8 +11,6 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 const tones = ["green", "teal", "blue", "purple", "orange", "navy"] as const;
-const inputClass =
-  "mt-1 w-full rounded-lg border border-line bg-cream/60 px-3 py-2 text-sm";
 
 export default async function AdminThemesPage() {
   const themes = await getAllThemes();
@@ -22,82 +20,83 @@ export default async function AdminThemesPage() {
       title="Temas"
       description="Elke tema gebruik dieselfde bladsy-template. Skep die tema hier, en vul dan die inhoud op die wysig-bladsy."
     >
-      <form
-        action={upsertTheme}
-        className="mb-8 grid gap-3 rounded-2xl border border-line bg-white p-5 md:grid-cols-2"
-      >
-        <h2 className="font-display text-lg font-bold text-navy md:col-span-2">
-          Nuwe tema
-        </h2>
-        <label className="text-sm font-semibold">
-          Titel
-          <input className={inputClass} name="title" required />
-        </label>
-        <label className="text-sm font-semibold">
-          Slug (opsioneel)
-          <input className={inputClass} name="slug" />
-        </label>
-        <label className="text-sm font-semibold md:col-span-2">
-          Kort beskrywing
-          <input className={inputClass} name="blurb" />
-        </label>
-        <label className="text-sm font-semibold">
-          Kleur
-          <select className={inputClass} name="tone" defaultValue="green">
-            {tones.map((tone) => (
-              <option key={tone}>{tone}</option>
-            ))}
-          </select>
-        </label>
-        <ImageUploadField label="Kaartprent" />
-        <label className="text-sm font-semibold">
-          Volgorde
-          <input
-            className={inputClass}
-            name="sort_order"
-            type="number"
-            defaultValue={themes.length + 1}
-          />
-        </label>
-        <label className="flex items-center gap-2 text-sm font-semibold">
-          <input type="checkbox" name="is_published" defaultChecked />
-          Publiseer
-        </label>
-        <button
-          type="submit"
-          className="w-fit rounded-full bg-navy px-5 py-2 text-sm font-bold text-white"
-        >
-          Skep en wysig
-        </button>
-      </form>
+      <AdminPanel title="Nuwe tema">
+        <form action={upsertTheme} className="grid gap-3 md:grid-cols-2">
+          <label className="desk-label">
+            Titel
+            <input className={deskField} name="title" required />
+          </label>
+          <label className="desk-label">
+            Slug (opsioneel)
+            <input className={deskField} name="slug" />
+          </label>
+          <label className="desk-label md:col-span-2">
+            Kort beskrywing
+            <input className={deskField} name="blurb" />
+          </label>
+          <label className="desk-label">
+            Kleur
+            <select className={deskField} name="tone" defaultValue="green">
+              {tones.map((tone) => (
+                <option key={tone}>{tone}</option>
+              ))}
+            </select>
+          </label>
+          <ImageUploadField label="Kaartprent" />
+          <label className="desk-label">
+            Volgorde
+            <input
+              className={deskField}
+              name="sort_order"
+              type="number"
+              defaultValue={themes.length + 1}
+            />
+          </label>
+          <label className="desk-check self-end pb-2">
+            <input type="checkbox" name="is_published" defaultChecked />
+            Publiseer
+          </label>
+          <div className="md:col-span-2">
+            <AdminBtn type="submit">Skep en wysig</AdminBtn>
+          </div>
+        </form>
+      </AdminPanel>
 
-      <ul className="grid gap-3">
-        {themes.map((theme) => (
-          <li
-            key={theme.slug}
-            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-white p-4"
-          >
-            <div>
-              <p className="font-display font-bold text-navy">{theme.title}</p>
-              <p className="font-mono text-xs text-muted">{theme.href}</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link
-                href={`/admin/themes/${theme.slug}`}
-                className="rounded-full bg-navy px-4 py-2 text-sm font-bold text-white"
-              >
-                Wysig bladsy
-              </Link>
-              <form action={deleteTheme}>
-                <input type="hidden" name="slug" value={theme.slug} />
-                <button type="submit" className="text-xs font-semibold text-orange">
-                  Verwyder
-                </button>
-              </form>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-6">
+        <AdminPanel title={`${themes.length} temas`}>
+          {themes.length === 0 ? (
+            <AdminEmpty
+              title="Nog geen temas nie"
+              body="Skep die eerste een hierbo — Genetika, Fotosintese, Evolusie, wat jy ook al eerste wil oopmaak."
+            />
+          ) : (
+            <ul>
+              {themes.map((theme) => (
+                <li key={theme.slug} className="desk-row">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-display font-bold text-white">{theme.title}</p>
+                      <AdminBadge tone={theme.isPublished ? "live" : "draft"}>
+                        {theme.isPublished ? "Live" : "Konsep"}
+                      </AdminBadge>
+                    </div>
+                    <p className="font-mono text-xs text-white/55">{theme.href}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <AdminBtn href={`/admin/themes/${theme.slug}`}>Wysig bladsy</AdminBtn>
+                    <form action={deleteTheme}>
+                      <input type="hidden" name="slug" value={theme.slug} />
+                      <button type="submit" className="desk-btn desk-btn-danger">
+                        Verwyder
+                      </button>
+                    </form>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </AdminPanel>
+      </div>
     </AdminPage>
   );
 }

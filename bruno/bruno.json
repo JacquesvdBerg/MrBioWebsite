@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "name": "MrBio Daily Jobs",
+  "type": "collection",
+  "ignore": ["node_modules", ".git", "*.postman_collection.json"]
+}

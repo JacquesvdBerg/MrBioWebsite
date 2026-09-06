@@ -38,14 +38,11 @@ export function MediaUploader() {
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="rounded-2xl border border-line bg-white p-5"
-    >
-      <label className="block text-sm font-bold text-navy">
-        Laai ’n prent op
+    <form onSubmit={onSubmit}>
+      <label className="desk-label">
+        Kies ’n prent
         <input
-          className="mt-2 block w-full text-sm"
+          className="mt-2 block w-full text-sm font-normal"
           name="file"
           type="file"
           accept="image/png,image/jpeg,image/webp,image/gif"
@@ -56,7 +53,7 @@ export function MediaUploader() {
       <button
         type="submit"
         disabled={pending}
-        className="mt-4 rounded-full bg-navy px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
+        className="desk-btn desk-btn-navy mt-4 disabled:opacity-60"
       >
         {pending ? "Laai op…" : "Laai op"}
       </button>

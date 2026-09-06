@@ -57,7 +57,7 @@ export function ImageUploadField({
         }}
       />
       {pending ? (
-        <p className="mt-1 text-xs font-normal text-muted">Laai op na Storage…</p>
+        <p className="mt-1 text-xs font-normal text-white/50">Laai op na Storage…</p>
       ) : null}
       {error ? <p className="mt-1 text-xs font-normal text-orange">{error}</p> : null}
     </div>

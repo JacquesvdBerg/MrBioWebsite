@@ -2,10 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { deskField } from "@/components/admin-ui";
 import { createClient } from "@/lib/supabase/client";
-
-const inputClass =
-  "mt-2 w-full rounded-xl border border-line bg-cream/60 px-3.5 py-2.5 text-[15px] text-navy";
 
 export function LoginForm({ nextPath }: { nextPath: string }) {
   const router = useRouter();
@@ -73,9 +71,9 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
   return (
     <form className="mt-7 space-y-5" onSubmit={onSubmit}>
       <label className="block">
-        <span className="text-[13px] font-bold text-navy">E-pos</span>
+        <span className="text-[13px] font-bold text-white">E-pos</span>
         <input
-          className={inputClass}
+          className={deskField}
           name="email"
           type="email"
           autoComplete="email"
@@ -84,9 +82,9 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
         />
       </label>
       <label className="block">
-        <span className="text-[13px] font-bold text-navy">Wagwoord</span>
+        <span className="text-[13px] font-bold text-white">Wagwoord</span>
         <input
-          className={inputClass}
+          className={deskField}
           name="password"
           type="password"
           autoComplete="current-password"
@@ -99,7 +97,7 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
         name="intent"
         value="signin"
         disabled={pending}
-        className="w-full rounded-full bg-navy px-5 py-3 text-sm font-bold text-white disabled:opacity-60"
+        className="desk-btn desk-btn-navy w-full disabled:opacity-60"
       >
         {pending ? "Wag…" : "Teken in"}
       </button>
@@ -108,7 +106,7 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
         name="intent"
         value="signup"
         disabled={pending}
-        className="w-full rounded-full border border-navy/15 bg-white px-5 py-3 text-sm font-bold text-navy disabled:opacity-60"
+        className="desk-btn desk-btn-ghost w-full disabled:opacity-60"
       >
         Skep admin-rekening
       </button>
