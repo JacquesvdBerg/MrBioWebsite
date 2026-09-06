@@ -24,7 +24,7 @@ export function RotatingHeadline() {
     }
 
     let index = 0;
-    let text = PHRASES[0];
+    let text: string = PHRASES[0];
     let phase: "hold" | "delete" | "type" = "hold";
     let timer = 0;
 

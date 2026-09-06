@@ -38,11 +38,11 @@ export async function generateMetadata({ params }: GradePageProps) {
 export default async function GradeActivitiesPage({ params }: GradePageProps) {
   const { grade: raw } = await params;
 
-  if (!isGrade(raw)) {
+  const grade = Number(raw);
+
+  if (!isGrade(grade)) {
     notFound();
   }
-
-  const grade = Number(raw);
   const activities = await getPublishedActivitiesByGrade(grade);
   const accent = gradeAccents[grade];
 
