@@ -1,0 +1,14 @@
+SAVE AS: public/images/home/subject-mikroorganismes.png
+
+ASPECT RATIO: 4:5
+SIZE: 960 x 1200 px
+FORMAT: PNG
+
+STYLE
+Vertical topic card. Colourful 3D microbes on a purple field. Scientific, not scary. No text.
+
+PROMPT
+Vertical 4:5 microbiology card: a collection of colourful 3D bacteria, bacilli, cocci and a few virus-like forms floating in dark purple space, jewel tones of magenta, gold and teal, studio lighting, educational and fascinating, not grotesque, no text.
+
+NEGATIVE PROMPT
+text, labels, blood, disease horror, skulls, cartoon

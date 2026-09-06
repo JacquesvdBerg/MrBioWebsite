@@ -1,0 +1,14 @@
+SAVE AS: public/images/home/activity-fotosintese.png
+
+ASPECT RATIO: 16:9
+SIZE: 1280 x 720 px
+FORMAT: PNG
+
+STYLE
+Clean educational diagram, not a photo. Flat-plus-soft-3D infographic. No words, only symbols.
+
+PROMPT
+16:9 clean educational diagram of photosynthesis: a green plant in the centre, a simple sun top-left, CO2 suggested as small grey molecular balls entering the leaf, O2 as light bubbles leaving, water at the roots, cream background, school-science worksheet aesthetic but modern and tidy, NO letters, NO words, NO chemical formulas written as text.
+
+NEGATIVE PROMPT
+text, letters, words, labels, watermark, messy arrows with writing, childish stick figures

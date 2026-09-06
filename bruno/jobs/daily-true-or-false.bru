@@ -1,0 +1,30 @@
+meta {
+  name: Daily true or false
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/jobs/daily-true-or-false
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{cronSecret}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "grade": 10
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 300000
+}

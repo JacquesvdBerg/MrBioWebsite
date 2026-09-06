@@ -1,0 +1,14 @@
+SAVE AS: public/images/home/subject-lewenswetenskappe.png
+
+ASPECT RATIO: 4:5
+SIZE: 960 x 1200 px
+FORMAT: PNG
+
+STYLE
+Vertical topic card. Teal scientific. Highly detailed but clean. No text.
+
+PROMPT
+Vertical 4:5 life-sciences card: a highly detailed cross-section of an animal cell in teal and aqua, nucleus, mitochondria and membrane clearly readable, a luminous DNA double helix standing in front of the cell, dark teal studio lighting, premium educational illustration, no text.
+
+NEGATIVE PROMPT
+text, labels, arrows, watermark, cartoon, horror, blood

@@ -1,0 +1,14 @@
+SAVE AS: public/images/video-lessons/thumbnail.png
+
+ASPECT RATIO: 16:9
+SIZE: 1280 x 720 px
+FORMAT: PNG
+
+STYLE
+Generic lesson thumbnail. Clear subject. No play button, no text.
+
+PROMPT
+16:9 close photograph of a detailed heart model on a dark green cloth, studio lighting, educational video thumbnail for a circulatory-system lesson, no text, no UI chrome.
+
+NEGATIVE PROMPT
+text, play button, YouTube UI, watermark

@@ -1,0 +1,14 @@
+SAVE AS: public/images/brand/logo-mark.png
+
+ASPECT RATIO: 1:1
+SIZE: 512 x 512 px
+FORMAT: PNG, transparent background
+
+STYLE
+Clean app-icon / logo mark. Simple, bold, readable at 32px. Not photorealistic. Flat or very light 3D. No text.
+
+PROMPT
+A simple logo mark of a DNA double helix, one strand rich leaf-green and the other deep navy blue, gently twisting, thick friendly strokes, small connecting rungs, centred on a transparent background, generous padding, modern educational science brand, crisp vector look, no letters, no words, no watermark.
+
+NEGATIVE PROMPT
+text, letters, words, watermark, photorealistic DNA photo, messy strands, childish cartoon, glitter, purple gradient

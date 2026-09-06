@@ -1,0 +1,14 @@
+SAVE AS: public/images/about/hero.png
+
+ASPECT RATIO: 16:9
+SIZE: 1920 x 1080 px
+FORMAT: PNG
+
+STYLE
+About-page atmosphere. Landscape of learning and nature.
+
+PROMPT
+16:9 wide photograph combining a school science field trip mood: learners from behind walking into a green forest with notebooks, hopeful, documentary feel, no face close-ups required, no readable shirts or text.
+
+NEGATIVE PROMPT
+logos, text, posed stock smiles, luxury fashion

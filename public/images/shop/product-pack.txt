@@ -1,0 +1,14 @@
+SAVE AS: public/images/shop/product-pack.png
+
+ASPECT RATIO: 4:3
+SIZE: 1200 x 900 px
+FORMAT: PNG
+
+STYLE
+Product photo of printed study notes. Clean cream desk. No readable paragraphs of real text - keep any pages as abstract lines.
+
+PROMPT
+4:3 product photograph of a Grade 11 life-sciences study pack on a cream wooden desk: a stapled booklet of notes, a few labelled heart-diagram pages with unreadable dummy lines, a pencil, soft daylight, educational shop listing, no real words, no logos.
+
+NEGATIVE PROMPT
+readable text, brand logos, messy clutter, hands

@@ -1,0 +1,14 @@
+SAVE AS: public/images/home/subject-menslike-liggaam.png
+
+ASPECT RATIO: 4:5
+SIZE: 960 x 1200 px
+FORMAT: PNG
+
+STYLE
+Vertical topic card. Anatomical, respectful, educational. Warm orange lighting. No text.
+
+PROMPT
+Vertical 4:5 human-body card: a detailed anatomical illustration of the human muscular system, head and torso, classical medical-plate quality, warm orange and terracotta lighting, dark studio background, educational for high-school life sciences, dignified, no clothing graphics, no text.
+
+NEGATIVE PROMPT
+text, labels, gore, wounds, sexualised, cartoon, extra limbs

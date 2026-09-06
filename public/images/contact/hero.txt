@@ -1,0 +1,14 @@
+SAVE AS: public/images/contact/hero.png
+
+ASPECT RATIO: 4:3
+SIZE: 1400 x 1050 px
+FORMAT: PNG
+
+STYLE
+Calm contact image. Desk, plants, envelope. No readable address.
+
+PROMPT
+4:3 photograph of a tidy cream desk with a potted fern, a closed envelope, a fountain pen and a small microscope, soft window light, inviting contact-page mood, no readable writing.
+
+NEGATIVE PROMPT
+text, email addresses, logos, clutter
