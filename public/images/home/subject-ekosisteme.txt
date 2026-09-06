@@ -1,0 +1,14 @@
+SAVE AS: public/images/home/subject-ekosisteme.png
+
+ASPECT RATIO: 4:5
+SIZE: 960 x 1200 px
+FORMAT: PNG
+
+STYLE
+Vertical topic card. Hopeful ecology. Deep blue atmosphere. No text.
+
+PROMPT
+Vertical 4:5 ecology card: two human hands gently holding a small lush green Earth, plants and tiny trees sprouting from the globe, soft god-rays, deep blue background, caring environmental science mood, photoreal, no faces visible beyond the hands, no text.
+
+NEGATIVE PROMPT
+text, globe with country names, cartoon, dirty hands, dystopia, fire

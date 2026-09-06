@@ -1,0 +1,14 @@
+SAVE AS: public/images/weekly-facts/featured.png
+
+ASPECT RATIO: 16:9
+SIZE: 1600 x 900 px
+FORMAT: PNG
+
+STYLE
+Editorial science photo for Fact of the Week. Premium, curious, not stock-cliché if possible. No text.
+
+PROMPT
+16:9 cinematic photograph of a fascinating life-science subject suitable as "fact of the week", for example a close view of a colourful bird feather structure or a dew-covered fern unfurling, rich natural colour, educational wonder, no people, no text.
+
+NEGATIVE PROMPT
+text, watermark, logo, collage, cartoon

@@ -1,0 +1,30 @@
+meta {
+  name: Daily word search
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/jobs/daily-word-search
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{cronSecret}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "grade": 10
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 300000
+}

@@ -1,0 +1,14 @@
+SAVE AS: public/images/play-and-learn/hero.png
+
+ASPECT RATIO: 16:9
+SIZE: 1920 x 1080 px
+FORMAT: PNG
+
+STYLE
+Playful but not childish educational games. No UI text.
+
+PROMPT
+16:9 overhead photograph of science learning games on a cream table: wooden matching cards with icon-only biology pictures, a printed word-search with unreadable glyphs, colourful counters, microscope in the corner, teen-friendly, not kindergarten, no readable words.
+
+NEGATIVE PROMPT
+cartoon mascots, baby toys, readable crossword words, logos

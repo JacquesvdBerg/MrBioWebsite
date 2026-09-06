@@ -1,0 +1,14 @@
+SAVE AS: public/images/brand/logo.png
+
+ASPECT RATIO: 4:1
+SIZE: 1200 x 300 px
+FORMAT: PNG, transparent background
+
+STYLE
+Horizontal brand lockup. Icon on the left, empty space on the right for the website to place the wordmark in code. Or a standalone icon-only wide banner. Prefer icon only, no rendered text.
+
+PROMPT
+Wide transparent banner with a green-and-navy DNA double helix logo mark sitting on the left third, lots of empty transparent space to the right, clean educational science brand, crisp vector style, no letters, no words.
+
+NEGATIVE PROMPT
+text, letters, words, WetenskapWêreld, watermark, photorealism

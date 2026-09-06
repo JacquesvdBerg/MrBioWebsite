@@ -1,0 +1,14 @@
+SAVE AS: public/images/home/video-fotosintese.png
+
+ASPECT RATIO: 16:9
+SIZE: 1280 x 720 px
+FORMAT: PNG
+
+STYLE
+Video thumbnail. Macro photography. Rich greens. No text, no play-button overlay.
+
+PROMPT
+16:9 ultra-macro photograph of green plant leaf stomata and palisade cells, glowing chloroplasts, scientific microscope-feel, sharp focus, lush greens, educational YouTube-style thumbnail without any graphics, no text.
+
+NEGATIVE PROMPT
+text, play button, channel logo, watermark, blur, dust

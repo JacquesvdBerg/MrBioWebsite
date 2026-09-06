@@ -1,0 +1,14 @@
+SAVE AS: public/images/home/subject-genetika.png
+
+ASPECT RATIO: 4:5
+SIZE: 960 x 1200 px
+FORMAT: PNG
+
+STYLE
+Vertical topic card for Life Sciences genetics. Rich greens and gold. Room at the top for a title overlay. No text.
+
+PROMPT
+Vertical 4:5 life-sciences genetics card: a glowing DNA double helix in front of faintly visible chromosomes, deep forest-green and gold studio lighting, premium educational illustration for Grade 8-12 Life Sciences, no people, no letters, no words.
+
+NEGATIVE PROMPT
+text, letters, watermark, cartoon, natural sciences landscape, mountains, physics, chemistry glassware

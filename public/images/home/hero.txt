@@ -1,0 +1,14 @@
+SAVE AS: public/images/home/hero.png
+
+ASPECT RATIO: 16:10
+SIZE: 1920 x 1200 px
+FORMAT: PNG
+
+STYLE
+Cinematic photoreal scientific collage. Premium Grade 8-12 learning platform. Dark glowing navy background. Not cartoon. No text.
+
+PROMPT
+A cinematic scientific collage on a dark navy-blue background with soft bioluminescent glow. Compose these objects together, well-balanced, as if arranged on a studio set: a glowing blue DNA double helix standing upright; a white laboratory microscope; a small green seedling growing from a mound of dark soil; a small Erlenmeyer flask with translucent green liquid; a colourful kingfisher bird in flight or perched; two red-eyed tree frogs sitting on a broad tropical leaf. Moody rim lighting, shallow depth, high detail, educational and wondrous, suitable for a modern Afrikaans life-science website hero. No people. No text.
+
+NEGATIVE PROMPT
+text, letters, watermark, logo, cartoon, 3D Pixar style, childish, extra limbs, extra frogs, distorted birds, messy collage, low resolution, blurry

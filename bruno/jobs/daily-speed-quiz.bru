@@ -1,0 +1,30 @@
+meta {
+  name: Daily speed quiz
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/api/jobs/daily-speed-quiz
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{cronSecret}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "grade": 10
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 300000
+}

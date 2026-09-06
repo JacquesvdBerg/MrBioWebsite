@@ -1,0 +1,30 @@
+meta {
+  name: Daily put in order
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/api/jobs/daily-put-in-order
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{cronSecret}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "grade": 10
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 300000
+}
