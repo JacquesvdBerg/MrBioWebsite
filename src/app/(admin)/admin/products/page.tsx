@@ -11,6 +11,8 @@ export const metadata = {
   title: "Produkte",
 };
 
+export const dynamic = "force-dynamic";
+
 export default function AdminProductsPage() {
   const total = products.reduce((sum, product) => sum + product.price, 0);
 

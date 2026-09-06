@@ -5,6 +5,8 @@ export const metadata = {
   title: "Lewendige klets",
 };
 
+export const dynamic = "force-dynamic";
+
 export default function AdminLiveChatPage() {
   return (
     <AdminPage

@@ -3,6 +3,9 @@ import { cookies } from "next/headers";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 
 export async function createClient() {
+  // Touch cookies first so this route is always dynamic, even when env is
+  // missing at build time (Vercel prerender would otherwise crash).
+  const cookieStore = await cookies();
   const env = getSupabasePublicEnv();
 
   if (!env) {
@@ -10,8 +13,6 @@ export async function createClient() {
       "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY to .env.local.",
     );
   }
-
-  const cookieStore = await cookies();
 
   return createServerClient(env.url, env.publishableKey, {
     cookies: {

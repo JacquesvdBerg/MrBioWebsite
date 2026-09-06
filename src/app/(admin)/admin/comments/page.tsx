@@ -5,6 +5,8 @@ export const metadata = {
   title: "Kommentaar",
 };
 
+export const dynamic = "force-dynamic";
+
 export default function AdminCommentsPage() {
   return (
     <AdminPage

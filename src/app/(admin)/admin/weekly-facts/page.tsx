@@ -5,6 +5,8 @@ export const metadata = {
   title: "Weeklikse feite",
 };
 
+export const dynamic = "force-dynamic";
+
 const conceptFacts = [
   {
     week: "Week 36 · 2026",

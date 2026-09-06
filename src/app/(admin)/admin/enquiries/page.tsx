@@ -5,6 +5,8 @@ export const metadata = {
   title: "Navrae",
 };
 
+export const dynamic = "force-dynamic";
+
 export default function AdminEnquiriesPage() {
   return (
     <AdminPage
