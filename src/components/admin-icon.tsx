@@ -87,6 +87,14 @@ export function AdminIcon({ name, className = "h-4 w-4" }: { name: AdminIconName
           <path d="m21 15-5-4-9 8" />
         </svg>
       );
+    case "users":
+      return (
+        <svg {...common} className={className}>
+          <path d="M16 19v-1.2A3.8 3.8 0 0 0 12.2 14H7.8A3.8 3.8 0 0 0 4 17.8V19" />
+          <circle cx="10" cy="8" r="3" />
+          <path d="M20 19v-1.1A3.4 3.4 0 0 0 17.2 14.7M16 5.1a3 3 0 0 1 0 5.8" />
+        </svg>
+      );
     case "settings":
       return (
         <svg {...common} className={className}>

@@ -1,5 +1,15 @@
-import { AdminPage } from "@/components/admin-page";
-import { AdminEmpty, AdminPanel, AdminSoon, AdminStat } from "@/components/admin-ui";
+import {
+  deleteChatThread,
+  replyToChat,
+  setChatThreadStatus,
+} from "@/app/(admin)/admin/actions";
+import { ChatWorkspace } from "@/components/chat-workspace";
+import { AdminBtn } from "@/components/admin-ui";
+import {
+  getAdminChatMessages,
+  getAdminChatThread,
+  getAllChatThreads,
+} from "@/lib/live-chat";
 
 export const metadata = {
   title: "Lewendige klets",
@@ -7,36 +17,56 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default function AdminLiveChatPage() {
+type PageProps = {
+  searchParams: Promise<{ id?: string; error?: string }>;
+};
+
+export default async function AdminLiveChatPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const threads = await getAllChatThreads();
+  const selectedId = params.id ?? null;
+  const selected = selectedId ? await getAdminChatThread(selectedId) : null;
+  const messages = selected ? await getAdminChatMessages(selected.id) : [];
+
   return (
-    <AdminPage
-      title="Lewendige klets"
-      description="Vrae van leerders, een gesprek op ’n slag. Boodskappe moet bly staan tussen herlaaiings sodat jy of ’n werknemer later kan antwoord."
-    >
-      <AdminSoon
-        title="Gesprekke bly op die lessenaar"
-        body="Hier kies jy ’n gesprek, antwoord, of merk dit as klaar. Die klets self word later gekoppel — tot dan is die inkassie leeg."
+    <>
+      {params.error === "stoor" ? (
+        <p className="px-4 py-2 text-sm text-orange">Kon nie die antwoord stoor nie.</p>
+      ) : null}
+      <ChatWorkspace
+        desk
+        listHref="/admin/live-chat"
+        selectedId={selected?.id ?? null}
+        threads={threads}
+        selected={selected}
+        messages={messages}
+        me="admin"
+        title="Lewendige klets"
+        composerAction={replyToChat}
+        extras={
+          selected ? (
+            <div className="flex flex-wrap gap-2 px-4 pb-4">
+              <form action={setChatThreadStatus}>
+                <input type="hidden" name="thread_id" value={selected.id} />
+                <input
+                  type="hidden"
+                  name="status"
+                  value={selected.status === "open" ? "closed" : "open"}
+                />
+                <AdminBtn type="submit" tone="ghost">
+                  {selected.status === "open" ? "Merk as klaar" : "Maak weer oop"}
+                </AdminBtn>
+              </form>
+              <form action={deleteChatThread}>
+                <input type="hidden" name="thread_id" value={selected.id} />
+                <button type="submit" className="desk-btn desk-btn-danger">
+                  Verwyder gesprek
+                </button>
+              </form>
+            </div>
+          ) : null
+        }
       />
-
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        <AdminStat label="Oop gesprekke" value={0} />
-        <AdminStat label="Ongelees" value={0} />
-        <AdminStat label="Beantwoord vandag" value={0} />
-      </div>
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <AdminPanel title="Gesprekke">
-          <AdminEmpty
-            title="Nog geen kletse nie"
-            body="Wanneer ’n leerder vra, verskyn die draad hier met graad en onderwerp."
-          />
-        </AdminPanel>
-        <AdminPanel title="Antwoord">
-          <div className="rounded-2xl bg-white/5 px-4 py-8 text-center text-sm text-white/55">
-            Kies ’n gesprek links. Die geskiedenis bly hier, selfs ná ’n herlaai.
-          </div>
-        </AdminPanel>
-      </div>
-    </AdminPage>
+    </>
   );
 }

@@ -5,63 +5,59 @@ import { useState, type FormEvent } from "react";
 import { deskField } from "@/components/admin-ui";
 import { createClient } from "@/lib/supabase/client";
 
-export function LoginForm({ nextPath }: { nextPath: string }) {
+export function LoginForm({
+  nextPath,
+  resetFailed,
+}: {
+  nextPath: string;
+  resetFailed?: boolean;
+}) {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<"signin" | "forgot">("signin");
+  const [error, setError] = useState<string | null>(
+    resetFailed ? "Die herstel-skakel het verval of is ongeldig. Vra ’n nuwe een." : null,
+  );
+  const [notice, setNotice] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-
-  async function finishSignIn(email: string, password: string) {
-    const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (signInError) {
-      throw signInError;
-    }
-
-    router.replace(nextPath);
-    router.refresh();
-  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
     setError(null);
+    setNotice(null);
 
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "").trim();
     const password = String(form.get("password") ?? "");
-    const intent = String(form.get("intent") ?? "signin");
 
     try {
-      if (intent === "signup") {
-        if (password.length < 8) {
-          throw new Error("Wagwoord moet minstens 8 karakters wees.");
-        }
+      const supabase = createClient();
 
-        const supabase = createClient();
-        const { data, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
+      if (mode === "forgot") {
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth/callback?next=/auth/update-password`,
         });
 
-        if (signUpError) {
-          throw signUpError;
+        if (resetError) {
+          throw resetError;
         }
 
-        if (!data.session) {
-          await finishSignIn(email, password);
-          return;
-        }
-
-        router.replace(nextPath);
-        router.refresh();
+        setNotice("As daardie e-pos ’n rekening het, stuur ons ’n herstel-skakel.");
+        setPending(false);
         return;
       }
 
-      await finishSignIn(email, password);
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        throw signInError;
+      }
+
+      router.replace(nextPath);
+      router.refresh();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Kon nie inteken nie.");
       setPending(false);
@@ -81,35 +77,58 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
           required
         />
       </label>
-      <label className="block">
-        <span className="text-[13px] font-bold text-white">Wagwoord</span>
-        <input
-          className={deskField}
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-        />
-      </label>
+      {mode === "signin" ? (
+        <div>
+          <span className="flex items-center justify-between gap-3 text-[13px] font-bold text-white">
+            <label htmlFor="login-password">Wagwoord</label>
+            <button
+              type="button"
+              className="font-semibold text-lime hover:underline"
+              onClick={() => {
+                setMode("forgot");
+                setError(null);
+                setNotice(null);
+              }}
+            >
+              Wagwoord vergeet?
+            </button>
+          </span>
+          <input
+            id="login-password"
+            className={deskField}
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            required
+          />
+        </div>
+      ) : (
+        <p className="text-sm leading-6 text-white/55">
+          Ons stuur ’n skakel na jou e-pos. Maak dit oop om ’n nuwe wagwoord te kies.
+        </p>
+      )}
       {error ? <p className="text-sm text-orange">{error}</p> : null}
+      {notice ? <p className="text-sm text-lime">{notice}</p> : null}
       <button
         type="submit"
-        name="intent"
-        value="signin"
         disabled={pending}
         className="desk-btn desk-btn-navy w-full disabled:opacity-60"
       >
-        {pending ? "Wag…" : "Teken in"}
+        {pending ? "Wag…" : mode === "forgot" ? "Stuur herstel-skakel" : "Teken in"}
       </button>
-      <button
-        type="submit"
-        name="intent"
-        value="signup"
-        disabled={pending}
-        className="desk-btn desk-btn-ghost w-full disabled:opacity-60"
-      >
-        Skep admin-rekening
-      </button>
+      {mode === "forgot" ? (
+        <button
+          type="button"
+          className="desk-btn desk-btn-ghost w-full"
+          onClick={() => {
+            setMode("signin");
+            setError(null);
+            setNotice(null);
+          }}
+        >
+          Terug na inteken
+        </button>
+      ) : null}
     </form>
   );
 }

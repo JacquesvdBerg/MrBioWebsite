@@ -1,4 +1,4 @@
-import { deleteActivity } from "@/app/(admin)/admin/actions";
+import { deleteActivity, toggleActivityPublished } from "@/app/(admin)/admin/actions";
 import { AdminPage } from "@/components/admin-page";
 import {
   AdminBadge,
@@ -64,6 +64,14 @@ export default async function AdminActivitiesPage() {
                         Wysig
                       </AdminBtn>
                     ) : null}
+                    <form action={toggleActivityPublished}>
+                      <input type="hidden" name="slug" value={activity.slug} />
+                      <input type="hidden" name="kind" value={activity.kind} />
+                      <input type="hidden" name="is_published" value={activity.isPublished ? "true" : "false"} />
+                      <AdminBtn type="submit" tone="ghost">
+                        {activity.isPublished ? "Ontpubliseer" : "Publiseer"}
+                      </AdminBtn>
+                    </form>
                     <form action={deleteActivity}>
                       <input type="hidden" name="slug" value={activity.slug} />
                       <input type="hidden" name="kind" value={activity.kind} />

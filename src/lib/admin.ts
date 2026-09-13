@@ -10,6 +10,7 @@ export type AdminIconName =
   | "chat"
   | "comment"
   | "image"
+  | "users"
   | "settings";
 
 export type AdminNavItem = {
@@ -113,6 +114,12 @@ export const adminNavGroups: readonly AdminNavGroup[] = [
         label: "Media",
         description: "Prente vir temas, feite en lesse.",
         icon: "image",
+      },
+      {
+        href: "/admin/accounts",
+        label: "Rekeninge",
+        description: "Skep admin-rekeninge vir die span.",
+        icon: "users",
       },
       {
         href: "/admin/settings",

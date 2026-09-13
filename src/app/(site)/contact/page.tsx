@@ -1,16 +1,17 @@
 import Link from "next/link";
+import { submitEnquiry } from "@/app/(site)/actions";
 import { Field, FormNote, Select, TextArea, TextInput } from "@/components/field";
 import { MailIcon, YoutubeIcon } from "@/components/icons";
 import { Reveal } from "@/components/reveal";
 import { SectionPage } from "@/components/section-page";
 import { Arrow } from "@/components/ui";
+import { enquiryReasons } from "@/lib/enquiries";
+import { grades } from "@/lib/site";
 
 export const metadata = {
   title: "Kontak",
   description: "Kontak die MrBio-span — vir ouers, onderwysers, skole en leerders.",
 };
-
-const reasons = ["Algemene navraag", "Winkel / produk", "Skool of klasgebruik", "Fout op die werf", "Media"] as const;
 
 const cards = [
   {
@@ -34,7 +35,15 @@ const cards = [
   },
 ];
 
-export default function ContactPage() {
+type PageProps = {
+  searchParams: Promise<{ produk?: string; gestuur?: string; fout?: string }>;
+};
+
+export default async function ContactPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const productSlug = params.produk?.trim() ?? "";
+  const defaultReason = productSlug ? "Winkel / produk" : "Algemene navraag";
+
   return (
     <SectionPage
       eyebrow="Kontak"
@@ -51,27 +60,68 @@ export default function ContactPage() {
     >
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
         <Reveal>
-          <form className="glass space-y-6 rounded-[2rem] p-7 md:p-9">
+          <form action={submitEnquiry} className="glass space-y-6 rounded-[2rem] p-7 md:p-9">
+            {params.gestuur === "1" ? (
+              <p className="text-sm text-lime">Dankie. Ons het jou navraag ontvang.</p>
+            ) : null}
+            {params.fout === "leeg" ? (
+              <p className="text-sm text-orange">Sit jou naam, e-pos en boodskap in.</p>
+            ) : null}
+            {params.fout === "stoor" ? (
+              <p className="text-sm text-orange">Kon nie stoor nie. Probeer weer.</p>
+            ) : null}
+            {productSlug ? (
+              <p className="text-sm text-white/65">
+                Navraag oor <strong className="text-white">{productSlug}</strong>.
+              </p>
+            ) : null}
+            <input type="hidden" name="product_slug" value={productSlug} />
             <div className="grid gap-5 sm:grid-cols-2">
               <Field label="Naam">
-                <TextInput name="name" placeholder="Jou naam" />
+                <TextInput name="name" placeholder="Jou naam" disabled={false} required />
               </Field>
               <Field label="E-pos">
-                <TextInput name="email" type="email" placeholder="jy@voorbeeld.co.za" />
+                <TextInput
+                  name="email"
+                  type="email"
+                  placeholder="jy@voorbeeld.co.za"
+                  disabled={false}
+                  required
+                />
               </Field>
             </div>
             <Field label="Waaroor gaan dit?">
-              <Select name="reason" options={reasons} />
+              <Select name="reason" options={enquiryReasons} disabled={false} defaultValue={defaultReason} />
+            </Field>
+            <Field label="Graad" hint="Opsioneel">
+              <select className="input-dark" name="grade" defaultValue="">
+                <option value="">—</option>
+                {grades.map((grade) => (
+                  <option key={grade} value={grade}>
+                    Graad {grade}
+                  </option>
+                ))}
+              </select>
             </Field>
             <Field label="Boodskap">
-              <TextArea name="message" placeholder="Hoe kan ons help?" rows={6} />
+              <TextArea
+                name="message"
+                placeholder={
+                  productSlug
+                    ? `Ek wil graag meer weet oor ${productSlug}.`
+                    : "Hoe kan ons help?"
+                }
+                rows={6}
+                disabled={false}
+                required
+              />
             </Field>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <button type="button" disabled className="btn btn-lime">
+              <button type="submit" className="btn btn-lime">
                 Stuur boodskap
                 <Arrow />
               </button>
-              <FormNote>Die vorm word gekoppel sodra die databasis gereed is.</FormNote>
+              <FormNote>Ons antwoord op die e-pos wat jy hier insit.</FormNote>
             </div>
           </form>
         </Reveal>

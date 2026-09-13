@@ -1,5 +1,23 @@
+import {
+  createWeeklyFact,
+  deleteWeeklyFact,
+  setWeeklyFactStatus,
+} from "@/app/(admin)/admin/actions";
 import { AdminPage } from "@/components/admin-page";
-import { AdminBadge, AdminPanel, AdminSoon } from "@/components/admin-ui";
+import {
+  AdminBadge,
+  AdminBtn,
+  AdminEmpty,
+  AdminPanel,
+  deskField,
+} from "@/components/admin-ui";
+import { grades } from "@/lib/site";
+import {
+  getAllWeeklyFacts,
+  weeklyFactCategories,
+  weeklyFactStatusLabel,
+  weeklyFactStatusTone,
+} from "@/lib/weekly-facts";
 
 export const metadata = {
   title: "Weeklikse feite",
@@ -7,67 +25,122 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-const conceptFacts = [
-  {
-    week: "Week 36 · 2026",
-    grade: 11,
-    category: "Menslike liggaam",
-    title: "Arteries het dikker wande as vene — en dis nie toevallig nie.",
-    status: "live" as const,
-  },
-  {
-    week: "Week 35",
-    grade: 10,
-    category: "Selle & weefsel",
-    title: "Jou liggaam vervang omtrent 330 miljard selle per dag.",
-    status: "live" as const,
-  },
-  {
-    week: "Week 34",
-    grade: 12,
-    category: "Genetika",
-    title: "Al die DNA in een sel is omtrent 2 meter lank.",
-    status: "live" as const,
-  },
-  {
-    week: "Week 33",
-    grade: 10,
-    category: "Plante",
-    title: "Een groot boom lewer genoeg suurstof vir twee mense per dag.",
-    status: "draft" as const,
-  },
-];
+type PageProps = {
+  searchParams: Promise<{ error?: string }>;
+};
 
-export default function AdminWeeklyFactsPage() {
+export default async function AdminWeeklyFactsPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const facts = await getAllWeeklyFacts();
+
   return (
     <AdminPage
       title="Weeklikse feite"
-      description="Skep of genereer ’n konsep, hersien die wetenskap, en druk eers Goedkeur & Publiseer. Tot dié vloei gekoppel is, sien jy die feite wat tans op die werf staan."
+      description="Skep ’n konsep, hersien die wetenskap, keur goed en publiseer eers wanneer dit reg is. Leerders sien net live feite."
     >
-      <AdminSoon
-        title="Konsep → hersien → publiseer"
-        body="Hier besluit jy die lengte, of ’n diagram saamgaan, en of ’n feit aan ’n graad of tema gekoppel is. Geen stoor nog nie — die werf lees tans die lys in die kode."
-      />
+      {params.error === "fields" ? (
+        <p className="mb-6 text-sm text-orange">Titel en graad 10–12 is verpligtend.</p>
+      ) : null}
+      {params.error === "stoor" ? (
+        <p className="mb-6 text-sm text-orange">Kon nie die feit stoor nie.</p>
+      ) : null}
+
+      <AdminPanel title="Nuwe konsep">
+        <form action={createWeeklyFact} className="grid gap-3 md:grid-cols-2">
+          <label className="desk-label md:col-span-2">
+            Titel
+            <input className={deskField} name="title" required />
+          </label>
+          <label className="desk-label">
+            Graad
+            <select className={deskField} name="grade" defaultValue="11">
+              {grades.map((grade) => (
+                <option key={grade} value={grade}>
+                  {grade}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="desk-label">
+            Kategorie
+            <select className={deskField} name="category" defaultValue="Menslike liggaam">
+              {weeklyFactCategories.map((category) => (
+                <option key={category}>{category}</option>
+              ))}
+            </select>
+          </label>
+          <label className="desk-label md:col-span-2">
+            Week-etiket
+            <input className={deskField} name="week_label" placeholder="Week 36 · 2026" />
+          </label>
+          <div className="md:col-span-2">
+            <AdminBtn type="submit">Skep en wysig</AdminBtn>
+          </div>
+        </form>
+      </AdminPanel>
 
       <div className="mt-6">
-        <AdminPanel title="Tans op die werf">
-          <ul>
-            {conceptFacts.map((fact) => (
-              <li key={fact.title} className="desk-row">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-display font-bold text-white">{fact.title}</p>
-                    <AdminBadge tone={fact.status === "live" ? "live" : "draft"}>
-                      {fact.status === "live" ? "Live" : "Argief"}
-                    </AdminBadge>
+        <AdminPanel title={`${facts.length} feite`}>
+          {facts.length === 0 ? (
+            <AdminEmpty
+              title="Nog geen feite nie"
+              body="Skep die eerste konsep hierbo. Dit bly privaat tot jy Publiseer druk."
+            />
+          ) : (
+            <ul>
+              {facts.map((fact) => (
+                <li key={fact.id} className="desk-row">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-display font-bold text-white">{fact.title}</p>
+                      <AdminBadge tone={weeklyFactStatusTone(fact.status)}>
+                        {weeklyFactStatusLabel(fact.status)}
+                      </AdminBadge>
+                    </div>
+                    <p className="text-sm text-white/55">
+                      {fact.weekLabel || "Geen week"} · Graad {fact.grade}
+                      {fact.category ? ` · ${fact.category}` : ""}
+                    </p>
                   </div>
-                  <p className="text-sm text-white/55">
-                    {fact.week} · Graad {fact.grade} · {fact.category}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {fact.status === "draft" ? (
+                      <form action={setWeeklyFactStatus}>
+                        <input type="hidden" name="slug" value={fact.slug} />
+                        <input type="hidden" name="status" value="approved" />
+                        <AdminBtn type="submit" tone="ghost">
+                          Keur goed
+                        </AdminBtn>
+                      </form>
+                    ) : null}
+                    {fact.status !== "published" ? (
+                      <form action={setWeeklyFactStatus}>
+                        <input type="hidden" name="slug" value={fact.slug} />
+                        <input type="hidden" name="status" value="published" />
+                        <AdminBtn type="submit" tone="ghost">
+                          Publiseer
+                        </AdminBtn>
+                      </form>
+                    ) : (
+                      <form action={setWeeklyFactStatus}>
+                        <input type="hidden" name="slug" value={fact.slug} />
+                        <input type="hidden" name="status" value="approved" />
+                        <AdminBtn type="submit" tone="ghost">
+                          Ontpubliseer
+                        </AdminBtn>
+                      </form>
+                    )}
+                    <AdminBtn href={`/admin/weekly-facts/${fact.slug}`}>Wysig</AdminBtn>
+                    <form action={deleteWeeklyFact}>
+                      <input type="hidden" name="slug" value={fact.slug} />
+                      <button type="submit" className="desk-btn desk-btn-danger">
+                        Verwyder
+                      </button>
+                    </form>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </AdminPanel>
       </div>
     </AdminPage>

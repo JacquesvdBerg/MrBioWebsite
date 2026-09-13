@@ -71,7 +71,7 @@ export const publicNav: readonly NavItem[] = [
       {
         href: "/live-chat",
         label: "Vra die onderwyser",
-        description: "Stuur ’n vraag, kry ’n regte antwoord.",
+        description: "Teken in en klets met Mnr. Bio — jou draad bly by jou rekening.",
         icon: "chat",
       },
       {

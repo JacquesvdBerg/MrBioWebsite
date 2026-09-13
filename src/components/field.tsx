@@ -25,19 +25,25 @@ export function TextInput({
   type = "text",
   placeholder,
   disabled = true,
+  required = false,
+  defaultValue,
 }: {
   name: string;
-  type?: "text" | "email" | "password";
+  type?: "text" | "email" | "password" | "hidden";
   placeholder?: string;
   disabled?: boolean;
+  required?: boolean;
+  defaultValue?: string;
 }) {
   return (
     <input
-      className="input-dark"
+      className={type === "hidden" ? undefined : "input-dark"}
       name={name}
       type={type}
       placeholder={placeholder}
       disabled={disabled}
+      required={required}
+      defaultValue={defaultValue}
     />
   );
 }
@@ -46,12 +52,16 @@ export function TextArea({
   name,
   placeholder,
   disabled = true,
+  required = false,
   rows = 5,
+  defaultValue,
 }: {
   name: string;
   placeholder?: string;
   disabled?: boolean;
+  required?: boolean;
   rows?: number;
+  defaultValue?: string;
 }) {
   return (
     <textarea
@@ -60,6 +70,8 @@ export function TextArea({
       rows={rows}
       placeholder={placeholder}
       disabled={disabled}
+      required={required}
+      defaultValue={defaultValue}
     />
   );
 }
@@ -68,13 +80,15 @@ export function Select({
   name,
   options,
   disabled = true,
+  defaultValue,
 }: {
   name: string;
   options: readonly string[];
   disabled?: boolean;
+  defaultValue?: string;
 }) {
   return (
-    <select className="input-dark" name={name} disabled={disabled}>
+    <select className="input-dark" name={name} disabled={disabled} defaultValue={defaultValue}>
       {options.map((option) => (
         <option key={option}>{option}</option>
       ))}

@@ -1,5 +1,21 @@
+import Link from "next/link";
+import { deleteEnquiry, setEnquiryStatus } from "@/app/(admin)/admin/actions";
 import { AdminPage } from "@/components/admin-page";
-import { AdminEmpty, AdminPanel, AdminSoon, AdminStat } from "@/components/admin-ui";
+import {
+  AdminBadge,
+  AdminBtn,
+  AdminEmpty,
+  AdminPanel,
+  AdminStat,
+} from "@/components/admin-ui";
+import { formatDeskDate } from "@/lib/dates";
+import {
+  enquiryStatusLabel,
+  enquiryStatusTone,
+  getAllEnquiries,
+  toEnquiryStatus,
+  type EnquiryStatus,
+} from "@/lib/enquiries";
 
 export const metadata = {
   title: "Navrae",
@@ -7,21 +23,35 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default function AdminEnquiriesPage() {
+type PageProps = {
+  searchParams: Promise<{ status?: string }>;
+};
+
+const filters = [
+  { href: "/admin/enquiries", label: "Alles", status: "" },
+  { href: "/admin/enquiries?status=new", label: "Nuut", status: "new" },
+  { href: "/admin/enquiries?status=in_progress", label: "In behandeling", status: "in_progress" },
+  { href: "/admin/enquiries?status=done", label: "Klaar", status: "done" },
+] as const;
+
+export default async function AdminEnquiriesPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const enquiries = await getAllEnquiries();
+  const filter = params.status ? toEnquiryStatus(params.status) : null;
+  const visible = filter ? enquiries.filter((item) => item.status === filter) : enquiries;
+  const newCount = enquiries.filter((item) => item.status === "new").length;
+  const progressCount = enquiries.filter((item) => item.status === "in_progress").length;
+  const doneCount = enquiries.filter((item) => item.status === "done").length;
+
   return (
     <AdminPage
       title="Navrae"
-      description="Winkelnavrae land hier: wie wil watter pak hê, vir watter graad, en of jy al geantwoord het. E-poskennisgewings kan later bykom."
+      description="Winkelnavrae en kontakvorms land hier: wie wil watter pak hê, en of jy al geantwoord het."
     >
-      <AdminSoon
-        title="Die inkassie is gebou — die pyp is nie"
-        body="Wanneer die winkelvorm gekoppel is, verskyn elke navraag hier met status: nuut, in behandeling, of klaar. Niks word nou stilweg gestoor nie."
-      />
-
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        <AdminStat label="Nuut" value={0} hint="Wag op antwoord" />
-        <AdminStat label="In behandeling" value={0} />
-        <AdminStat label="Klaar hierdie week" value={0} />
+      <div className="grid gap-4 sm:grid-cols-3">
+        <AdminStat href="/admin/enquiries?status=new" label="Nuut" value={newCount} hint="Wag op antwoord" />
+        <AdminStat href="/admin/enquiries?status=in_progress" label="In behandeling" value={progressCount} />
+        <AdminStat href="/admin/enquiries?status=done" label="Klaar" value={doneCount} />
       </div>
 
       <div className="mt-6">
@@ -29,16 +59,69 @@ export default function AdminEnquiriesPage() {
           title="Inkassie"
           action={
             <div className="desk-tabs">
-              <span className="desk-tab is-active">Alles</span>
-              <span className="desk-tab">Nuut</span>
-              <span className="desk-tab">Klaar</span>
+              {filters.map((tab) => (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  className={`desk-tab ${(!filter && !tab.status) || filter === tab.status ? "is-active" : ""}`}
+                >
+                  {tab.label}
+                </Link>
+              ))}
             </div>
           }
         >
-          <AdminEmpty
-            title="Geen navrae nog nie"
-            body="Wanneer ’n ouer of onderwyser op die winkel klik, verskyn die boodskap hier — naam, e-pos, produk, graad."
-          />
+          {visible.length === 0 ? (
+            <AdminEmpty
+              title="Geen navrae in hierdie lys nie"
+              body="Wanneer iemand die kontak- of winkelnavraag stuur, verskyn dit hier — naam, e-pos, produk, graad."
+            />
+          ) : (
+            <ul>
+              {visible.map((enquiry) => (
+                <li key={enquiry.id} className="desk-row items-start">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-display font-bold text-white">{enquiry.name}</p>
+                      <AdminBadge tone={enquiryStatusTone(enquiry.status)}>
+                        {enquiryStatusLabel(enquiry.status)}
+                      </AdminBadge>
+                    </div>
+                    <p className="text-sm text-white/55">
+                      {enquiry.email} · {enquiry.reason}
+                      {enquiry.productSlug ? ` · ${enquiry.productSlug}` : ""}
+                      {enquiry.grade ? ` · Graad ${enquiry.grade}` : ""}
+                      {" · "}
+                      {formatDeskDate(enquiry.createdAt)}
+                    </p>
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-white/75">
+                      {enquiry.message}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {(["new", "in_progress", "done"] as const satisfies readonly EnquiryStatus[]).map(
+                        (status) =>
+                          status === enquiry.status ? null : (
+                            <form key={status} action={setEnquiryStatus}>
+                              <input type="hidden" name="id" value={enquiry.id} />
+                              <input type="hidden" name="status" value={status} />
+                              <AdminBtn type="submit" tone="ghost">
+                                {enquiryStatusLabel(status)}
+                              </AdminBtn>
+                            </form>
+                          ),
+                      )}
+                    </div>
+                  </div>
+                  <form action={deleteEnquiry}>
+                    <input type="hidden" name="id" value={enquiry.id} />
+                    <button type="submit" className="desk-btn desk-btn-danger">
+                      Verwyder
+                    </button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
         </AdminPanel>
       </div>
     </AdminPage>

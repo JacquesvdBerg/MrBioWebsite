@@ -2,6 +2,16 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 
+function claimRole(claims: Record<string, unknown> | undefined) {
+  const meta = claims?.app_metadata;
+  if (!meta || typeof meta !== "object") {
+    return "";
+  }
+
+  const role = (meta as { role?: unknown }).role;
+  return typeof role === "string" ? role : "";
+}
+
 export async function updateSession(request: NextRequest) {
   const env = getSupabasePublicEnv();
 
@@ -35,20 +45,43 @@ export async function updateSession(request: NextRequest) {
   });
 
   const { data } = await supabase.auth.getClaims();
-  const isAuthenticated = Boolean(data?.claims);
-  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
-  const isLoginRoute = request.nextUrl.pathname.startsWith("/login");
+  const claims = data?.claims as Record<string, unknown> | undefined;
+  const isAuthenticated = Boolean(claims);
+  const role = claimRole(claims);
+  const pathname = request.nextUrl.pathname;
+  const isAdminRoute = pathname.startsWith("/admin");
+  const isDeskLogin = pathname.startsWith("/login");
 
-  if (!isAuthenticated && isAdminRoute) {
+  let isAdmin = role === "admin";
+
+  if (isAuthenticated && role !== "learner" && (isAdminRoute || isDeskLogin) && !isAdmin) {
+    const userId = typeof claims?.sub === "string" ? claims.sub : "";
+    if (userId) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("kind")
+        .eq("id", userId)
+        .maybeSingle();
+      isAdmin = profile?.kind === "admin";
+    }
+  }
+
+  if (isAdminRoute && !isAdmin) {
     const url = request.nextUrl.clone();
+    if (isAuthenticated) {
+      url.pathname = "/rekening";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+
     url.pathname = "/login";
-    url.searchParams.set("next", request.nextUrl.pathname);
+    url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
 
-  if (isAuthenticated && isLoginRoute) {
+  if (isAuthenticated && isDeskLogin) {
     const url = request.nextUrl.clone();
-    url.pathname = "/admin";
+    url.pathname = isAdmin ? "/admin" : "/";
     url.search = "";
     return NextResponse.redirect(url);
   }

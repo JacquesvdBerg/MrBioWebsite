@@ -1,6 +1,6 @@
-export function safeNextPath(value: string | null | undefined) {
+export function safeNextPath(value: string | null | undefined, fallback = "/") {
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
-    return "/admin";
+    return fallback;
   }
 
   return value;

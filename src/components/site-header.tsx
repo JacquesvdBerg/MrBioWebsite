@@ -92,7 +92,11 @@ function BagIcon() {
   );
 }
 
-export function SiteHeader() {
+export function SiteHeader({
+  account,
+}: {
+  account?: { name: string; isAdmin: boolean } | null;
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -299,12 +303,21 @@ export function SiteHeader() {
             <div className="hidden sm:block">
               <ThemeToggle />
             </div>
-            <Link
-              href="/login"
-              className="hidden rounded-full px-3.5 py-2 text-[13.5px] font-bold text-white/65 transition-colors hover:text-white xl:inline-flex"
-            >
-              Teken in
-            </Link>
+            {account ? (
+              <Link
+                href="/rekening"
+                className="hidden rounded-full px-3.5 py-2 text-[13.5px] font-bold text-white/65 transition-colors hover:text-white xl:inline-flex"
+              >
+                {account.name}
+              </Link>
+            ) : (
+              <Link
+                href="/rekening"
+                className="hidden rounded-full px-3.5 py-2 text-[13.5px] font-bold text-white/65 transition-colors hover:text-white xl:inline-flex"
+              >
+                Teken in
+              </Link>
+            )}
             <Link href="/shop" className="btn btn-lime btn-sm">
               <BagIcon />
               Winkel
@@ -416,8 +429,8 @@ export function SiteHeader() {
             <Link href="/contact" onClick={() => setOpen(false)}>
               Kontak
             </Link>
-            <Link href="/login" onClick={() => setOpen(false)}>
-              Teken in
+            <Link href="/rekening" onClick={() => setOpen(false)}>
+              {account ? account.name : "Teken in"}
             </Link>
           </div>
         </nav>

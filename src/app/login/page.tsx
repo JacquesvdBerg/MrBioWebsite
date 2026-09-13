@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { LoginForm } from "@/app/login/login-form";
 import { DnaMark } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -9,7 +10,7 @@ export const metadata = {
 };
 
 type LoginPageProps = {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; reset?: string }>;
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
@@ -30,11 +31,17 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </p>
         <h1 className="mt-2 font-display text-3xl font-bold text-white">Teken in</h1>
         <p className="mt-3 leading-7 text-white/55">
-          Slegs die administrateur het ’n rekening nodig. Leerders gebruik die werf sonder om in te
-          teken.
+          Dit is die onderwyser se lessenaar. Leerders teken in by{" "}
+          <Link href="/rekening" className="font-semibold text-lime">
+            My rekening
+          </Link>
+          .
         </p>
         {configured ? (
-          <LoginForm nextPath={safeNextPath(params.next)} />
+          <LoginForm
+            nextPath={safeNextPath(params.next, "/admin")}
+            resetFailed={params.reset === "failed"}
+          />
         ) : (
           <p className="mt-7 text-sm text-coral">
             Supabase is nie gekoppel nie. Sit <code>NEXT_PUBLIC_SUPABASE_URL</code> en{" "}

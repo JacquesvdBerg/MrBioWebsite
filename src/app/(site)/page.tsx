@@ -10,7 +10,7 @@ import { Visual } from "@/components/visual";
 import { getAllPublishedActivities } from "@/lib/activities";
 import { publicFileUrl } from "@/lib/assets";
 import { imageFiles } from "@/lib/image-files";
-import { featuredProducts } from "@/lib/shop-data";
+import { getFeaturedProducts } from "@/lib/products";
 import {
   activityTypes,
   gradeAccents,
@@ -104,10 +104,11 @@ const community = [
 ];
 
 export default async function HomePage() {
-  const [themes, videos, activities] = await Promise.all([
+  const [themes, videos, activities, featuredProducts] = await Promise.all([
     getPublishedThemes(),
     getPublishedVideos(),
     getAllPublishedActivities(),
+    getFeaturedProducts(),
   ]);
   const latestVideo = videos[0] ?? null;
   const cover = publicFileUrl(imageFiles.home.hero);
@@ -164,27 +165,47 @@ export default async function HomePage() {
                 <Visual file={null} alt="" tone="orange" className="absolute inset-0" />
               )}
               <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-bg via-bg/55 to-bg/10 p-7 md:p-9">
-                <span className="eyebrow w-fit">{lead.badge ?? lead.kind} · Graad {lead.grade}</span>
-                <h3 className="mt-4 max-w-md font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.03em] text-white md:text-4xl">
-                  {lead.title}
-                </h3>
-                <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm text-white/65">
-                  {lead.bullets.map((bullet) => (
-                    <li key={bullet} className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-lime" />
-                      {bullet}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-6 flex items-center gap-4">
-                  <span className="font-display text-3xl font-extrabold tracking-[-0.03em] text-white">
-                    R{lead.price}
-                  </span>
-                  <Link href={`/contact?produk=${lead.slug}`} className="btn btn-white btn-sm">
-                    Doen navraag
-                    <Arrow className="h-3.5 w-3.5" />
-                  </Link>
-                </div>
+                {lead ? (
+                  <>
+                    <span className="eyebrow w-fit">
+                      {lead.badge ?? lead.kind}
+                      {lead.grade ? ` · Graad ${lead.grade}` : ""}
+                    </span>
+                    <h3 className="mt-4 max-w-md font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.03em] text-white md:text-4xl">
+                      {lead.title}
+                    </h3>
+                    <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm text-white/65">
+                      {lead.bullets.map((bullet) => (
+                        <li key={bullet} className="flex items-center gap-2">
+                          <span className="h-1.5 w-1.5 rounded-full bg-lime" />
+                          {bullet}
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-6 flex items-center gap-4">
+                      <span className="font-display text-3xl font-extrabold tracking-[-0.03em] text-white">
+                        R{lead.price}
+                      </span>
+                      <Link href={`/contact?produk=${lead.slug}`} className="btn btn-white btn-sm">
+                        Doen navraag
+                        <Arrow className="h-3.5 w-3.5" />
+                      </Link>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className="eyebrow w-fit">Studiemateriaal</span>
+                    <h3 className="mt-4 max-w-md font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.03em] text-white md:text-4xl">
+                      Notas, werkkaarte en eksamenpakke
+                    </h3>
+                    <div className="mt-6">
+                      <Link href="/shop" className="btn btn-white btn-sm">
+                        Besoek die winkel
+                        <Arrow className="h-3.5 w-3.5" />
+                      </Link>
+                    </div>
+                  </>
+                )}
               </div>
             </TiltCard>
           </Reveal>
@@ -198,14 +219,16 @@ export default async function HomePage() {
                 >
                   <div className="relative w-24 shrink-0 sm:w-44">
                     <Visual
-                      file={null}
+                      file={product.imagePath}
                       alt=""
                       tone={product.tone}
                       className="absolute inset-0 transition-transform duration-700 group-hover:scale-[1.05]"
                     />
-                    <span className="absolute left-3 top-3 rounded-full bg-bg/70 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white backdrop-blur">
-                      Gr. {product.grade}
-                    </span>
+                    {product.grade ? (
+                      <span className="absolute left-3 top-3 rounded-full bg-bg/70 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white backdrop-blur">
+                        Gr. {product.grade}
+                      </span>
+                    ) : null}
                   </div>
                   <div className="flex min-w-0 flex-1 flex-col py-5 pr-5">
                     <div className="flex items-start justify-between gap-3">

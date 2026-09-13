@@ -10,6 +10,9 @@ import {
 import { getAllActivities } from "@/lib/activities";
 import { activityKindLabel } from "@/lib/admin";
 import { getAiSettings } from "@/lib/ai-settings";
+import { countCommentsByStatus } from "@/lib/comments";
+import { countEnquiriesByStatus } from "@/lib/enquiries";
+import { countUnreadChatThreads } from "@/lib/live-chat";
 import { listMedia } from "@/lib/media";
 import { grades } from "@/lib/site";
 import { getAllThemes } from "@/lib/themes";
@@ -34,14 +37,18 @@ function greeting(now: Date) {
 }
 
 export default async function AdminDashboardPage() {
-  const [videos, activities, themes, topics, media, settings] = await Promise.all([
-    getAllVideos(),
-    getAllActivities(),
-    getAllThemes(),
-    getAllTopics(),
-    listMedia(),
-    getAiSettings(),
-  ]);
+  const [videos, activities, themes, topics, media, settings, newEnquiries, unreadChat, pendingComments] =
+    await Promise.all([
+      getAllVideos(),
+      getAllActivities(),
+      getAllThemes(),
+      getAllTopics(),
+      listMedia(),
+      getAiSettings(),
+      countEnquiriesByStatus("new"),
+      countUnreadChatThreads(),
+      countCommentsByStatus("pending"),
+    ]);
 
   const publishedVideos = videos.filter((video) => video.isPublished).length;
   const publishedActivities = activities.filter((activity) => activity.isPublished).length;
@@ -96,9 +103,9 @@ export default async function AdminDashboardPage() {
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <AdminStat href="/admin/media" label="Media" value={media.length} hint="Prente in Storage" />
-        <AdminStat href="/admin/enquiries" label="Winkelnavrae" value={0} hint="Wag op koppeling" />
-        <AdminStat href="/admin/live-chat" label="Ongeleesde klets" value={0} hint="Wag op koppeling" />
-        <AdminStat href="/admin/comments" label="Kommentaar wag" value={0} hint="Wag op koppeling" />
+        <AdminStat href="/admin/enquiries" label="Winkelnavrae" value={newEnquiries} hint="Nuut in die inkassie" />
+        <AdminStat href="/admin/live-chat" label="Ongeleesde klets" value={unreadChat} hint="Oop en ongelees" />
+        <AdminStat href="/admin/comments" label="Kommentaar wag" value={pendingComments} hint="Hangend" />
       </div>
 
       {settings.paused ? (
