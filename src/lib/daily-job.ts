@@ -1,5 +1,5 @@
 import { johannesburgDate } from "@/lib/dates";
-import { grades, isActivitySlug, isGrade, type ActivitySlug } from "@/lib/site";
+import { isActivitySlug, isJobGrade, jobGrades, type ActivitySlug } from "@/lib/site";
 
 export type DailyJobResult = {
   kind: ActivitySlug;
@@ -40,13 +40,13 @@ export function parseDailyJobRequest(body: {
       typeof body.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.date)
         ? body.date
         : undefined,
-    grade: isGrade(parsedGrade) ? parsedGrade : undefined,
+    grade: isJobGrade(parsedGrade) ? parsedGrade : undefined,
     kinds: kinds && kinds.length > 0 ? kinds : undefined,
   };
 }
 
 export function selectedGrades(grade?: number) {
-  return grade && isGrade(grade) ? [grade] : [...grades];
+  return grade && isJobGrade(grade) ? [grade] : [...jobGrades];
 }
 
 export function resolveJobDate(date?: string) {

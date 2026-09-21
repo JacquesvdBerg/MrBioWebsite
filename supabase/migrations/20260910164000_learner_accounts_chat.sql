@@ -67,7 +67,7 @@ BEGIN
     ),
     NEW.email,
     CASE
-      WHEN NEW.raw_user_meta_data ->> 'grade' IN ('10', '11', '12')
+      WHEN NEW.raw_user_meta_data ->> 'grade' IN ('8', '9', '10', '11', '12')
         THEN (NEW.raw_user_meta_data ->> 'grade')::integer
       ELSE NULL
     END,

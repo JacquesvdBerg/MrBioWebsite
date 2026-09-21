@@ -5,59 +5,58 @@ import { TiltCard } from "@/components/tilt-card";
 import { Arrow, ButtonLink, SectionHeading } from "@/components/ui";
 import { Visual } from "@/components/visual";
 import { getPublishedCatalogue } from "@/lib/products";
-import { grades } from "@/lib/site";
+import { grades, isGrade } from "@/lib/site";
 
 export const metadata = {
-  title: "Studiemateriaal",
-  description:
-    "Notas, werkkaarte, opsommings en eksamenpakke vir Lewenswetenskappe graad 10 tot 12.",
+  title: "Winkel",
+  description: "Notas, werkkaarte en eksamenpakke vir Lewenswetenskappe, graad 8 tot 12.",
 };
 
 export const revalidate = 300;
 
-export default async function ShopPage() {
+type ShopPageProps = {
+  searchParams: Promise<{ graad?: string }>;
+};
+
+export default async function ShopPage({ searchParams }: ShopPageProps) {
+  const params = await searchParams;
+  const selected = Number(params.graad);
+  const activeGrade = isGrade(selected) ? selected : null;
   const { items, bundles } = await getPublishedCatalogue();
-  const fromPrice = items.length > 0 ? Math.min(...items.map((product) => product.price)) : null;
+  const visible = activeGrade ? items.filter((product) => product.grade === activeGrade) : items;
 
   return (
     <SectionPage
-      eyebrow="Studiemateriaal"
+      eyebrow="Winkel"
       title={
         <>
-          Notas wat die sillabus volg.{" "}
-          <span className="gradient-text-warm">Woord vir woord.</span>
+          Notas per graad. <span className="gradient-text-warm">Kies eers.</span>
         </>
       }
-      description="Notas, werkkaarte en eksamenpakke, geskryf deur dieselfde onderwyser wat die video’s maak. Aanvanklik sonder aanlyn betaling — stuur ’n navraag en ons hanteer die res."
+      description="Notas, werkkaarte en eksamenpakke. Kies ’n graad om net daardie jaar se goed te sien."
       crumbs={[
         { href: "/", label: "Tuis" },
-        { href: "/shop", label: "Studiemateriaal" },
+        { href: "/shop", label: "Winkel" },
       ]}
-      aside={
-        <div className="grid grid-cols-3 gap-3 lg:justify-end">
-          {[
-            [String(items.length), "Produkte"],
-            ["PDF", "+ gedruk"],
-            [fromPrice !== null ? `R${fromPrice}` : "—", "vanaf"],
-          ].map(([value, label]) => (
-            <div key={label} className="glass rounded-2xl p-4 text-center">
-              <p className="font-display text-2xl font-extrabold text-white">{value}</p>
-              <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-white/45">{label}</p>
-            </div>
-          ))}
-        </div>
-      }
     >
-      <div className="flex flex-wrap gap-2">
-        <span className="chip is-active">Alle grade</span>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <Link href="/shop" className={`grade-orb min-h-[7rem] ${activeGrade === null ? "is-active" : ""}`}>
+          <span className="font-display text-lg font-bold">Alles</span>
+        </Link>
         {grades.map((grade) => (
-          <Link key={grade} href={`#graad-${grade}`} className="chip">
-            Graad {grade}
+          <Link
+            key={grade}
+            href={`/shop?graad=${grade}`}
+            className="grade-orb min-h-[7rem]"
+            style={{ ["--accent" as string]: activeGrade === grade ? "var(--lime)" : undefined }}
+          >
+            <span className="grade-orb-num text-4xl">{grade}</span>
+            <span className="mt-1 text-sm font-bold">Graad {grade}</span>
           </Link>
         ))}
       </div>
 
-      {items.length === 0 ? (
+      {visible.length === 0 ? (
         <div className="glass mt-8 rounded-[2rem] px-7 py-12 text-center">
           <p className="font-display text-2xl font-extrabold text-white">Die katalogus is nog leeg</p>
           <p className="mt-3 text-white/55">Stuur gerus ’n navraag as jy iets spesifiek soek.</p>
@@ -70,7 +69,7 @@ export default async function ShopPage() {
         </div>
       ) : (
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((product, index) => (
+          {visible.map((product, index) => (
             <Reveal key={product.slug} delay={(index % 3) * 70}>
               <TiltCard className="group relative h-full" max={5}>
                 <article

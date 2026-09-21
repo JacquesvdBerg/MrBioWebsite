@@ -49,13 +49,12 @@ export function SiteFooter() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 pb-10 pt-16 md:px-6">
-        <div className="grid gap-12 lg:grid-cols-[1.3fr_repeat(3,0.7fr)]">
+        <div className="grid gap-12 lg:grid-cols-[1.1fr_repeat(4,minmax(0,1fr))]">
           <div>
             <MrBioLogo />
             <p className="mt-5 max-w-sm leading-7 text-white/55">
-              MrBio is ’n Afrikaanse Lewenswetenskappe-wêreld vir graad 10 tot
-              12. Lees, kyk, oefen en vra — alles op een plek, alles volgens die
-              sillabus.
+              MrBio is ’n Afrikaanse Lewenswetenskappe-wêreld vir graad 8 tot
+              12. Kies jou graad, werk kwartaal vir kwartaal, en vra wanneer jy vassteek.
             </p>
             <div className="mt-6 flex items-center gap-3">
               <a

@@ -28,6 +28,7 @@ export function ChatWorkspace({
   composerName = "body",
   extras,
   newThread,
+  compose,
 }: {
   desk?: boolean;
   listHref: string;
@@ -41,15 +42,19 @@ export function ChatWorkspace({
   composerName?: string;
   extras?: ReactNode;
   newThread?: ReactNode;
+  compose?: ReactNode;
 }) {
+  const showThread = Boolean(selected) && !compose;
+
   return (
-    <div className={`wa-shell ${desk ? "is-desk" : ""} ${selected ? "has-thread" : ""}`}>
+    <div className={`wa-shell ${desk ? "is-desk" : ""} ${showThread || compose ? "has-thread" : ""}`}>
       <aside className="wa-list">
         <div className="wa-head">
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-lime">{title}</p>
             <p className="font-display text-lg font-bold text-white">Gesprekke</p>
           </div>
+          {newThread}
         </div>
         <div className="wa-rows">
           {threads.length === 0 ? (
@@ -84,11 +89,12 @@ export function ChatWorkspace({
             })
           )}
         </div>
-        {newThread}
       </aside>
 
       <section className="wa-thread">
-        {!selected ? (
+        {compose ? (
+          compose
+        ) : !selected ? (
           <div className="wa-empty">
             <div>
               <p className="font-display text-2xl font-bold text-white">Kies ’n klets</p>

@@ -50,23 +50,23 @@ function dailyCopy(type: ActivitySlug) {
   switch (type) {
     case "quiz":
       return {
-        title: "Vasvra van die dag",
+        title: "Vasvra van die week",
         description:
-          "Een nuwe bank vrae elke dag. Kies hoeveel vrae jy wil doen — 5, 10, 15 of 25.",
+          "Een nuwe bank vrae elke week. Kies hoeveel vrae jy wil doen — 5, 10, 15 of 25.",
         extra: "Ekstra oefening",
         unit: "vrae",
       };
     case "true-or-false":
       return {
-        title: "Waar of onwaar van die dag",
+        title: "Waar of onwaar van die week",
         description:
-          "Een nuwe bank stellings elke dag. Kies hoeveel vrae jy wil doen — 5, 10, 15 of 25.",
+          "Een nuwe bank stellings elke week. Kies hoeveel vrae jy wil doen — 5, 10, 15 of 25.",
         extra: "Ekstra oefening",
         unit: "stellings",
       };
     case "speed-quiz":
       return {
-        title: "Spoedvasvra van die dag",
+        title: "Spoedvasvra van die week",
         description:
           "Dieselfde 25-vraagbank, maar teen die klok. 20 sekondes per vraag.",
         extra: "Ekstra oefening",
@@ -74,49 +74,49 @@ function dailyCopy(type: ActivitySlug) {
       };
     case "word-search":
       return {
-        title: "Woordsoektog van die dag",
+        title: "Woordsoektog van die week",
         description: "Vind vandag se vakterme in die rooster.",
         extra: "Ekstra oefening",
         unit: "woorde",
       };
     case "crossword":
       return {
-        title: "Kruiswoord van die dag",
+        title: "Kruiswoord van die week",
         description: "Leidrade uit vandag se onderwerp.",
         extra: "Ekstra oefening",
         unit: "leidrade",
       };
     case "match-the-pairs":
       return {
-        title: "Pare van die dag",
+        title: "Pare van die week",
         description: "Koppel elke term aan die regte betekenis.",
         extra: "Ekstra oefening",
         unit: "pare",
       };
     case "memory-cards":
       return {
-        title: "Geheue van die dag",
+        title: "Geheue van die week",
         description: "Draai kaarte om en vind die pare.",
         extra: "Ekstra oefening",
         unit: "pare",
       };
     case "put-in-order":
       return {
-        title: "Volgorde van die dag",
+        title: "Volgorde van die week",
         description: "Rangskik prosesse in die regte volgorde.",
         extra: "Ekstra oefening",
         unit: "prosesse",
       };
     case "diagram":
       return {
-        title: "Diagram van die dag",
+        title: "Diagram van die week",
         description: "Plaas die regte etiket op elke genommerde deel.",
         extra: "Ekstra oefening",
         unit: "dele",
       };
     case "sorting":
       return {
-        title: "Sorteer van die dag",
+        title: "Sorteer van die week",
         description: "Sit elke item in die regte kategorie.",
         extra: "Ekstra oefening",
         unit: "items",
@@ -269,7 +269,7 @@ export default async function GradeTypeActivitiesPage({
               Vandag se {meta.title.toLowerCase()} is nog op pad.
             </p>
             <p className="mt-2 text-white/55">
-              Nuwe uitdagings verskyn elke dag. Probeer intussen die argief of ’n ander oefening.
+              Nuwe uitdagings verskyn elke week. Probeer intussen die argief of ’n ander oefening.
             </p>
           </div>
         </Reveal>

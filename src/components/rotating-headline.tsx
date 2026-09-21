@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 const LEAD = "Biologie";
-const PHRASES = ["wat vassteek.", "wat duidelik is.", "tot die eksamen."] as const;
+const PHRASES = ["wat vassteek.", "wat duidelik is.", "wat lekker is."] as const;
 const LONGEST = PHRASES.reduce((a, b) => (a.length >= b.length ? a : b));
 
 const HOLD_MS = 2600;

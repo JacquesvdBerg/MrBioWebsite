@@ -18,11 +18,11 @@ const sans = Outfit({
 
 export const metadata: Metadata = {
   title: {
-    default: "MrBio · Lewenswetenskappe vir graad 10–12",
+    default: "MrBio · Lewenswetenskappe vir graad 8–12",
     template: "%s | MrBio",
   },
   description:
-    "MrBio is jou Afrikaanse Lewenswetenskappe-wêreld: notas en eksamenpakke, videolesse, daaglikse oefeninge en weeklikse feite vir graad 10 tot 12.",
+    "MrBio is jou Afrikaanse Lewenswetenskappe-wêreld vir graad 8 tot 12: notas, videolesse, weeklikse speletjies en feite.",
   applicationName: "MrBio",
   keywords: [
     "Lewenswetenskappe",

@@ -70,8 +70,8 @@ export function MrBioWordmark({ className = "" }: LogoProps) {
 export function MrBioLogo({ className = "" }: LogoProps) {
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      <MrBioMark className="h-10 w-10" />
-      <MrBioWordmark />
+      <MrBioMark className="h-14 w-14" />
+      <MrBioWordmark className="text-3xl" />
     </span>
   );
 }

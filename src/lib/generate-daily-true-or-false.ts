@@ -1,8 +1,8 @@
 import "server-only";
 import { getAiSettings } from "@/lib/ai-settings";
 import { johannesburgDate } from "@/lib/dates";
+import { selectedGrades } from "@/lib/daily-job";
 import { quizBankSize } from "@/lib/quiz-length";
-import { grades, isGrade } from "@/lib/site";
 import { slugify } from "@/lib/slug";
 import { createServiceClient } from "@/lib/supabase/service";
 import { pickNextTopic, type ActivityTopic } from "@/lib/topics";
@@ -244,8 +244,7 @@ export async function runDailyTrueOrFalseJob(options: {
   }
 
   const date = options.date ?? johannesburgDate();
-  const selected =
-    options.grade && isGrade(options.grade) ? [options.grade] : [...grades];
+  const selected = selectedGrades(options.grade);
 
   const results = await Promise.all(
     selected.map((grade) => {

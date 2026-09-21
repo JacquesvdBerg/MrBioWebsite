@@ -1,5 +1,7 @@
-// CAPS (KABV) Lewenswetenskappe syllabus per grade and term, as supplied by
-// the teacher. MrBio covers graad 10 tot 12.
+// CAPS (KABV) year plan per grade and term. Grades 10–12 are the teacher's
+// list. Grades 8–9 have four quarters ready for that list.
+
+import type { Grade } from "@/lib/site";
 
 export type SyllabusTerm = {
   term: 1 | 2 | 3 | 4;
@@ -8,7 +10,7 @@ export type SyllabusTerm = {
 };
 
 export type GradeSyllabus = {
-  grade: 10 | 11 | 12;
+  grade: Grade;
   summary: string;
   playlist: string;
   terms: SyllabusTerm[];
@@ -22,7 +24,22 @@ export function isSeniorGrade(grade: number): grade is SeniorGrade {
   return (seniorGrades as readonly number[]).includes(grade);
 }
 
-export const syllabus: Record<SeniorGrade, GradeSyllabus> = {
+function openYear(grade: 8 | 9): GradeSyllabus {
+  return {
+    grade,
+    summary: "Vier kwartale. Die jaarplan word hier geplaas sodra dit deurgestuur is.",
+    playlist: "",
+    terms: [1, 2, 3, 4].map((term) => ({
+      term: term as 1 | 2 | 3 | 4,
+      title: `Kwartaal ${term}`,
+      topics: ["Onderwerpe kom hier."],
+    })),
+  };
+}
+
+export const syllabus: Record<Grade, GradeSyllabus> = {
+  8: openYear(8),
+  9: openYear(9),
   10: {
     grade: 10,
     summary: "Chemie van lewe, selle, weefsels, ekosisteme en biodiversiteit.",

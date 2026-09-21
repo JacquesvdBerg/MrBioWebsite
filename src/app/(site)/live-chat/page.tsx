@@ -15,7 +15,7 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  searchParams: Promise<{ id?: string; fout?: string }>;
+  searchParams: Promise<{ id?: string; fout?: string; nuut?: string }>;
 };
 
 export default async function LiveChatPage({ searchParams }: PageProps) {
@@ -31,7 +31,7 @@ export default async function LiveChatPage({ searchParams }: PageProps) {
             Eers ’n rekening. <span className="gradient-text">Dan jou vraag.</span>
           </>
         }
-        description="Klets is gekoppel aan jóú rekening — nie hierdie foon of skootrekenaar nie. Só kan ons later jou aankope, eksklusiewe speletjies en vordering by dieselfde profiel hou."
+        description="Klets is gekoppel aan jou persoonlike profiel."
         crumbs={[
           { href: "/", label: "Tuis" },
           { href: "/live-chat", label: "Vra die onderwyser" },
@@ -69,7 +69,8 @@ export default async function LiveChatPage({ searchParams }: PageProps) {
   const threads = await getLearnerChatThreads(account.userId);
   const selected = params.id ? await getChatThread(params.id) : threads[0] ?? null;
   const owned = selected && selected.userId === account.userId ? selected : null;
-  const messages = owned ? await getChatMessages(owned.id) : [];
+  const composing = params.nuut === "1" || !owned;
+  const messages = owned && !composing ? await getChatMessages(owned.id) : [];
 
   return (
     <div className="mx-auto w-full max-w-6xl px-0 md:px-6 md:py-6">
@@ -81,30 +82,56 @@ export default async function LiveChatPage({ searchParams }: PageProps) {
       ) : null}
       <ChatWorkspace
         listHref="/live-chat"
-        selectedId={owned?.id ?? null}
+        selectedId={composing ? null : owned?.id ?? null}
         threads={threads}
-        selected={owned}
+        selected={composing ? null : owned}
         messages={messages}
         me="learner"
         title={`Hallo, ${account.name}`}
         composerAction={replyLearnerChat}
         newThread={
-          <form action={startLearnerChat} className="space-y-2 border-t border-white/8 p-3">
-            <input
-              className="wa-search mx-0! w-full!"
-              name="topic"
-              placeholder="Onderwerp — bv. Arteries"
-            />
-            <input
-              className="wa-search mx-0! w-full!"
-              name="question"
-              required
-              placeholder="Begin ’n nuwe gesprek…"
-            />
-            <button type="submit" className="btn btn-lime w-full">
-              Nuwe klets
-            </button>
-          </form>
+          <Link href="/live-chat?nuut=1" className="btn btn-lime btn-sm shrink-0">
+            Nuut
+          </Link>
+        }
+        compose={
+          composing ? (
+            <form action={startLearnerChat} className="flex flex-1 flex-col justify-center px-6 py-10 md:px-12">
+              <Link href="/live-chat" className="mb-6 text-sm font-bold text-lime md:hidden">
+                ← Gesprekke
+              </Link>
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-lime">
+                Nuwe klets
+              </p>
+              <h2 className="mt-3 font-display text-3xl font-extrabold tracking-[-0.03em] text-white md:text-4xl">
+                Vra Mnr. Bio.
+              </h2>
+              <p className="mt-3 max-w-md text-sm leading-6 text-white/55">
+                Een onderwerp en jou vraag. Die gesprek bly teen jou rekening.
+              </p>
+              <label className="mt-8 block">
+                <span className="text-[13px] font-bold text-white">Onderwerp</span>
+                <input
+                  className="input-dark mt-1.5 w-full"
+                  name="topic"
+                  placeholder="Bloedsomloop"
+                />
+              </label>
+              <label className="mt-4 block">
+                <span className="text-[13px] font-bold text-white">Jou vraag</span>
+                <textarea
+                  className="input-dark mt-1.5 min-h-36 w-full"
+                  name="question"
+                  required
+                  placeholder="Hoekom het arteries dikker wande as vene?"
+                />
+              </label>
+              <button type="submit" className="btn btn-lime mt-6 w-full sm:w-fit">
+                Stuur vraag
+                <Arrow />
+              </button>
+            </form>
+          ) : null
         }
       />
     </div>

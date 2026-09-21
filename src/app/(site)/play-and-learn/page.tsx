@@ -15,15 +15,15 @@ import {
 export const metadata = {
   title: "Oefen en toets",
   description:
-    "Daaglikse vasvrae, kruiswoorde, woordsoektogte en meer vir Lewenswetenskappe graad 10 tot 12.",
+    "Weeklikse vasvrae, kruiswoorde, woordsoektogte en meer vir Lewenswetenskappe.",
 };
 
 export const revalidate = 60;
 
 const rules = [
   {
-    title: "Elke dag nuut",
-    body: "Om middernag verskyn ’n vars uitdaging vir elke graad en elke oefeningtipe.",
+    title: "Elke week nuut",
+    body: "Een vars stel per week vir elke graad en elke speletjie — nie elke dag nie.",
   },
   {
     title: "Kies jou lengte",
@@ -44,33 +44,33 @@ export default async function PlayAndLearnPage() {
 
   return (
     <SectionPage
-      eyebrow="Oefen & toets"
+      eyebrow="Speletjies"
       title={
         <>
-          Kies jou graad. <span className="gradient-text">Toets jouself.</span>
+          Kies jou graad. <span className="gradient-text">Speel hierdie week.</span>
         </>
       }
-      description="Tien tipes oefeninge, elkeen met nuwe inhoud elke dag. Eers jou graad, dan die oefening — en dan sien jy wat jy onthou. ’n Gratis bonus by die notas en lesse."
+      description="Weeklikse vakverbande speletjies. Eers jou graad, dan die speletjie."
       crumbs={[
         { href: "/", label: "Tuis" },
-        { href: "/play-and-learn", label: "Oefen & toets" },
+        { href: "/play-and-learn", label: "Speletjies" },
       ]}
       aside={
         <div className="glass hidden rounded-[1.9rem] p-6 lg:block">
           <p className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-lime">
             <span className="pulse-dot" />
-            Vandag oop
+            Hierdie week
           </p>
           <p className="mt-3 font-display text-2xl font-extrabold text-white">
             Vasvra · Kruiswoord · Geheue
           </p>
           <p className="mt-2 text-sm leading-6 text-white/55">
-            Nuwe stelle vir graad 10 tot 12. Kies jou graad hieronder om te begin.
+            Een stel per week. Kies jou graad hieronder om te begin.
           </p>
         </div>
       }
     >
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 sm:gap-4">
         {grades.map((grade, index) => {
           const count = activities.filter((item) => item.grade === grade).length;
 
@@ -86,7 +86,7 @@ export default async function PlayAndLearnPage() {
                 <span className="mt-1 text-[13px] leading-5 text-white/55">{gradeBlurbs[grade]}</span>
                 <span className="mt-4 inline-flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-white/45">
                   {count === 0
-                    ? "Daagliks nuut"
+                    ? "Hierdie week"
                     : `${count} ${count === 1 ? "aktiwiteit" : "aktiwiteite"}`}
                   <Arrow className="h-3.5 w-3.5" />
                 </span>

@@ -16,91 +16,36 @@ export type NavItem = {
 
 export const publicNav: readonly NavItem[] = [
   { href: "/", label: "Tuis" },
-  {
-    href: "/shop",
-    label: "Studiemateriaal",
-    children: [
-      {
-        href: "/shop",
-        label: "Notas & eksamenpakke",
-        description: "Sillabusgerigte hulpbronne per graad, PDF of gedruk.",
-        icon: "cart",
-      },
-      {
-        href: "/shop#bundels",
-        label: "Klasbundels",
-        description: "Afslag vir onderwysers en studiegroepe.",
-        icon: "book",
-      },
-    ],
-  },
-  {
-    href: "/video-lessons",
-    label: "Leer",
-    children: [
-      {
-        href: "/video-lessons",
-        label: "Videolesse",
-        description: "Kort, duidelike lesse in Afrikaans.",
-        icon: "play",
-      },
-      {
-        href: "/#temas",
-        label: "Temas",
-        description: "Die groot idees van die sillabus, een vir een.",
-        icon: "leaf",
-      },
-      {
-        href: "/weekly-facts",
-        label: "Weeklikse feite",
-        description: "Een feit per week wat jy nooit vergeet.",
-        icon: "leaf",
-      },
-      {
-        href: "/play-and-learn",
-        label: "Oefen & toets",
-        description: "Vasvrae, kruiswoorde en meer om kennis vas te lê.",
-        icon: "puzzle",
-      },
-    ],
-  },
-  {
-    href: "/comments",
-    label: "Gemeenskap",
-    children: [
-      {
-        href: "/live-chat",
-        label: "Vra die onderwyser",
-        description: "Teken in en klets met Mnr. Bio — jou draad bly by jou rekening.",
-        icon: "chat",
-      },
-      {
-        href: "/comments",
-        label: "Forum",
-        description: "Stel onderwerpe voor en stem.",
-        icon: "forum",
-      },
-    ],
-  },
-  { href: "/about", label: "Oor ons" },
+  { href: "/graad", label: "Grade" },
+  { href: "/shop", label: "Winkel" },
+  { href: "/play-and-learn", label: "Speletjies" },
+  { href: "/live-chat", label: "Klets" },
 ];
 
 export const footerNav = [
   {
-    title: "Leer",
+    title: "Grade",
     links: [
-      { href: "/shop", label: "Studiemateriaal" },
-      { href: "/video-lessons", label: "Videolesse" },
+      { href: "/graad/8", label: "Graad 8" },
+      { href: "/graad/9", label: "Graad 9" },
+      { href: "/graad/10", label: "Graad 10" },
+      { href: "/graad/11", label: "Graad 11" },
+      { href: "/graad/12", label: "Graad 12" },
+    ],
+  },
+  {
+    title: "Winkel",
+    links: [
+      { href: "/shop", label: "Winkel" },
+      { href: "/play-and-learn", label: "Speletjies" },
       { href: "/weekly-facts", label: "Weeklikse feite" },
-      { href: "/#temas", label: "Temas" },
-      { href: "/play-and-learn", label: "Oefen & toets" },
     ],
   },
   {
     title: "Gemeenskap",
     links: [
       { href: "/comments", label: "Forum" },
-      { href: "/live-chat", label: "Vra die onderwyser" },
+      { href: "/live-chat", label: "Klets" },
     ],
   },
   {
@@ -194,13 +139,24 @@ export const homeShortcuts = [
   { title: "Winkel", href: "/shop", icon: "cart" },
 ] as const;
 
-export const grades = [10, 11, 12] as const;
+export const grades = [8, 9, 10, 11, 12] as const;
 
 export type Grade = (typeof grades)[number];
+
+/** Grades the weekly game jobs still generate. 8 and 9 wait for a year plan. */
+export const jobGrades = [10, 11, 12] as const;
 
 export function isGrade(value: string | number): value is Grade {
   const grade = typeof value === "string" ? Number(value) : value;
   return (grades as readonly number[]).includes(grade);
+}
+
+export function isJobGrade(value: number) {
+  return (jobGrades as readonly number[]).includes(value);
+}
+
+export function gradePath(grade: number) {
+  return `/graad/${grade}`;
 }
 
 export function gradeActivitiesPath(grade: number) {
@@ -281,12 +237,16 @@ export const activityTypes = [
 ] as const;
 
 export const gradeAccents: Record<Grade, string> = {
+  8: "var(--mint)",
+  9: "var(--coral)",
   10: "var(--sky)",
   11: "var(--violet)",
   12: "var(--sun)",
 };
 
 export const gradeBlurbs: Record<Grade, string> = {
+  8: "Vier kwartale. Die jaarplan word hier geplaas.",
+  9: "Vier kwartale. Die jaarplan word hier geplaas.",
   10: "Chemie van lewe, selle, weefsels, ekosisteme en biodiversiteit.",
   11: "Klassifikasie, lewensprosesse, gaswisseling en die omgewing.",
   12: "DNA, voortplanting, homeostase, genetika en evolusie.",
