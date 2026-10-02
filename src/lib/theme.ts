@@ -16,17 +16,18 @@ function emit() {
   }
 }
 
+// Light is the default; dark mode is opt-in from the toggle.
 export function readTheme(): Theme {
   if (typeof document === "undefined") {
-    return "dark";
+    return "light";
   }
-  return document.documentElement.getAttribute("data-theme") === "light"
-    ? "light"
-    : "dark";
+  return document.documentElement.getAttribute("data-theme") === "dark"
+    ? "dark"
+    : "light";
 }
 
 export function getServerTheme(): Theme {
-  return "dark";
+  return "light";
 }
 
 export function subscribeTheme(listener: () => void) {

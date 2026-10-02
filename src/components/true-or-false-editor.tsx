@@ -123,13 +123,14 @@ export function TrueOrFalseEditor({
           className="desk-panel desk-panel-body space-y-3"
         >
           <div className="flex items-center justify-between">
-            <h2 className="font-display font-bold text-white">
+            <h2 className="flex items-center gap-2.5 font-display font-bold text-white">
+              <span className="desk-qnum">{index + 1}</span>
               Stelling {index + 1}
             </h2>
             {questions.length > 1 ? (
               <button
                 type="button"
-                className="text-xs font-semibold text-orange"
+                className="desk-btn desk-btn-danger"
                 onClick={() =>
                   setQuestions((current) =>
                     current.filter((item) => item.id !== question.id),
@@ -150,9 +151,9 @@ export function TrueOrFalseEditor({
               }
             />
           </label>
-          <fieldset className="flex flex-wrap gap-4 text-sm font-semibold">
+          <fieldset className="flex flex-wrap gap-2">
             <legend className="sr-only">Regte antwoord</legend>
-            <label className="flex items-center gap-2">
+            <label className={`desk-option is-pill ${question.isTrue ? "is-correct" : ""}`}>
               <input
                 type="radio"
                 name={`answer-${question.id}`}
@@ -161,7 +162,7 @@ export function TrueOrFalseEditor({
               />
               Waar
             </label>
-            <label className="flex items-center gap-2">
+            <label className={`desk-option is-pill ${!question.isTrue ? "is-wrong" : ""}`}>
               <input
                 type="radio"
                 name={`answer-${question.id}`}
@@ -186,7 +187,7 @@ export function TrueOrFalseEditor({
         </section>
       ))}
 
-      <div className="flex flex-wrap gap-3">
+      <div className="desk-savebar">
         <button
           type="button"
           className="desk-btn desk-btn-ghost"
@@ -196,6 +197,9 @@ export function TrueOrFalseEditor({
         >
           Voeg stelling by
         </button>
+        <span className="mr-auto text-sm font-semibold text-white/55">
+          {questions.length} {questions.length === 1 ? "stelling" : "stellings"}
+        </span>
         <button
           type="submit"
           className="desk-btn desk-btn-navy"

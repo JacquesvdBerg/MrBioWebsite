@@ -5,6 +5,7 @@ import {
 } from "@/app/(admin)/admin/actions";
 import { ChatWorkspace } from "@/components/chat-workspace";
 import { AdminBtn } from "@/components/admin-ui";
+import { DeleteButton } from "@/components/admin-client";
 import {
   getAdminChatMessages,
   getAdminChatThread,
@@ -59,9 +60,7 @@ export default async function AdminLiveChatPage({ searchParams }: PageProps) {
               </form>
               <form action={deleteChatThread}>
                 <input type="hidden" name="thread_id" value={selected.id} />
-                <button type="submit" className="desk-btn desk-btn-danger">
-                  Verwyder gesprek
-                </button>
+                <DeleteButton label="Verwyder gesprek" confirm="Verwyder hierdie hele gesprek? Die leerder sal dit ook nie meer sien nie." />
               </form>
             </div>
           ) : null

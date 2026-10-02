@@ -13,6 +13,7 @@ export default async function NewQuizPage() {
 
   return (
     <AdminPage
+      back={{ href: "/admin/activities", label: "Aktiwiteite" }}
       title="Nuwe vasvra"
       description="Merk die regte antwoord met die sirkel. Leerders sien een vraag op ’n slag."
     >

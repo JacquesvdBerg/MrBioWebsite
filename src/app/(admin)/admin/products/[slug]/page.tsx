@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { saveProduct } from "@/app/(admin)/admin/actions";
 import { AdminPage } from "@/components/admin-page";
-import { AdminBadge, AdminBtn, AdminPanel, deskField } from "@/components/admin-ui";
+import { AdminBadge, AdminBtn, AdminPanel, deskField, AdminNotice } from "@/components/admin-ui";
 import { ImageUploadField } from "@/components/image-upload-field";
 import { getAdminProduct, productKindOptions } from "@/lib/products";
 import { grades } from "@/lib/site";
@@ -37,31 +36,28 @@ export default async function AdminProductEditorPage({
     <AdminPage
       title={product.title}
       description="Prys, graad, prent en of dit te koop is. Leerders doen navraag — ons stuur ’n faktuur."
+      back={{ href: "/admin/products", label: "Produkte" }}
+      meta={
+        <>
+          <AdminBadge tone={product.isPublished ? "live" : "draft"}>{product.isPublished ? "Live" : "Konsep"}</AdminBadge>
+          <span className="text-sm font-bold text-white/60">R{product.price}</span>
+        </>
+      }
       actions={
-        <AdminBadge tone={product.isPublished ? "live" : "draft"}>
-          {product.isPublished ? "Live" : "Konsep"}
-        </AdminBadge>
+        <AdminBtn href="/shop" tone="ghost" icon="external" external>
+          Bekyk winkel
+        </AdminBtn>
       }
     >
-      <p className="mb-6 text-sm">
-        <Link href="/admin/products" className="font-semibold text-lime">
-          ← Terug na produkte
-        </Link>
-        {" · "}
-        <Link href="/shop" className="font-semibold text-lime">
-          Sien winkel
-        </Link>
-      </p>
-
-      {query.saved === "1" ? <p className="mb-6 text-sm text-lime">Produk is gestoor.</p> : null}
+      {query.saved === "1" ? <AdminNotice tone="ok">Produk is gestoor.</AdminNotice> : null}
       {query.error === "fields" ? (
-        <p className="mb-6 text-sm text-orange">Titel is verpligtend, en ’n item het ’n graad nodig.</p>
+        <AdminNotice tone="err">Titel is verpligtend, en ’n item het ’n graad nodig.</AdminNotice>
       ) : null}
       {query.error === "stoor" ? (
-        <p className="mb-6 text-sm text-orange">Kon nie die produk stoor nie.</p>
+        <AdminNotice tone="err">Kon nie die produk stoor nie.</AdminNotice>
       ) : null}
 
-      <AdminPanel title="Besonderhede">
+      <AdminPanel title="Besonderhede" icon="cart">
         <form action={saveProduct} className="grid gap-3 md:grid-cols-2">
           <input type="hidden" name="existingSlug" value={product.slug} />
           <label className="desk-label md:col-span-2">
@@ -172,7 +168,9 @@ export default async function AdminProductEditorPage({
             </label>
           </div>
           <div className="md:col-span-2">
-            <AdminBtn type="submit">Stoor produk</AdminBtn>
+            <AdminBtn type="submit" icon="check">
+              Stoor produk
+            </AdminBtn>
           </div>
         </form>
       </AdminPanel>

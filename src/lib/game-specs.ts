@@ -28,7 +28,7 @@ function capsRules(settings: AiSettings, extra: string) {
     : "";
 
   return `Jy is ’n Lewenswetenskappe-onderwyser vir Suid-Afrikaanse leerders (CAPS).
-Jy skryf DAAGLIKSE Oefen & toets-inhoud vir MrBio.
+Jy skryf DAAGLIKSE Oefen & toets-inhoud vir MnrBio.
 
 Harde reëls:
 - Skryf ALLES in Afrikaans.

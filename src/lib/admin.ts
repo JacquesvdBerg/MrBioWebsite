@@ -11,7 +11,17 @@ export type AdminIconName =
   | "comment"
   | "image"
   | "users"
-  | "settings";
+  | "settings"
+  | "plus"
+  | "external"
+  | "logout"
+  | "search"
+  | "spark"
+  | "check"
+  | "trash"
+  | "copy"
+  | "arrow"
+  | "back";
 
 export type AdminNavItem = {
   href: string;
@@ -132,6 +142,54 @@ export const adminNavGroups: readonly AdminNavGroup[] = [
 ];
 
 export const adminNavItems = adminNavGroups.flatMap((group) => group.items);
+
+export const adminQuickActions: readonly AdminNavItem[] = [
+  {
+    href: "/admin/activities/quiz/new",
+    label: "Nuwe vasvra",
+    description: "Skryf vrae met een regte antwoord elk.",
+    icon: "puzzle",
+  },
+  {
+    href: "/admin/activities/true-or-false/new",
+    label: "Nuwe waar of onwaar",
+    description: "Vinnige stellings om kennis te toets.",
+    icon: "check",
+  },
+  {
+    href: "/admin/weekly-facts",
+    label: "Nuwe weeklikse feit",
+    description: "Begin ’n konsep vir hierdie week.",
+    icon: "leaf",
+  },
+  {
+    href: "/admin/videos",
+    label: "Sit ’n les op",
+    description: "Plak ’n YouTube-skakel by.",
+    icon: "video",
+  },
+  {
+    href: "/admin/products",
+    label: "Nuwe produk",
+    description: "Notas, werkkaarte of ’n bundel.",
+    icon: "cart",
+  },
+  {
+    href: "/admin/media",
+    label: "Laai ’n prent op",
+    description: "Vir temas, feite en produkte.",
+    icon: "image",
+  },
+];
+
+/** Section title for the breadcrumb, e.g. "Inhoud" for /admin/videos. */
+export function adminGroupFor(pathname: string) {
+  return (
+    adminNavGroups.find((group) =>
+      group.items.some((item) => isAdminNavActive(pathname, item.href)),
+    )?.title ?? null
+  );
+}
 
 export function isAdminNavActive(pathname: string, href: string) {
   if (href === "/admin") {

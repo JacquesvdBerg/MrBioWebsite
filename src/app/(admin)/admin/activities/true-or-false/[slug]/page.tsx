@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminPage } from "@/components/admin-page";
+import { AdminBadge, AdminBtn } from "@/components/admin-ui";
 import { TrueOrFalseEditor } from "@/components/true-or-false-editor";
 import { asTrueOrFalse, getAdminActivity } from "@/lib/activities";
 import { getAllThemes } from "@/lib/themes";
@@ -41,19 +41,19 @@ export default async function EditTrueOrFalsePage({
     <AdminPage
       title={quiz.title}
       description="Stoor, dan speel die publieke bladsy dadelik."
-    >
-      <p className="mb-6 text-sm">
-        <Link href="/admin/activities" className="font-semibold text-lime">
-          ← Aktiwiteite
-        </Link>
-        {" · "}
-        <Link
-          href={`/play-and-learn/true-or-false/${quiz.slug}`}
-          className="font-semibold text-lime"
-        >
+      back={{ href: "/admin/activities", label: "Aktiwiteite" }}
+      meta={
+        <>
+          <AdminBadge>Waar of onwaar</AdminBadge>
+          <AdminBadge tone={quiz.isPublished ? "live" : "draft"}>{quiz.isPublished ? "Live" : "Konsep"}</AdminBadge>
+        </>
+      }
+      actions={
+        <AdminBtn href={`/play-and-learn/true-or-false/${quiz.slug}`} tone="ghost" icon="external" external>
           Speel
-        </Link>
-      </p>
+        </AdminBtn>
+      }
+    >
       <TrueOrFalseEditor
         slug={quiz.slug}
         title={quiz.title}

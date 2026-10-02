@@ -8,7 +8,7 @@ import { Visual } from "@/components/visual";
 export const metadata = {
   title: "Oor ons",
   description:
-    "Waarom MrBio bestaan, hoe die platform gebou is en wie daaragter staan.",
+    "Waarom MnrBio bestaan, hoe die platform gebou is en wie daaragter staan.",
 };
 
 const pillars = [
@@ -52,14 +52,14 @@ const timeline = [
   },
   {
     year: "2026",
-    title: "MrBio word gebore",
+    title: "MnrBio word gebore",
     body: "Alles kom saam onder een naam: notas, video’s, feite, oefeninge en ’n forum. Gebou vir leerders, deur ’n onderwyser.",
   },
 ];
 
 const faqs = [
   {
-    q: "Is MrBio gratis?",
+    q: "Is MnrBio gratis?",
     a: "Die video’s, weeklikse feite en daaglikse oefeninge is gratis. Die notas en eksamenpakke in die winkel word gekoop, en sommige oefeninge sal later ’n rekening vereis.",
   },
   {
@@ -86,7 +86,7 @@ export default function AboutPage() {
           <span className="gradient-text">Getoets deur leerders.</span>
         </>
       }
-      description="MrBio het in ’n regte klaskamer begin. Dit is nog steeds die maatstaf: as dit nie ’n graad 11-leerder op ’n Dinsdagmiddag laat verstaan nie, verander ons dit."
+      description="MnrBio het in ’n regte klaskamer begin. Dit is nog steeds die maatstaf: as dit nie ’n graad 11-leerder op ’n Dinsdagmiddag laat verstaan nie, verander ons dit."
       crumbs={[
         { href: "/", label: "Tuis" },
         { href: "/about", label: "Oor ons" },
@@ -105,7 +105,7 @@ export default function AboutPage() {
       aside={
         <div className="relative mx-auto flex max-w-sm items-center justify-center lg:justify-end">
           <div className="hero-frame relative aspect-[4/5] w-full max-w-xs">
-            <Visual file="images/about/hero.png" alt="Die onderwyser agter MrBio" tone="teal" art="cell" className="absolute inset-0" />
+            <Visual file="images/about/hero.png" alt="Die onderwyser agter MnrBio" tone="teal" art="cell" className="absolute inset-0" />
             <div className="absolute inset-x-0 bottom-0 z-10 p-5">
               <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-lime">
                 Mnr. Bio

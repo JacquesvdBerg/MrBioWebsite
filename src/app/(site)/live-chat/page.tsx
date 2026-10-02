@@ -9,7 +9,7 @@ import { getChatMessages, getChatThread, getLearnerChatThreads } from "@/lib/liv
 
 export const metadata = {
   title: "Vra die onderwyser",
-  description: "Teken in en stuur jou Lewenswetenskappe-vraag direk aan die MrBio-onderwyser.",
+  description: "Teken in en stuur jou Lewenswetenskappe-vraag direk aan die MnrBio-onderwyser.",
 };
 
 export const dynamic = "force-dynamic";

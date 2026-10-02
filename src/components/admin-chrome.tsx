@@ -1,30 +1,50 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { signOut } from "@/app/(admin)/admin/actions";
 import { AdminIcon } from "@/components/admin-icon";
-import { DnaMark } from "@/components/icons";
+import { initialsOf } from "@/components/admin-ui";
+import { MrBioMark } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
+  adminGroupFor,
   adminNavGroups,
   adminNavItems,
   adminPageMeta,
+  adminQuickActions,
   isAdminNavActive,
+  type AdminNavItem,
 } from "@/lib/admin";
 
-export function AdminChrome({ children }: { children: ReactNode }) {
+export type AdminCounts = Partial<Record<string, number>>;
+
+export function AdminChrome({
+  children,
+  counts = {},
+  user,
+}: {
+  children: ReactNode;
+  /** Badge numbers keyed by nav href, e.g. unread chats on /admin/live-chat. */
+  counts?: AdminCounts;
+  user: { name: string; email: string };
+}) {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [seenPath, setSeenPath] = useState(pathname);
   const searchRef = useRef<HTMLInputElement>(null);
   const current = adminPageMeta(pathname);
+  const group = adminGroupFor(pathname);
 
-  useEffect(() => {
+  // Close the drawer and clear the search whenever the page changes.
+  if (seenPath !== pathname) {
+    setSeenPath(pathname);
     setOpen(false);
     setQuery("");
-  }, [pathname]);
+  }
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -38,16 +58,19 @@ export function AdminChrome({ children }: { children: ReactNode }) {
       if (event.key === "Escape") {
         setQuery("");
         setOpen(false);
+        searchRef.current?.blur();
         return;
       }
 
-      if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey) {
+      const isPalette = (event.key === "k" || event.key === "K") && (event.metaKey || event.ctrlKey);
+      const isSlash = event.key === "/" && !event.metaKey && !event.ctrlKey && !event.altKey;
+      if (!isPalette && !isSlash) {
         return;
       }
 
       const target = event.target as HTMLElement | null;
       const tag = target?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || target?.isContentEditable) {
+      if (isSlash && (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target?.isContentEditable)) {
         return;
       }
 
@@ -62,44 +85,55 @@ export function AdminChrome({ children }: { children: ReactNode }) {
   const results = useMemo(() => {
     const needle = query.trim().toLowerCase();
     if (!needle) {
-      return [];
+      return { pages: [] as AdminNavItem[], actions: [] as AdminNavItem[] };
     }
-    return adminNavItems.filter(
-      (item) =>
-        item.label.toLowerCase().includes(needle) ||
-        item.description.toLowerCase().includes(needle),
-    );
+    const match = (item: AdminNavItem) =>
+      item.label.toLowerCase().includes(needle) || item.description.toLowerCase().includes(needle);
+    return {
+      pages: adminNavItems.filter(match),
+      actions: adminQuickActions.filter(match),
+    };
   }, [query]);
+
+  const firstResult = results.pages[0] ?? results.actions[0] ?? null;
+  const hasResults = results.pages.length + results.actions.length > 0;
 
   return (
     <>
       <aside className={`desk-sidebar ${open ? "is-open" : ""}`}>
-        <div className="flex items-center gap-3 px-5 pb-6 pt-6">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-lime text-on-accent">
-            <DnaMark className="h-6 w-6" />
-          </span>
+        <Link href="/admin" className="desk-brand">
+          <MrBioMark className="h-11 w-11" />
           <span className="leading-tight">
-            <span className="block text-[10px] font-extrabold uppercase tracking-[0.18em] text-lime">
-              MrBio desk
+            <span className="block font-display text-xl font-extrabold tracking-[-0.03em] text-white">
+              Mnr<span className="text-lime">Bio</span>
             </span>
-            <span className="block font-display text-lg font-bold text-white">Beheer</span>
+            <span className="block text-[11px] font-bold uppercase tracking-[0.18em] text-white/50">
+              Lessenaar
+            </span>
           </span>
-        </div>
+        </Link>
 
         <nav className="desk-nav" aria-label="Admin">
-          {adminNavGroups.map((group) => (
-            <div key={group.title} className="desk-nav-group">
-              <p className="desk-nav-label">{group.title}</p>
-              {group.items.map((item) => {
+          {adminNavGroups.map((navGroup) => (
+            <div key={navGroup.title} className="desk-nav-group">
+              <p className="desk-nav-label">{navGroup.title}</p>
+              {navGroup.items.map((item) => {
                 const active = isAdminNavActive(pathname, item.href);
+                const count = counts[item.href] ?? 0;
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     className={`desk-nav-link ${active ? "is-active" : ""}`}
+                    aria-current={active ? "page" : undefined}
                   >
-                    <AdminIcon name={item.icon} />
-                    <span>{item.label}</span>
+                    <AdminIcon name={item.icon} className="h-[1.1rem] w-[1.1rem]" />
+                    <span className="flex-1">{item.label}</span>
+                    {count > 0 ? (
+                      <span className="desk-nav-count" aria-label={`${count} nuut`}>
+                        {count}
+                      </span>
+                    ) : null}
                   </Link>
                 );
               })}
@@ -107,20 +141,25 @@ export function AdminChrome({ children }: { children: ReactNode }) {
           ))}
         </nav>
 
-        <div className="mt-auto space-y-2 px-4 pb-5 pt-4">
-          <Link href="/" className="desk-nav-link">
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
-              <path d="M14 5h6v6M20 5l-9 9" />
-              <path d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5" />
-            </svg>
-            Bekyk die werf
+        <div className="desk-side-foot">
+          <span className="desk-user-mark">{initialsOf(user.name)}</span>
+          <span className="min-w-0 flex-1 leading-tight">
+            <span className="block truncate text-sm font-bold text-white">{user.name}</span>
+            <span className="block truncate text-[11px] text-white/50">{user.email}</span>
+          </span>
+          <Link
+            href="/"
+            className="desk-side-btn"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Bekyk die werf"
+            title="Bekyk die werf"
+          >
+            <AdminIcon name="external" className="h-[1.1rem] w-[1.1rem]" />
           </Link>
           <form action={signOut}>
-            <button type="submit" className="desk-nav-link w-full">
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
-                <path d="M10 7H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4M15 16l4-4-4-4M19 12H9" />
-              </svg>
-              Teken uit
+            <button type="submit" className="desk-side-btn" aria-label="Teken uit" title="Teken uit">
+              <AdminIcon name="logout" className="h-[1.1rem] w-[1.1rem]" />
             </button>
           </form>
         </div>
@@ -148,54 +187,79 @@ export function AdminChrome({ children }: { children: ReactNode }) {
             </svg>
           </button>
 
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-[11px] font-extrabold uppercase tracking-[0.16em] text-white/45">
-              {current?.label ?? "Admin"}
-            </p>
-            <p className="truncate text-sm text-white/65">
-              {current?.description ?? "Beheerpaneel"}
-            </p>
-          </div>
+          <nav className="desk-crumbs min-w-0 flex-1" aria-label="Broodkrummels">
+            <Link href="/admin">Lessenaar</Link>
+            {group && group !== "Werk" ? (
+              <>
+                <span aria-hidden>/</span>
+                <span className="hidden sm:inline">{group}</span>
+                <span aria-hidden className="hidden sm:inline">/</span>
+              </>
+            ) : (
+              <span aria-hidden>/</span>
+            )}
+            <span className="truncate font-bold text-white">{current?.label ?? "Oorsig"}</span>
+          </nav>
 
-          <div className="relative hidden min-w-[16rem] max-w-sm flex-1 md:block">
+          <div className="desk-search-wrap">
+            <AdminIcon name="search" className="desk-search-icon h-4 w-4" />
             <input
               ref={searchRef}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Spring na…"
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && firstResult) {
+                  event.preventDefault();
+                  router.push(firstResult.href);
+                }
+              }}
+              placeholder="Soek of skep…"
               className="desk-search"
-              aria-label="Soek in die paneel"
+              aria-label="Soek in die lessenaar"
             />
-            {query ? null : <span className="desk-search-kbd">/</span>}
-            {results.length > 0 ? (
+            {query ? null : <span className="desk-search-kbd">Ctrl K</span>}
+            {query ? (
               <div className="desk-search-results">
-                {results.map((item) => (
-                  <Link key={item.href} href={item.href} className="desk-search-item">
-                    <AdminIcon name={item.icon} />
-                    <span>
-                      <span className="block font-bold text-white">{item.label}</span>
-                      <span className="block text-xs text-white/50">{item.description}</span>
-                    </span>
-                  </Link>
-                ))}
+                {hasResults ? (
+                  <>
+                    {results.pages.length > 0 ? (
+                      <p className="desk-search-group">Bladsye</p>
+                    ) : null}
+                    {results.pages.map((item) => (
+                      <SearchItem key={item.href} item={item} />
+                    ))}
+                    {results.actions.length > 0 ? (
+                      <p className="desk-search-group">Aksies</p>
+                    ) : null}
+                    {results.actions.map((item) => (
+                      <SearchItem key={`action-${item.href}-${item.label}`} item={item} />
+                    ))}
+                  </>
+                ) : (
+                  <p className="px-4 py-5 text-sm text-white/50">Niks gevind vir “{query}” nie.</p>
+                )}
               </div>
             ) : null}
           </div>
 
           <ThemeToggle />
-          <Link href="/" className="desk-ghost-btn hidden sm:inline-flex">
-            Werf
-          </Link>
-          <span className="desk-user">
-            <span className="desk-user-mark">MB</span>
-            <span className="hidden leading-tight sm:block">
-              <span className="block text-sm font-bold text-white">MrBio</span>
-              <span className="block text-[11px] text-white/50">Eienaar</span>
-            </span>
-          </span>
         </header>
         <div className="desk-content">{children}</div>
       </div>
     </>
+  );
+}
+
+function SearchItem({ item }: { item: AdminNavItem }) {
+  return (
+    <Link href={item.href} className="desk-search-item">
+      <span className="desk-tile is-small">
+        <AdminIcon name={item.icon} className="h-4 w-4" />
+      </span>
+      <span className="min-w-0">
+        <span className="block font-bold text-white">{item.label}</span>
+        <span className="block truncate text-xs text-white/50">{item.description}</span>
+      </span>
+    </Link>
   );
 }

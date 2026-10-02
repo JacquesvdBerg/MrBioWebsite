@@ -1,6 +1,7 @@
 import { deleteTheme, upsertTheme } from "@/app/(admin)/admin/actions";
 import { AdminPage } from "@/components/admin-page";
 import { AdminBadge, AdminBtn, AdminEmpty, AdminPanel, deskField } from "@/components/admin-ui";
+import { DeleteButton } from "@/components/admin-client";
 import { ImageUploadField } from "@/components/image-upload-field";
 import { getAllThemes } from "@/lib/themes";
 
@@ -20,7 +21,7 @@ export default async function AdminThemesPage() {
       title="Temas"
       description="Elke tema gebruik dieselfde bladsy-template. Skep die tema hier, en vul dan die inhoud op die wysig-bladsy."
     >
-      <AdminPanel title="Nuwe tema">
+      <AdminPanel title="Nuwe tema" icon="plus" collapsible defaultOpen={themes.length === 0}>
         <form action={upsertTheme} className="grid gap-3 md:grid-cols-2">
           <label className="desk-label">
             Titel
@@ -57,15 +58,18 @@ export default async function AdminThemesPage() {
             Publiseer
           </label>
           <div className="md:col-span-2">
-            <AdminBtn type="submit">Skep en wysig</AdminBtn>
+            <AdminBtn type="submit" icon="arrow">
+              Skep en wysig
+            </AdminBtn>
           </div>
         </form>
       </AdminPanel>
 
       <div className="mt-6">
-        <AdminPanel title={`${themes.length} temas`}>
+        <AdminPanel title={`${themes.length} temas`} icon="theme">
           {themes.length === 0 ? (
             <AdminEmpty
+              icon="theme"
               title="Nog geen temas nie"
               body="Skep die eerste een hierbo — Genetika, Fotosintese, Evolusie, wat jy ook al eerste wil oopmaak."
             />
@@ -83,12 +87,15 @@ export default async function AdminThemesPage() {
                     <p className="font-mono text-xs text-white/55">{theme.href}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <AdminBtn href={`/admin/themes/${theme.slug}`}>Wysig bladsy</AdminBtn>
+                    <AdminBtn href={theme.href} tone="ghost" size="sm" icon="external" external>
+                      Bekyk
+                    </AdminBtn>
+                    <AdminBtn href={`/admin/themes/${theme.slug}`} size="sm">
+                      Wysig bladsy
+                    </AdminBtn>
                     <form action={deleteTheme}>
                       <input type="hidden" name="slug" value={theme.slug} />
-                      <button type="submit" className="desk-btn desk-btn-danger">
-                        Verwyder
-                      </button>
+                      <DeleteButton confirm="Verwyder hierdie tema en sy bladsy?" />
                     </form>
                   </div>
                 </li>

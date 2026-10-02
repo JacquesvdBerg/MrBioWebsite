@@ -7,10 +7,10 @@ import { AdminPage } from "@/components/admin-page";
 import {
   AdminBadge,
   AdminBtn,
-  AdminEmpty,
   AdminPanel,
   deskField,
 } from "@/components/admin-ui";
+import { DeleteButton } from "@/components/admin-client";
 import { grades } from "@/lib/site";
 import { getAllTopics } from "@/lib/topics";
 
@@ -28,7 +28,7 @@ export default async function AdminTopicsPage() {
       title="Onderwerpe"
       description="Die nagtaak kies die onderwerp wat die langste nie gebruik is nie, en bou ’n nuwe 25-vraag vasvra. Onderwerpe word herwin."
     >
-      <AdminPanel title="Voeg ’n onderwerp by">
+      <AdminPanel title="Voeg ’n onderwerp by" icon="plus" collapsible defaultOpen={topics.length === 0}>
         <form action={createTopic} className="grid gap-3 md:grid-cols-4">
           <label className="desk-label">
             Graad
@@ -45,7 +45,9 @@ export default async function AdminTopicsPage() {
             <input className={deskField} name="title" required />
           </label>
           <div className="flex items-end">
-            <AdminBtn type="submit">Voeg by</AdminBtn>
+            <AdminBtn type="submit" icon="plus">
+              Voeg by
+            </AdminBtn>
           </div>
           <label className="desk-label md:col-span-4">
             Fokusnota (opsioneel)
@@ -63,12 +65,11 @@ export default async function AdminTopicsPage() {
           const rows = topics.filter((topic) => topic.grade === grade);
 
           return (
-            <AdminPanel key={grade} title={`Graad ${grade} · ${rows.length}`}>
+            <AdminPanel key={grade} title={`Graad ${grade} · ${rows.length}`} icon="list">
               {rows.length === 0 ? (
-                <AdminEmpty
-                  title="Nog geen onderwerpe nie"
-                  body="Voeg die eerste een hierbo by sodat die nagtaak iets het om uit te kies."
-                />
+                <p className="text-sm text-white/50">
+                  Nog geen onderwerpe nie — voeg een hierbo by sodat die nagtaak iets het om uit te kies.
+                </p>
               ) : (
                 <ul>
                   {rows.map((topic) => (
@@ -93,15 +94,13 @@ export default async function AdminTopicsPage() {
                             name="is_active"
                             value={String(topic.isActive)}
                           />
-                          <button type="submit" className="desk-btn desk-btn-ghost">
+                          <button type="submit" className="desk-btn desk-btn-ghost desk-btn-sm">
                             {topic.isActive ? "Deaktiveer" : "Aktiveer"}
                           </button>
                         </form>
                         <form action={deleteTopic}>
                           <input type="hidden" name="id" value={topic.id} />
-                          <button type="submit" className="desk-btn desk-btn-danger">
-                            Verwyder
-                          </button>
+                          <DeleteButton confirm="Verwyder hierdie onderwerp uit die nagtaak se bank?" />
                         </form>
                       </div>
                     </li>

@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { saveThemePage } from "@/app/(admin)/admin/actions";
 import { AdminPage } from "@/components/admin-page";
-import { AdminBtn, deskField } from "@/components/admin-ui";
+import { AdminBadge, AdminBtn, deskField } from "@/components/admin-ui";
 import { ImageUploadField } from "@/components/image-upload-field";
 import { themeCardSlots } from "@/lib/theme-page";
 import { getAdminTheme } from "@/lib/themes";
@@ -38,17 +37,14 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
     <AdminPage
       title={theme.title}
       description={`Vul die template vir ${theme.href}. Leë velde word weggesteek op die publieke bladsy.`}
+      back={{ href: "/admin/themes", label: "Temas" }}
+      meta={<AdminBadge tone={theme.isPublished ? "live" : "draft"}>{theme.isPublished ? "Live" : "Konsep"}</AdminBadge>}
+      actions={
+        <AdminBtn href={theme.href} tone="ghost" icon="external" external>
+          Publieke bladsy
+        </AdminBtn>
+      }
     >
-      <p className="mb-6 text-sm">
-        <Link href="/admin/themes" className="font-semibold text-lime">
-          ← Terug na temas
-        </Link>
-        {" · "}
-        <Link href={theme.href} className="font-semibold text-lime">
-          Sien publieke bladsy
-        </Link>
-      </p>
-
       <form action={saveThemePage} className="space-y-6">
         <input type="hidden" name="existingSlug" value={theme.slug} />
 
@@ -149,7 +145,7 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
               const card = page.cards[index];
 
               return (
-                <div key={index} className="space-y-2 rounded-xl bg-white/5 p-3">
+                <div key={index} className="space-y-2 rounded-2xl border border-white/10 p-3.5">
                   <p className="text-xs font-bold uppercase tracking-wide text-white/55">
                     Boks {index + 1}
                   </p>
@@ -280,7 +276,11 @@ export default async function AdminThemeEditorPage({ params }: EditorPageProps) 
           </label>
         </section>
 
-        <AdminBtn type="submit">Stoor bladsy</AdminBtn>
+        <div className="desk-savebar">
+          <AdminBtn type="submit" icon="check">
+            Stoor bladsy
+          </AdminBtn>
+        </div>
       </form>
     </AdminPage>
   );

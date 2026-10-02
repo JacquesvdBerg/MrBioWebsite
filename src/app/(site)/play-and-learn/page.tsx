@@ -1,16 +1,10 @@
-import Link from "next/link";
 import { ActivityIcon } from "@/components/activity-icon";
+import { GradeCard } from "@/components/grade-card";
 import { Reveal } from "@/components/reveal";
 import { SectionPage } from "@/components/section-page";
-import { Arrow, SectionHeading } from "@/components/ui";
+import { SectionHeading } from "@/components/ui";
 import { getAllPublishedActivities } from "@/lib/activities";
-import {
-  activityTypes,
-  gradeAccents,
-  gradeActivitiesPath,
-  gradeBlurbs,
-  grades,
-} from "@/lib/site";
+import { activityTypes, gradeActivitiesPath, grades } from "@/lib/site";
 
 export const metadata = {
   title: "Oefen en toets",
@@ -75,22 +69,22 @@ export default async function PlayAndLearnPage() {
           const count = activities.filter((item) => item.grade === grade).length;
 
           return (
-            <Reveal key={grade} delay={index * 70}>
-              <Link
+            <Reveal
+              key={grade}
+              delay={index * 70}
+              className={index === grades.length - 1 ? "col-span-2 sm:col-span-1" : ""}
+            >
+              <GradeCard
+                grade={grade}
                 href={gradeActivitiesPath(grade)}
-                className="grade-orb h-full min-h-[14rem]"
-                style={{ ["--accent" as string]: gradeAccents[grade] }}
-              >
-                <span className="grade-orb-num">{grade}</span>
-                <span className="mt-3 font-display text-lg font-bold">Graad {grade}</span>
-                <span className="mt-1 text-[13px] leading-5 text-white/55">{gradeBlurbs[grade]}</span>
-                <span className="mt-4 inline-flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-white/45">
-                  {count === 0
+                cta="Speel"
+                meta={
+                  count === 0
                     ? "Hierdie week"
-                    : `${count} ${count === 1 ? "aktiwiteit" : "aktiwiteite"}`}
-                  <Arrow className="h-3.5 w-3.5" />
-                </span>
-              </Link>
+                    : `${count} ${count === 1 ? "aktiwiteit" : "aktiwiteite"}`
+                }
+                className="min-h-[15.5rem]"
+              />
             </Reveal>
           );
         })}

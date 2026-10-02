@@ -1,12 +1,16 @@
 import { createProduct, deleteProduct } from "@/app/(admin)/admin/actions";
+import { DeleteButton } from "@/components/admin-client";
 import { AdminPage } from "@/components/admin-page";
 import {
   AdminBadge,
   AdminBtn,
   AdminEmpty,
+  AdminNotice,
   AdminPanel,
+  AdminStat,
   deskField,
 } from "@/components/admin-ui";
+import { Visual } from "@/components/visual";
 import { getAllProducts, productKindOptions } from "@/lib/products";
 import { grades } from "@/lib/site";
 
@@ -31,37 +35,32 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
   return (
     <AdminPage
       title="Produkte"
-      description="Notas, pakke en bundels. Die winkel is navraag-gebaseer — geen aanlyn betaling nie. Net gepubliseerde items verskyn op /shop."
+      description="Notas, pakke en bundels. Die winkel werk met navrae — geen aanlyn betaling nie. Net gepubliseerde items verskyn op /shop."
+      actions={
+        <AdminBtn href="/shop" tone="ghost" icon="external" external>
+          Bekyk winkel
+        </AdminBtn>
+      }
     >
       {params.error === "fields" ? (
-        <p className="mb-6 text-sm text-orange">Titel is verpligtend, en ’n item het ’n graad 10–12 nodig.</p>
+        <AdminNotice tone="err">Titel is verpligtend, en ’n item het ’n graad nodig.</AdminNotice>
       ) : null}
-      {params.error === "stoor" ? (
-        <p className="mb-6 text-sm text-orange">Kon nie die produk stoor nie.</p>
-      ) : null}
+      {params.error === "stoor" ? <AdminNotice tone="err">Kon nie die produk stoor nie.</AdminNotice> : null}
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <article className="desk-stat">
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-white/55">
-            Produkte
-          </p>
-          <p className="mt-3 font-display text-4xl font-extrabold text-white">{items.length}</p>
-        </article>
-        <article className="desk-stat">
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-white/55">
-            Bundels
-          </p>
-          <p className="mt-3 font-display text-4xl font-extrabold text-white">{bundles.length}</p>
-        </article>
-        <article className="desk-stat">
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-white/55">
-            Live-katalogus
-          </p>
-          <p className="mt-3 font-display text-4xl font-extrabold text-white">R{catalogueValue}</p>
-        </article>
+      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+        <AdminStat label="Produkte" value={items.length} hint="Enkel pakke" icon="cart" tone="amber" />
+        <AdminStat label="Bundels" value={bundles.length} hint="Meer vir minder" icon="list" tone="violet" />
+        <AdminStat
+          label="Live-katalogus"
+          value={`R${catalogueValue}`}
+          hint={`${live.length} van ${products.length} te koop`}
+          icon="spark"
+          tone="green"
+          progress={products.length ? live.length / products.length : 0}
+        />
       </div>
 
-      <AdminPanel title="Nuwe produk">
+      <AdminPanel title="Nuwe produk" icon="plus" collapsible defaultOpen={products.length === 0}>
         <form action={createProduct} className="grid gap-3 md:grid-cols-2">
           <label className="desk-label md:col-span-2">
             Titel
@@ -98,52 +97,65 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
             <input className={deskField} name="price" type="number" min={0} defaultValue={80} />
           </label>
           <div className="md:col-span-2">
-            <AdminBtn type="submit">Skep en wysig</AdminBtn>
+            <AdminBtn type="submit" icon="arrow">
+              Skep en wysig
+            </AdminBtn>
           </div>
         </form>
       </AdminPanel>
 
       <div className="mt-6">
-        <AdminPanel title="Katalogus">
-          {products.length === 0 ? (
+        {products.length === 0 ? (
+          <AdminPanel>
             <AdminEmpty
+              icon="cart"
               title="Nog geen produkte nie"
               body="Skep die eerste pak hierbo. Dit bly konsep tot jy dit publiseer."
             />
-          ) : (
-            <ul>
-              {products.map((product) => (
-                <li key={product.id} className="desk-row">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-display font-bold text-white">{product.title}</p>
-                      <AdminBadge tone={product.isPublished ? "live" : "draft"}>
-                        {product.isPublished ? "Live" : "Konsep"}
-                      </AdminBadge>
-                      {product.listingKind === "bundle" ? <AdminBadge>Bundel</AdminBadge> : null}
-                      {product.badge ? <AdminBadge tone="wait">{product.badge}</AdminBadge> : null}
-                    </div>
-                    <p className="text-sm text-white/55">
-                      {product.kind}
-                      {product.grade ? ` · Graad ${product.grade}` : ""}
-                      {product.pages ? ` · ${product.pages} bladsye` : ""}
+          </AdminPanel>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {products.map((product) => (
+              <article key={product.id} className="desk-product">
+                <div className="relative">
+                  <Visual file={product.imagePath} alt="" ratio="16/9" tone={product.tone} sizes="360px" />
+                  <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+                    <AdminBadge tone={product.isPublished ? "live" : "draft"}>
+                      {product.isPublished ? "Live" : "Konsep"}
+                    </AdminBadge>
+                    {product.listingKind === "bundle" ? <AdminBadge>Bundel</AdminBadge> : null}
+                    {product.badge ? <AdminBadge tone="wait">{product.badge}</AdminBadge> : null}
+                  </div>
+                </div>
+                <div className="flex flex-1 flex-col p-4">
+                  <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-white/50">
+                    {product.kind}
+                    {product.grade ? ` · Graad ${product.grade}` : ""}
+                    {product.pages ? ` · ${product.pages} bl.` : ""}
+                  </p>
+                  <h3 className="mt-1 font-display text-lg font-bold leading-snug text-white">{product.title}</h3>
+                  <div className="mt-auto flex items-end justify-between gap-3 pt-4">
+                    <p className="font-display text-2xl font-extrabold tracking-[-0.03em] text-white">
+                      R{product.price}
+                      {product.wasPrice ? (
+                        <span className="ml-2 text-sm font-semibold text-white/40 line-through">R{product.wasPrice}</span>
+                      ) : null}
                     </p>
+                    <div className="flex items-center gap-1">
+                      <form action={deleteProduct}>
+                        <input type="hidden" name="slug" value={product.slug} />
+                        <DeleteButton label="" confirm="Verwyder hierdie produk uit die katalogus?" />
+                      </form>
+                      <AdminBtn href={`/admin/products/${product.slug}`} size="sm">
+                        Wysig
+                      </AdminBtn>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <p className="font-display text-xl font-extrabold text-white">R{product.price}</p>
-                    <AdminBtn href={`/admin/products/${product.slug}`}>Wysig</AdminBtn>
-                    <form action={deleteProduct}>
-                      <input type="hidden" name="slug" value={product.slug} />
-                      <button type="submit" className="desk-btn desk-btn-danger">
-                        Verwyder
-                      </button>
-                    </form>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </AdminPanel>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </div>
     </AdminPage>
   );

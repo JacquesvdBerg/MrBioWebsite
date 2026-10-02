@@ -1,4 +1,4 @@
-export const siteName = "MrBio";
+export const siteName = "MnrBio";
 export const siteTagline = "Lewenswetenskappe";
 
 export type NavChild = {
@@ -49,7 +49,7 @@ export const footerNav = [
     ],
   },
   {
-    title: "MrBio",
+    title: "MnrBio",
     links: [
       { href: "/about", label: "Oor ons" },
       { href: "/contact", label: "Kontak" },
@@ -237,16 +237,26 @@ export const activityTypes = [
 ] as const;
 
 export const gradeAccents: Record<Grade, string> = {
-  8: "var(--mint)",
-  9: "var(--coral)",
+  8: "var(--lime)",
+  9: "var(--mint)",
   10: "var(--sky)",
   11: "var(--violet)",
-  12: "var(--sun)",
+  12: "var(--coral)",
+};
+
+// Bright subject-card colours from the concept (light end, deep end), used
+// for grade cards and the shop's grade choice in both themes.
+export const gradeColors: Record<Grade, readonly [string, string]> = {
+  8: ["#3aab48", "#1c7832"],
+  9: ["#20b0a6", "#0c7a80"],
+  10: ["#3283e3", "#1a4ea8"],
+  11: ["#7d5ee2", "#4d2fad"],
+  12: ["#f4932a", "#d95416"],
 };
 
 export const gradeBlurbs: Record<Grade, string> = {
-  8: "Vier kwartale. Die jaarplan word hier geplaas.",
-  9: "Vier kwartale. Die jaarplan word hier geplaas.",
+  8: "Die begin van die reis: plante, diere en die lewe rondom jou.",
+  9: "Die menslike liggaam: selle, stelsels en hoe alles saamwerk.",
   10: "Chemie van lewe, selle, weefsels, ekosisteme en biodiversiteit.",
   11: "Klassifikasie, lewensprosesse, gaswisseling en die omgewing.",
   12: "DNA, voortplanting, homeostase, genetika en evolusie.",

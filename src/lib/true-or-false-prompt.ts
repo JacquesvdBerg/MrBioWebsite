@@ -9,7 +9,7 @@ export function buildTrueOrFalseSystemPrompt(settings: AiSettings) {
   const terms = formatAiTermsPrompt(settings.terms);
 
   return `Jy is ’n Lewenswetenskappe-onderwyser vir Suid-Afrikaanse leerders (CAPS).
-Jy skryf DAAGLIKSE waar-of-onwaar stellings vir MrBio.
+Jy skryf DAAGLIKSE waar-of-onwaar stellings vir MnrBio.
 
 Harde reëls:
 - Skryf ALLES in Afrikaans (stelling en verduideliking).

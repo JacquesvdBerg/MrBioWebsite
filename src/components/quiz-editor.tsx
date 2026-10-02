@@ -139,13 +139,14 @@ export function QuizEditor({
           className="desk-panel desk-panel-body space-y-3"
         >
           <div className="flex items-center justify-between">
-            <h2 className="font-display font-bold text-white">
+            <h2 className="flex items-center gap-2.5 font-display font-bold text-white">
+              <span className="desk-qnum">{index + 1}</span>
               Vraag {index + 1}
             </h2>
             {questions.length > 1 ? (
               <button
                 type="button"
-                className="text-xs font-semibold text-orange"
+                className="desk-btn desk-btn-danger"
                 onClick={() =>
                   setQuestions((current) =>
                     current.filter((item) => item.id !== question.id),
@@ -170,7 +171,8 @@ export function QuizEditor({
             {question.options.map((option, optionIndex) => (
               <label
                 key={option.id}
-                className="flex items-center gap-2 text-sm font-semibold"
+                className={`desk-option ${question.correctId === option.id ? "is-correct" : ""}`}
+                title="Klik die sirkel om dit die regte antwoord te maak"
               >
                 <input
                   type="radio"
@@ -180,7 +182,7 @@ export function QuizEditor({
                     updateQuestion(question.id, { correctId: option.id })
                   }
                 />
-                <span className="w-5">{optionLetters[optionIndex]}</span>
+                <span className="desk-option-letter">{optionLetters[optionIndex]}</span>
                 <input
                   className={deskField}
                   value={option.text}
@@ -207,7 +209,7 @@ export function QuizEditor({
         </section>
       ))}
 
-      <div className="flex flex-wrap gap-3">
+      <div className="desk-savebar">
         <button
           type="button"
           className="desk-btn desk-btn-ghost"
@@ -217,6 +219,9 @@ export function QuizEditor({
         >
           Voeg vraag by
         </button>
+        <span className="mr-auto text-sm font-semibold text-white/55">
+          {questions.length} {questions.length === 1 ? "vraag" : "vrae"}
+        </span>
         <button
           type="submit"
           className="desk-btn desk-btn-navy"

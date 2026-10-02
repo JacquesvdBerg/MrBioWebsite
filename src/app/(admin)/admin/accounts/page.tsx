@@ -1,9 +1,12 @@
 import { createAdminAccount } from "@/app/(admin)/admin/actions";
 import { AdminPage } from "@/components/admin-page";
 import {
+  AdminBadge,
   AdminBtn,
   AdminEmpty,
+  AdminNotice,
   AdminPanel,
+  initialsOf,
   deskField,
 } from "@/components/admin-ui";
 import { isServiceRoleConfigured, listAdminAccounts } from "@/lib/admin-accounts";
@@ -58,12 +61,10 @@ export default async function AdminAccountsPage({ searchParams }: AccountsPagePr
       description="Skep admin-rekeninge vir werknemers vanaf die lessenaar — nie vanaf die inteken-blad nie. Stuur die wagwoord self; ons stuur nie ’n welkom-e-pos nie."
     >
       {notice ? (
-        <p className={`mb-6 text-sm ${notice.tone === "ok" ? "text-lime" : "text-orange"}`}>
-          {notice.text}
-        </p>
+        <AdminNotice tone={notice.tone}>{notice.text}</AdminNotice>
       ) : null}
 
-      <AdminPanel title="Skep admin-rekening">
+      <AdminPanel title="Skep admin-rekening" icon="plus">
         {hasService ? (
           <form action={createAdminAccount} className="grid gap-3 md:grid-cols-3">
             <label className="desk-label">
@@ -88,7 +89,9 @@ export default async function AdminAccountsPage({ searchParams }: AccountsPagePr
               />
             </label>
             <div className="flex items-end">
-              <AdminBtn type="submit">Skep rekening</AdminBtn>
+              <AdminBtn type="submit" icon="plus">
+                Skep rekening
+              </AdminBtn>
             </div>
           </form>
         ) : (
@@ -100,7 +103,7 @@ export default async function AdminAccountsPage({ searchParams }: AccountsPagePr
       </AdminPanel>
 
       <div className="mt-6">
-        <AdminPanel title={`${accounts.length} rekeninge`}>
+        <AdminPanel title={`${accounts.length} rekeninge`} icon="users">
           {accounts.length === 0 ? (
             <AdminEmpty
               title="Nog geen rekeninge sigbaar nie"
@@ -110,8 +113,10 @@ export default async function AdminAccountsPage({ searchParams }: AccountsPagePr
             <ul>
               {accounts.map((account) => (
                 <li key={account.id} className="desk-row">
-                  <div>
-                    <p className="font-display font-bold text-white">{account.email}</p>
+                  <div className="flex min-w-0 items-center gap-3.5">
+                    <span className="desk-avatar is-blue">{initialsOf(account.email.split("@")[0].replace(/[._-]+/g, " "))}</span>
+                    <div className="min-w-0">
+                    <p className="truncate font-display font-bold text-white">{account.email}</p>
                     <p className="text-sm text-white/55">
                       {new Intl.DateTimeFormat("af-ZA", {
                         day: "numeric",
@@ -119,7 +124,9 @@ export default async function AdminAccountsPage({ searchParams }: AccountsPagePr
                         year: "numeric",
                       }).format(new Date(account.createdAt))}
                     </p>
+                    </div>
                   </div>
+                  <AdminBadge tone="live">Admin</AdminBadge>
                 </li>
               ))}
             </ul>

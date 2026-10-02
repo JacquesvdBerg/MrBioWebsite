@@ -1,7 +1,7 @@
-import Link from "next/link";
+import { GradeCard } from "@/components/grade-card";
 import { Reveal } from "@/components/reveal";
 import { SectionPage } from "@/components/section-page";
-import { gradeAccents, gradeBlurbs, gradePath, grades } from "@/lib/site";
+import { gradePath, grades, isJobGrade } from "@/lib/site";
 
 export const metadata = {
   title: "Grade",
@@ -21,16 +21,17 @@ export default function GradesIndexPage() {
     >
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {grades.map((grade, index) => (
-          <Reveal key={grade} delay={index * 50}>
-            <Link
+          <Reveal
+            key={grade}
+            delay={index * 50}
+            className={index === grades.length - 1 ? "col-span-2 sm:col-span-1" : ""}
+          >
+            <GradeCard
+              grade={grade}
               href={gradePath(grade)}
-              className="grade-orb h-full min-h-[14rem]"
-              style={{ ["--accent" as string]: gradeAccents[grade] }}
-            >
-              <span className="grade-orb-num">{grade}</span>
-              <span className="mt-3 font-display text-lg font-bold">Graad {grade}</span>
-              <span className="mt-1 text-[13px] leading-5 text-white/55">{gradeBlurbs[grade]}</span>
-            </Link>
+              meta={isJobGrade(grade) ? "4 kwartale" : "Jaarplan binnekort"}
+              className="min-h-[15.5rem]"
+            />
           </Reveal>
         ))}
       </div>

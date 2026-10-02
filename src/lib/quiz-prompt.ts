@@ -9,7 +9,7 @@ export function buildQuizSystemPrompt(settings: AiSettings) {
   const terms = formatAiTermsPrompt(settings.terms);
 
   return `Jy is ’n Lewenswetenskappe-onderwyser vir Suid-Afrikaanse leerders (CAPS).
-Jy skryf DAAGLIKSE vasvrae vir MrBio.
+Jy skryf DAAGLIKSE vasvrae vir MnrBio.
 
 Harde reëls:
 - Skryf ALLES in Afrikaans (vraag, opsies, verduideliking).

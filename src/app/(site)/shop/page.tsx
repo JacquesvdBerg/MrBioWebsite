@@ -5,7 +5,7 @@ import { TiltCard } from "@/components/tilt-card";
 import { Arrow, ButtonLink, SectionHeading } from "@/components/ui";
 import { Visual } from "@/components/visual";
 import { getPublishedCatalogue } from "@/lib/products";
-import { grades, isGrade } from "@/lib/site";
+import { gradeColors, grades, isGrade } from "@/lib/site";
 
 export const metadata = {
   title: "Winkel",
@@ -39,22 +39,29 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         { href: "/shop", label: "Winkel" },
       ]}
     >
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <Link href="/shop" className={`grade-orb min-h-[7rem] ${activeGrade === null ? "is-active" : ""}`}>
-          <span className="font-display text-lg font-bold">Alles</span>
+      <nav aria-label="Kies ’n graad" className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+        <Link
+          href="/shop"
+          aria-current={activeGrade === null ? "page" : undefined}
+          className={`shop-grade ${activeGrade === null ? "is-active" : ""}`}
+          style={{ ["--c1" as string]: "#2a4478", ["--c2" as string]: "#13254a" }}
+        >
+          <span className="shop-grade-num is-word">Alles</span>
+          <span className="shop-grade-label">Alle grade</span>
         </Link>
         {grades.map((grade) => (
           <Link
             key={grade}
             href={`/shop?graad=${grade}`}
-            className="grade-orb min-h-[7rem]"
-            style={{ ["--accent" as string]: activeGrade === grade ? "var(--lime)" : undefined }}
+            aria-current={activeGrade === grade ? "page" : undefined}
+            className={`shop-grade ${activeGrade === grade ? "is-active" : ""}`}
+            style={{ ["--c1" as string]: gradeColors[grade][0], ["--c2" as string]: gradeColors[grade][1] }}
           >
-            <span className="grade-orb-num text-4xl">{grade}</span>
-            <span className="mt-1 text-sm font-bold">Graad {grade}</span>
+            <span className="shop-grade-num">{grade}</span>
+            <span className="shop-grade-label">Graad {grade}</span>
           </Link>
         ))}
-      </div>
+      </nav>
 
       {visible.length === 0 ? (
         <div className="glass mt-8 rounded-[2rem] px-7 py-12 text-center">

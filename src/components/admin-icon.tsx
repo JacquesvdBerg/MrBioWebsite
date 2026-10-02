@@ -102,6 +102,70 @@ export function AdminIcon({ name, className = "h-4 w-4" }: { name: AdminIconName
           <path d="M12 4v2.2M12 17.8V20M4 12h2.2M17.8 12H20M6.3 6.3l1.6 1.6M16.1 16.1l1.6 1.6M17.7 6.3l-1.6 1.6M7.9 16.1l-1.6 1.6" />
         </svg>
       );
+    case "plus":
+      return (
+        <svg {...common} className={className}>
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      );
+    case "external":
+      return (
+        <svg {...common} className={className}>
+          <path d="M14 5h6v6M20 5l-9 9" />
+          <path d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5" />
+        </svg>
+      );
+    case "logout":
+      return (
+        <svg {...common} className={className}>
+          <path d="M10 7H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4M15 16l4-4-4-4M19 12H9" />
+        </svg>
+      );
+    case "search":
+      return (
+        <svg {...common} className={className}>
+          <circle cx="11" cy="11" r="6.5" />
+          <path d="m16 16 4 4" />
+        </svg>
+      );
+    case "spark":
+      return (
+        <svg {...common} className={className}>
+          <path d="M12 3.5 13.9 9l5.6 1.9-5.6 1.9L12 18.5l-1.9-5.7-5.6-1.9L10.1 9Z" />
+          <path d="M19 3.5v3M17.5 5h3" />
+        </svg>
+      );
+    case "check":
+      return (
+        <svg {...common} className={className}>
+          <path d="m5 12.5 4.5 4.5L19 7.5" />
+        </svg>
+      );
+    case "trash":
+      return (
+        <svg {...common} className={className}>
+          <path d="M4.5 7h15M9.5 7V5h5v2M6.5 7l1 12.5h9l1-12.5M10.5 11v5M13.5 11v5" />
+        </svg>
+      );
+    case "copy":
+      return (
+        <svg {...common} className={className}>
+          <rect x="8.5" y="8.5" width="11" height="11" rx="2" />
+          <path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5" />
+        </svg>
+      );
+    case "arrow":
+      return (
+        <svg {...common} className={className}>
+          <path d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      );
+    case "back":
+      return (
+        <svg {...common} className={className}>
+          <path d="M19 12H5M11 6l-6 6 6 6" />
+        </svg>
+      );
     default: {
       const _exhaustive: never = name;
       return _exhaustive;

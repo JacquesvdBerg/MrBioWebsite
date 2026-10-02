@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminPage } from "@/components/admin-page";
+import { AdminBadge, AdminBtn } from "@/components/admin-ui";
 import { QuizEditor } from "@/components/quiz-editor";
 import { asQuiz, getAdminActivity } from "@/lib/activities";
 import { getAllThemes } from "@/lib/themes";
@@ -39,19 +39,19 @@ export default async function EditQuizPage({ params }: EditQuizPageProps) {
     <AdminPage
       title={quiz.title}
       description="Stoor, dan speel die publieke bladsy dadelik."
-    >
-      <p className="mb-6 text-sm">
-        <Link href="/admin/activities" className="font-semibold text-lime">
-          ← Aktiwiteite
-        </Link>
-        {" · "}
-        <Link
-          href={`/play-and-learn/quiz/${quiz.slug}`}
-          className="font-semibold text-lime"
-        >
+      back={{ href: "/admin/activities", label: "Aktiwiteite" }}
+      meta={
+        <>
+          <AdminBadge>Vasvra</AdminBadge>
+          <AdminBadge tone={quiz.isPublished ? "live" : "draft"}>{quiz.isPublished ? "Live" : "Konsep"}</AdminBadge>
+        </>
+      }
+      actions={
+        <AdminBtn href={`/play-and-learn/quiz/${quiz.slug}`} tone="ghost" icon="external" external>
           Speel
-        </Link>
-      </p>
+        </AdminBtn>
+      }
+    >
       <QuizEditor
         slug={quiz.slug}
         title={quiz.title}

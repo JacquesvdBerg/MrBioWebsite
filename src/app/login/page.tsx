@@ -1,6 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import { LoginForm } from "@/app/login/login-form";
-import { DnaMark } from "@/components/icons";
+import { MrBioMark } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { safeNextPath } from "@/lib/safe-next";
@@ -18,19 +19,33 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const configured = isSupabaseConfigured();
 
   return (
-    <main className="mrbio desk flex flex-1 items-center justify-center px-4 py-20">
-      <div className="absolute right-4 top-4 sm:right-6 sm:top-6">
+    <main className="mrbio desk desk-login flex-1">
+      <div className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6">
         <ThemeToggle />
       </div>
-      <div className="desk-panel w-full max-w-md p-8">
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-lime text-on-accent">
-          <DnaMark className="h-7 w-7" />
-        </span>
-        <p className="mt-6 text-[11px] font-extrabold uppercase tracking-[0.18em] text-lime">
-          MrBio desk
-        </p>
-        <h1 className="mt-2 font-display text-3xl font-bold text-white">Teken in</h1>
-        <p className="mt-3 leading-7 text-white/55">
+      <Image
+        src="/images/home/island/island.webp"
+        alt=""
+        width={1338}
+        height={1492}
+        sizes="384px"
+        className="desk-login-art"
+        priority
+      />
+      <div className="desk-panel relative z-10 w-full max-w-md p-8 sm:p-9">
+        <div className="flex items-center gap-3">
+          <MrBioMark className="h-14 w-14" />
+          <span className="leading-tight">
+            <span className="block font-display text-2xl font-extrabold tracking-[-0.03em] text-white">
+              Mnr<span className="text-lime">Bio</span>
+            </span>
+            <span className="block text-[11px] font-bold uppercase tracking-[0.18em] text-white/50">
+              Lessenaar
+            </span>
+          </span>
+        </div>
+        <h1 className="mt-7 font-display text-3xl font-extrabold tracking-[-0.03em] text-white">Welkom terug</h1>
+        <p className="mt-2 leading-7 text-white/55">
           Dit is die onderwyser se lessenaar. Leerders teken in by{" "}
           <Link href="/rekening" className="font-semibold text-lime">
             My rekening
@@ -43,11 +58,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             resetFailed={params.reset === "failed"}
           />
         ) : (
-          <p className="mt-7 text-sm text-coral">
-            Supabase is nie gekoppel nie. Sit <code>NEXT_PUBLIC_SUPABASE_URL</code> en{" "}
-            <code>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> in <code>.env</code>.
+          <p className="desk-notice is-err mt-7">
+            Supabase is nie gekoppel nie. Sit NEXT_PUBLIC_SUPABASE_URL en NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in .env.
           </p>
         )}
+        <Link href="/" className="desk-back mt-6 mb-0">
+          ← Terug na die werf
+        </Link>
       </div>
     </main>
   );

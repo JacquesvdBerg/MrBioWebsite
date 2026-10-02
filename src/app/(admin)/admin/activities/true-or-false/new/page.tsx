@@ -13,6 +13,7 @@ export default async function NewTrueOrFalsePage() {
 
   return (
     <AdminPage
+      back={{ href: "/admin/activities", label: "Aktiwiteite" }}
       title="Nuwe waar of onwaar"
       description="Merk of die stelling waar of onwaar is. Leerders sien een stelling op ’n slag."
     >

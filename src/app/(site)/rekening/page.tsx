@@ -28,7 +28,7 @@ export default async function AccountPage({ searchParams }: PageProps) {
         eyebrow="Rekening"
         title={
           <>
-            Jou MrBio-profiel. <span className="gradient-text">Een aanmelding.</span>
+            Jou MnrBio-profiel. <span className="gradient-text">Een aanmelding.</span>
           </>
         }
         description="Teken in of skep ’n rekening om te klets, later eksklusiewe speletjies te kry, en jou aankope hier te sien."

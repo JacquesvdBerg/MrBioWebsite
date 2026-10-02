@@ -6,6 +6,7 @@ import {
   AdminPanel,
   deskField,
 } from "@/components/admin-ui";
+import { DeleteButton } from "@/components/admin-client";
 import { getAiSettings } from "@/lib/ai-settings";
 
 export const metadata = {
@@ -22,7 +23,7 @@ export default async function AdminSettingsPage() {
       title="Instellings"
       description="Huisreëls, vakterme en die nagtaak. Die woordelys gaan in elke AI-job — dit is hoe jy stomata keer voordat dit huidmondjies moet wees."
     >
-      <AdminPanel title="Vakterme">
+      <AdminPanel title="Vakterme" icon="list">
         <p className="mb-4 max-w-2xl text-sm leading-6 text-white/55">
           Voeg ’n term by wanneer die AI die Engelse woord direk vertaal. Die volgende nagtaak
           kry die volle lys: sê die Afrikaanse woord, nooit die verbode een nie.
@@ -41,7 +42,9 @@ export default async function AdminSettingsPage() {
             <input className={deskField} name="exam" placeholder="stomata (opsioneel)" />
           </label>
           <div className="flex items-end">
-            <AdminBtn type="submit">Voeg term by</AdminBtn>
+            <AdminBtn type="submit" icon="plus">
+              Voeg term by
+            </AdminBtn>
           </div>
         </form>
 
@@ -57,12 +60,10 @@ export default async function AdminSettingsPage() {
             {settings.terms.map((term) => (
               <li key={term.id} className="desk-row">
                 <div>
-                  <p className="font-display font-bold text-white">
-                    {term.use}
-                    <span className="font-sans text-sm font-semibold text-white/45">
-                      {" "}
-                      · nooit {term.never}
-                    </span>
+                  <p className="flex flex-wrap items-center gap-2">
+                    <span className="desk-term is-good">{term.use}</span>
+                    <span className="text-sm text-white/45">in plaas van</span>
+                    <span className="desk-term is-bad">{term.never}</span>
                   </p>
                   {term.exam ? (
                     <p className="text-sm text-white/55">In die eksamen: {term.exam}</p>
@@ -70,9 +71,7 @@ export default async function AdminSettingsPage() {
                 </div>
                 <form action={deleteAiTerm}>
                   <input type="hidden" name="id" value={term.id} />
-                  <button type="submit" className="desk-btn desk-btn-danger">
-                    Verwyder
-                  </button>
+                  <DeleteButton confirm="Verwyder hierdie vakterm?" />
                 </form>
               </li>
             ))}
@@ -81,7 +80,7 @@ export default async function AdminSettingsPage() {
       </AdminPanel>
 
       <div className="mt-6">
-        <AdminPanel title="AI-huisreëls">
+        <AdminPanel title="AI-huisreëls" icon="spark">
           <form action={saveAiSettingsAction} className="space-y-4">
             <label className="desk-label">
               Vlak
@@ -104,7 +103,9 @@ export default async function AdminSettingsPage() {
               <input type="checkbox" name="paused" defaultChecked={settings.paused} />
               Pouseer nagtaak (geen nuwe vasvrae)
             </label>
-            <AdminBtn type="submit">Stoor instellings</AdminBtn>
+            <AdminBtn type="submit" icon="check">
+              Stoor instellings
+            </AdminBtn>
           </form>
         </AdminPanel>
       </div>

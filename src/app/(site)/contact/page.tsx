@@ -10,7 +10,7 @@ import { grades } from "@/lib/site";
 
 export const metadata = {
   title: "Kontak",
-  description: "Kontak die MrBio-span — vir ouers, onderwysers, skole en leerders.",
+  description: "Kontak die MnrBio-span — vir ouers, onderwysers, skole en leerders.",
 };
 
 const cards = [
@@ -22,7 +22,7 @@ const cards = [
   },
   {
     title: "YouTube",
-    body: "@MrBio",
+    body: "@MnrBio",
     note: "Nuwe les elke week. Los ’n kommentaar.",
     icon: "youtube" as const,
   },
@@ -172,7 +172,7 @@ export default async function ContactPage({ searchParams }: PageProps) {
                 Vir skole
               </p>
               <p className="mt-2 font-display text-lg font-bold text-white">
-                Wil jy MrBio in jou klas gebruik?
+                Wil jy MnrBio in jou klas gebruik?
               </p>
               <p className="mt-2 text-sm leading-6 text-white/55">
                 Ons help met klas-lisensies, groeppryse op hulpbronne en ’n kort

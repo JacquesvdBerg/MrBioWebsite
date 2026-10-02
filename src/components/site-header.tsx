@@ -193,7 +193,7 @@ export function SiteHeader({
     >
       <div className="site-header-bar border-b border-white/10 bg-bg/70 shadow-[0_12px_40px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 md:px-6">
-          <Link href="/" className="flex shrink-0 items-center" aria-label="MrBio tuis">
+          <Link href="/" className="flex shrink-0 items-center" aria-label="MnrBio tuis">
             <MrBioLogo />
           </Link>
 

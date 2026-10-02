@@ -15,7 +15,7 @@ import { grades } from "@/lib/site";
 export const metadata = {
   title: "Forum",
   description:
-    "Stel onderwerpe voor, deel terugvoer en lees wat ander MrBio-leerders vra.",
+    "Stel onderwerpe voor, deel terugvoer en lees wat ander MnrBio-leerders vra.",
 };
 
 export const revalidate = 60;

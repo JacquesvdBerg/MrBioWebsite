@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { saveWeeklyFact, setWeeklyFactStatus } from "@/app/(admin)/admin/actions";
 import { AdminPage } from "@/components/admin-page";
-import { AdminBadge, AdminBtn, AdminPanel, deskField } from "@/components/admin-ui";
+import { AdminBadge, AdminBtn, AdminPanel, deskField, AdminNotice } from "@/components/admin-ui";
 import { ImageUploadField } from "@/components/image-upload-field";
 import { grades } from "@/lib/site";
 import {
@@ -42,34 +41,29 @@ export default async function AdminWeeklyFactEditorPage({
     <AdminPage
       title={fact.title}
       description="Hersien die wetenskap, kies ’n prent of bio-kuns, en besluit of dit konsep, goedgekeur of live is."
+      back={{ href: "/admin/weekly-facts", label: "Weeklikse feite" }}
+      meta={
+        <>
+          <AdminBadge tone={weeklyFactStatusTone(fact.status)}>{weeklyFactStatusLabel(fact.status)}</AdminBadge>
+          {fact.weekLabel ? <span className="text-sm text-white/50">{fact.weekLabel}</span> : null}
+        </>
+      }
       actions={
-        <AdminBadge tone={weeklyFactStatusTone(fact.status)}>
-          {weeklyFactStatusLabel(fact.status)}
-        </AdminBadge>
+        fact.status === "published" ? (
+          <AdminBtn href="/weekly-facts" tone="ghost" icon="external" external>
+            Publieke bladsy
+          </AdminBtn>
+        ) : undefined
       }
     >
-      <p className="mb-6 text-sm">
-        <Link href="/admin/weekly-facts" className="font-semibold text-lime">
-          ← Terug na feite
-        </Link>
-        {fact.status === "published" ? (
-          <>
-            {" · "}
-            <Link href="/weekly-facts" className="font-semibold text-lime">
-              Sien publieke bladsy
-            </Link>
-          </>
-        ) : null}
-      </p>
-
       {query.saved === "1" ? (
-        <p className="mb-6 text-sm text-lime">Feit is gestoor.</p>
+        <AdminNotice tone="ok">Feit is gestoor.</AdminNotice>
       ) : null}
       {query.error === "fields" ? (
-        <p className="mb-6 text-sm text-orange">Titel en graad 10–12 is verpligtend.</p>
+        <AdminNotice tone="err">Titel en graad 10–12 is verpligtend.</AdminNotice>
       ) : null}
       {query.error === "stoor" ? (
-        <p className="mb-6 text-sm text-orange">Kon nie die feit stoor nie.</p>
+        <AdminNotice tone="err">Kon nie die feit stoor nie.</AdminNotice>
       ) : null}
 
       <div className="mb-6 flex flex-wrap gap-2">
@@ -95,7 +89,9 @@ export default async function AdminWeeklyFactEditorPage({
           <form action={setWeeklyFactStatus}>
             <input type="hidden" name="slug" value={fact.slug} />
             <input type="hidden" name="status" value="published" />
-            <AdminBtn type="submit">Publiseer</AdminBtn>
+            <AdminBtn type="submit" icon="spark">
+              Publiseer
+            </AdminBtn>
           </form>
         ) : (
           <form action={setWeeklyFactStatus}>
@@ -108,7 +104,7 @@ export default async function AdminWeeklyFactEditorPage({
         )}
       </div>
 
-      <AdminPanel title="Inhoud">
+      <AdminPanel title="Inhoud" icon="leaf">
         <form action={saveWeeklyFact} className="grid gap-3 md:grid-cols-2">
           <input type="hidden" name="existingSlug" value={fact.slug} />
           <label className="desk-label md:col-span-2">
@@ -183,7 +179,9 @@ export default async function AdminWeeklyFactEditorPage({
             />
           </label>
           <div className="md:col-span-2">
-            <AdminBtn type="submit">Stoor inhoud</AdminBtn>
+            <AdminBtn type="submit" icon="check">
+              Stoor inhoud
+            </AdminBtn>
           </div>
         </form>
       </AdminPanel>
