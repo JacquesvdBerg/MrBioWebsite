@@ -83,7 +83,6 @@ export default async function PlayAndLearnPage() {
                     ? "Hierdie week"
                     : `${count} ${count === 1 ? "aktiwiteit" : "aktiwiteite"}`
                 }
-                className="min-h-[15.5rem]"
               />
             </Reveal>
           );

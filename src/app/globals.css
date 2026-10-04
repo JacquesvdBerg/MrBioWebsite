@@ -1406,26 +1406,25 @@ html:has(.mrbio) body {
   text-shadow: 0 0 30px color-mix(in srgb, var(--accent, var(--lime)) 55%, transparent);
 }
 
-/* ---------- grade cards: bright subject cards from the concept ---------- */
+/* ---------- grade cards: the teacher's illustrations ---------- */
 
 .grade-card {
   --color-white: #ffffff;
   position: relative;
+  isolation: isolate;
   display: flex;
-  min-height: 21rem;
+  min-height: 27rem;
   flex-direction: column;
   align-items: center;
   overflow: hidden;
   border-radius: 1.6rem;
-  padding: 1.5rem 1.25rem 1.25rem;
+  padding: 1.25rem 1.15rem 1.15rem;
   text-align: center;
   color: #ffffff;
   text-decoration: none;
-  background:
-    radial-gradient(160px 120px at 50% 42%, rgba(255, 255, 255, 0.22), transparent 70%),
-    linear-gradient(165deg, var(--c1), var(--c2));
+  background: linear-gradient(165deg, var(--c1), var(--c2));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
     0 14px 30px -14px color-mix(in srgb, var(--c2) 70%, transparent);
   transition:
     transform 0.35s cubic-bezier(0.2, 0.7, 0.3, 1),
@@ -1435,8 +1434,51 @@ html:has(.mrbio) body {
 .grade-card:hover {
   transform: translateY(-6px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
     0 26px 44px -16px color-mix(in srgb, var(--c2) 80%, transparent);
+}
+
+.grade-card-img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  transition: transform 0.8s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.grade-card:hover .grade-card-img {
+  transform: scale(1.06);
+}
+
+/* The grade colour rises from the bottom so the text reads over the art. */
+.grade-card-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.18) 0%,
+    transparent 24%,
+    color-mix(in srgb, var(--c2) 50%, transparent) 50%,
+    color-mix(in srgb, var(--c2) 92%, #000) 74%,
+    color-mix(in srgb, var(--c2) 96%, #000) 100%
+  );
+}
+
+.grade-card-chip {
+  position: absolute;
+  left: 0.9rem;
+  top: 0.9rem;
+  display: grid;
+  height: 2.6rem;
+  width: 2.6rem;
+  place-items: center;
+  border-radius: 999px;
+  color: #ffffff;
+  background: color-mix(in srgb, var(--c2) 55%, rgba(255, 255, 255, 0.15));
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.4);
 }
 
 .grade-card-num {
@@ -1446,46 +1488,28 @@ html:has(.mrbio) body {
   font-weight: 800;
   line-height: 0.95;
   letter-spacing: -0.05em;
-  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
 }
 
-.grade-card-art {
-  position: relative;
-  display: grid;
-  height: 6.5rem;
-  width: 6.5rem;
-  margin-block: 0.9rem 1rem;
-  place-items: center;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.3),
-    0 0 0 8px rgba(255, 255, 255, 0.06);
-  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.3, 1);
+/* Three lines tall, so the numbers line up across the row. */
+.grade-card-blurb {
+  min-height: 3.75rem;
 }
 
-.grade-card:hover .grade-card-art {
-  transform: rotate(-6deg) scale(1.06);
-}
+@media (max-width: 639px) {
+  .grade-card {
+    min-height: 25rem;
+  }
 
-/* Oversized copy of the grade icon, bleeding off the bottom-right corner. */
-.grade-card-mark {
-  position: absolute;
-  right: -2rem;
-  bottom: 2.5rem;
-  height: 9rem;
-  width: 9rem;
-  color: #ffffff;
-  opacity: 0.08;
-  pointer-events: none;
-  transform: rotate(-14deg);
+  .grade-card-blurb {
+    min-height: 0;
+  }
 }
 
 .grade-card-btn {
   position: relative;
   display: inline-flex;
   width: 100%;
-  margin-top: auto;
   padding: 0.7rem 1rem;
   align-items: center;
   justify-content: center;
@@ -4084,7 +4108,7 @@ html:not([data-theme="dark"]) .desk-sidebar {
   }
 
   .grade-card:hover,
-  .grade-card:hover .grade-card-art {
+  .grade-card:hover .grade-card-img {
     transform: none;
   }
 

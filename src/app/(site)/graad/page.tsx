@@ -30,7 +30,6 @@ export default function GradesIndexPage() {
               grade={grade}
               href={gradePath(grade)}
               meta={isJobGrade(grade) ? "4 kwartale" : "Jaarplan binnekort"}
-              className="min-h-[15.5rem]"
             />
           </Reveal>
         ))}

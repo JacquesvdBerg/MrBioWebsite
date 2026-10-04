@@ -254,6 +254,15 @@ export const gradeColors: Record<Grade, readonly [string, string]> = {
   12: ["#f4932a", "#d95416"],
 };
 
+// The teacher's illustration for each grade, shown on the grade cards.
+export const gradeImages: Record<Grade, string> = {
+  8: "/images/grades/graad-8.jpg",
+  9: "/images/grades/graad-9.jpg",
+  10: "/images/grades/graad-10.jpg",
+  11: "/images/grades/graad-11.jpg",
+  12: "/images/grades/graad-12.jpg",
+};
+
 export const gradeBlurbs: Record<Grade, string> = {
   8: "Die begin van die reis: plante, diere en die lewe rondom jou.",
   9: "Die menslike liggaam: selle, stelsels en hoe alles saamwerk.",
