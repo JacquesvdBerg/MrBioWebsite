@@ -6,7 +6,8 @@ import { Reveal } from "@/components/reveal";
 import { SectionPage } from "@/components/section-page";
 import { Arrow } from "@/components/ui";
 import { enquiryReasons } from "@/lib/enquiries";
-import { grades } from "@/lib/site";
+import { getPublishedProducts, productLabel } from "@/lib/products";
+import { contactEmail, grades } from "@/lib/site";
 
 export const metadata = {
   title: "Kontak",
@@ -16,7 +17,8 @@ export const metadata = {
 const cards = [
   {
     title: "E-pos",
-    body: "hallo@mrbio.co.za",
+    body: contactEmail,
+    href: `mailto:${contactEmail}`,
     note: "Ons antwoord binne twee werksdae.",
     icon: "mail" as const,
   },
@@ -42,7 +44,16 @@ type PageProps = {
 export default async function ContactPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const productSlug = params.produk?.trim() ?? "";
+  const product = productSlug
+    ? ((await getPublishedProducts()).find((item) => item.slug === productSlug) ?? null)
+    : null;
+  const productName = product ? productLabel(product) : productSlug;
   const defaultReason = productSlug ? "Winkel / produk" : "Algemene navraag";
+  const messagePlaceholder = !productSlug
+    ? "Hoe kan ons help?"
+    : product?.kind === "Skyfievertonings" && product.listingKind === "item"
+      ? "Watter skyfievertoning(s) wil jy hê? Bv. Meiose en Homeostase."
+      : `Ek wil graag ${productName} bestel.`;
 
   return (
     <SectionPage
@@ -71,9 +82,10 @@ export default async function ContactPage({ searchParams }: PageProps) {
               <p className="text-sm text-orange">Kon nie stoor nie. Probeer weer.</p>
             ) : null}
             {productSlug ? (
-              <p className="text-sm text-white/65">
-                Navraag oor <strong className="text-white">{productSlug}</strong>.
-              </p>
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/65">
+                Navraag oor <strong className="text-white">{productName}</strong>
+                {product ? <span className="text-white/80"> · R{product.price}</span> : null}
+              </div>
             ) : null}
             <input type="hidden" name="product_slug" value={productSlug} />
             <div className="grid gap-5 sm:grid-cols-2">
@@ -94,7 +106,7 @@ export default async function ContactPage({ searchParams }: PageProps) {
               <Select name="reason" options={enquiryReasons} disabled={false} defaultValue={defaultReason} />
             </Field>
             <Field label="Graad" hint="Opsioneel">
-              <select className="input-dark" name="grade" defaultValue="">
+              <select className="input-dark" name="grade" defaultValue={product?.grade ? String(product.grade) : ""}>
                 <option value="">—</option>
                 {grades.map((grade) => (
                   <option key={grade} value={grade}>
@@ -106,11 +118,7 @@ export default async function ContactPage({ searchParams }: PageProps) {
             <Field label="Boodskap">
               <TextArea
                 name="message"
-                placeholder={
-                  productSlug
-                    ? `Ek wil graag meer weet oor ${productSlug}.`
-                    : "Hoe kan ons help?"
-                }
+                placeholder={messagePlaceholder}
                 rows={6}
                 disabled={false}
                 required
@@ -155,7 +163,11 @@ export default async function ContactPage({ searchParams }: PageProps) {
 
             return (
               <Reveal key={card.title} delay={index * 70}>
-                {card.href ? (
+                {card.href?.startsWith("mailto:") ? (
+                  <a href={card.href} className="glass flex gap-4 rounded-[1.6rem] p-5 transition-colors hover:border-white/25">
+                    {inner}
+                  </a>
+                ) : card.href ? (
                   <Link href={card.href} className="glass flex gap-4 rounded-[1.6rem] p-5 transition-colors hover:border-white/25">
                     {inner}
                   </Link>

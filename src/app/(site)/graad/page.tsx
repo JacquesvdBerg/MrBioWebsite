@@ -1,7 +1,8 @@
 import { GradeCard } from "@/components/grade-card";
 import { Reveal } from "@/components/reveal";
 import { SectionPage } from "@/components/section-page";
-import { gradePath, grades, isJobGrade } from "@/lib/site";
+import { gradePath, grades } from "@/lib/site";
+import { syllabus } from "@/lib/syllabus";
 
 export const metadata = {
   title: "Grade",
@@ -29,7 +30,7 @@ export default function GradesIndexPage() {
             <GradeCard
               grade={grade}
               href={gradePath(grade)}
-              meta={isJobGrade(grade) ? "4 kwartale" : "Jaarplan binnekort"}
+              meta={`${syllabus[grade].terms.length} kwartale`}
             />
           </Reveal>
         ))}

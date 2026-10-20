@@ -4,7 +4,7 @@ import { Arrow, ButtonLink, SectionHeading } from "@/components/ui";
 import { VideoLibrary, type LibraryVideo } from "@/components/video-library";
 import { publicFileUrl } from "@/lib/assets";
 import { gradeAccents, grades, isGrade } from "@/lib/site";
-import { isSeniorGrade, syllabus } from "@/lib/syllabus";
+import { syllabus } from "@/lib/syllabus";
 import { youtubeId } from "@/lib/theme-page";
 import { getPublishedVideos } from "@/lib/videos";
 
@@ -209,12 +209,12 @@ export default async function VideoLessonsPage() {
         <SectionHeading
           eyebrow="Volgens graad"
           title="Leerpaaie en speellyste"
-          description="Graad 10 tot 12 volg die KABV-jaarplan en het elk ’n volledige YouTube-speellys."
+          description="Elke graad het sy eie YouTube-speellys. Graad 10 tot 12 volg die KABV-jaarplan."
         />
         <div className="grid gap-3 sm:grid-cols-3">
           {grades.map((grade, index) => {
             const count = library.filter((video) => video.grade === grade).length;
-            const path = isSeniorGrade(grade) ? syllabus[grade] : null;
+            const path = syllabus[grade];
             return (
               <Reveal key={grade} delay={index * 60}>
                 <div
@@ -226,12 +226,12 @@ export default async function VideoLessonsPage() {
                   </span>
                   <span className="mt-2 font-display text-lg font-bold text-white">Graad {grade}</span>
                   <span className="mt-1 flex-1 text-sm leading-6 text-white/55">
-                    {path?.summary}
+                    {path.summary}
                   </span>
                   <span className="mt-3 text-[11px] font-extrabold uppercase tracking-[0.14em] text-white/40">
                     {count > 0 ? `${count} ${count === 1 ? "les" : "lesse"} hier` : "Lesse op YouTube"}
                   </span>
-                  {path ? (
+                  {path.playlist ? (
                     <a
                       href={path.playlist}
                       target="_blank"

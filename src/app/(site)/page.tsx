@@ -8,7 +8,8 @@ import { Reveal } from "@/components/reveal";
 import { Arrow, ButtonLink, SectionHeading } from "@/components/ui";
 import { Visual } from "@/components/visual";
 import { getSessionAccount } from "@/lib/auth-role";
-import { activityTypes, gradePath, grades, isJobGrade } from "@/lib/site";
+import { activityTypes, gradePath, grades } from "@/lib/site";
+import { syllabus } from "@/lib/syllabus";
 import { getPublishedWeeklyFacts } from "@/lib/weekly-facts";
 
 export const revalidate = 300;
@@ -71,7 +72,7 @@ export default async function HomePage() {
               <GradeCard
                 grade={grade}
                 href={gradePath(grade)}
-                meta={isJobGrade(grade) ? "4 kwartale" : "Jaarplan binnekort"}
+                meta={`${syllabus[grade].terms.length} kwartale`}
               />
             </Reveal>
           ))}

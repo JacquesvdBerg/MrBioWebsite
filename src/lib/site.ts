@@ -1,5 +1,6 @@
 export const siteName = "MnrBio";
 export const siteTagline = "Lewenswetenskappe";
+export const contactEmail = "25kzorlf@gmail.com";
 
 export type NavChild = {
   href: string;

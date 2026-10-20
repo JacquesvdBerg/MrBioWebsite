@@ -10,11 +10,12 @@ Copy `.env.example` and set these on the host:
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Browser / SSR client key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server-only. Required by the daily quiz job |
-| `OPENAI_API_KEY` | Daily quiz generation |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only. Required by the daily jobs and for reading the OpenAI key |
 | `CRON_SECRET` | Shared secret for the job endpoint |
 
 Restart the process after changing env. The service role key must never be exposed to the browser.
+
+The OpenAI API key is not an env var. The teacher pastes it under **Admin > Instellings > AI-verbinding**, where it is checked against OpenAI and stored in `public.app_secrets` (service role only; see `supabase/migrations/20261021120000_app_secrets.sql`). Without a key the daily jobs fail with a clear error.
 
 Each job route allows up to **300 seconds** (`maxDuration`). One kind across all grades is typically 30–90 seconds. The master job for one grade is about 1–3 minutes.
 

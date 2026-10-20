@@ -9,6 +9,8 @@ import { grades, isActivitySlug, isGrade } from "@/lib/site";
 import { parseTrueOrFalsePayload } from "@/lib/true-or-false";
 import { slugify } from "@/lib/slug";
 import { getAiSettings, saveAiSettings } from "@/lib/ai-settings";
+import { getSessionAccount } from "@/lib/auth-role";
+import { clearOpenAiKey, saveOpenAiKey, verifyOpenAiKey } from "@/lib/openai-key";
 import { toCommentStatus } from "@/lib/comments";
 import { toEnquiryStatus } from "@/lib/enquiries";
 import { parseBulletLines } from "@/lib/products";
@@ -335,6 +337,34 @@ export async function saveAiSettingsAction(formData: FormData) {
   });
 
   revalidatePath("/admin/settings");
+}
+
+export async function saveOpenAiKeyAction(formData: FormData) {
+  await requireAdmin();
+  const key = String(formData.get("openai_key") ?? "").trim();
+
+  if (!/^sk-[A-Za-z0-9_-]{20,}$/.test(key)) {
+    redirect("/admin/settings?ai=format#ai-sleutel");
+  }
+
+  const check = await verifyOpenAiKey(key);
+  if (check !== "ok") {
+    redirect(`/admin/settings?ai=${check}#ai-sleutel`);
+  }
+
+  const account = await getSessionAccount();
+  const result = await saveOpenAiKey(key, account?.userId ?? null);
+  revalidatePath("/admin/settings");
+  revalidatePath("/admin");
+  redirect(`/admin/settings?ai=${result}#ai-sleutel`);
+}
+
+export async function removeOpenAiKeyAction() {
+  await requireAdmin();
+  await clearOpenAiKey();
+  revalidatePath("/admin/settings");
+  revalidatePath("/admin");
+  redirect("/admin/settings?ai=removed#ai-sleutel");
 }
 
 export async function addAiTerm(formData: FormData) {

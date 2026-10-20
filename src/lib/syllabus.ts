@@ -1,5 +1,6 @@
-// CAPS (KABV) year plan per grade and term. Grades 10–12 are the teacher's
-// list. Grades 8–9 have four quarters ready for that list.
+// CAPS (KABV) year plan per grade and term. Grades 10–12 follow the teacher's
+// "Opvoedkundige materiaal te koop" list (October 2026). Grades 8–9 only list
+// the quarters he has material for.
 
 import type { Grade } from "@/lib/site";
 
@@ -12,6 +13,8 @@ export type SyllabusTerm = {
 export type GradeSyllabus = {
   grade: Grade;
   summary: string;
+  /** Second half of the page heading when a grade has fewer than four quarters. */
+  tagline?: string;
   playlist: string;
   terms: SyllabusTerm[];
 };
@@ -24,22 +27,46 @@ export function isSeniorGrade(grade: number): grade is SeniorGrade {
   return (seniorGrades as readonly number[]).includes(grade);
 }
 
-function openYear(grade: 8 | 9): GradeSyllabus {
-  return {
-    grade,
-    summary: "Vier kwartale. Die jaarplan word hier geplaas sodra dit deurgestuur is.",
-    playlist: "",
-    terms: [1, 2, 3, 4].map((term) => ({
-      term: term as 1 | 2 | 3 | 4,
-      title: `Kwartaal ${term}`,
-      topics: ["Onderwerpe kom hier."],
-    })),
-  };
-}
+// Gr 8: for now only KW1 and KW2 have material. Topics are the lessons in the
+// teacher's GR8 playlist, which labels each video by quarter.
+const grade8: GradeSyllabus = {
+  grade: 8,
+  summary: "Natuurwetenskappe: kwartaal 1 en 2 is beskikbaar. Meer volg binnekort.",
+  tagline: "Meer volg.",
+  playlist: "https://www.youtube.com/playlist?list=PLFZb-n-QApHk",
+  terms: [
+    {
+      term: 1,
+      title: "Lewe en lewende dinge",
+      topics: [
+        "Fotosintese",
+        "Respirasie",
+        "Ekologie en ekosisteme",
+        "Voedselkettings en voedselwebbe",
+        "Aanpassings",
+        "Mikro-organismes",
+      ],
+    },
+    { term: 2, title: "Materie en materiale", topics: ["Materie en materiale"] },
+  ],
+};
+
+// Gr 9: MnrBio only covers the biology component (KW1 and KW4). KW2 and KW3
+// are Skeinat, which is not taught here, so they are left out.
+const grade9: GradeSyllabus = {
+  grade: 9,
+  summary: "Die biologie-deel van Natuurwetenskappe: kwartaal 1 en 4.",
+  tagline: "Net biologie.",
+  playlist: "https://www.youtube.com/playlist?list=PLHZVYsyyT3ymScZU0e_N7Oipf7OCUHSgQ",
+  terms: [
+    { term: 1, title: "Biologie", topics: ["Onderwerpe kom hier."] },
+    { term: 4, title: "Biologie", topics: ["Onderwerpe kom hier."] },
+  ],
+};
 
 export const syllabus: Record<Grade, GradeSyllabus> = {
-  8: openYear(8),
-  9: openYear(9),
+  8: grade8,
+  9: grade9,
   10: {
     grade: 10,
     summary: "Chemie van lewe, selle, weefsels, ekosisteme en biodiversiteit.",
@@ -47,44 +74,39 @@ export const syllabus: Record<Grade, GradeSyllabus> = {
     terms: [
       {
         term: 1,
-        title: "Chemie van lewe en selle",
+        title: "Chemie van lewe, selle en plantweefsels",
         topics: [
-          "Organiese en anorganiese verbindings",
-          "Ensieme",
-          "Selstruktuur",
+          "Chemie van lewe",
+          "Selle (struktuur en funksie)",
           "Mitose",
-          "Kanker",
+          "Plantweefsels",
         ],
       },
       {
         term: 2,
-        title: "Weefsels, organe en vervoer",
+        title: "Weefsels, ondersteuning en vervoer",
         topics: [
-          "Plantweefsels en organe",
-          "Vervoer in plante",
           "Diereweefsels",
-          "Muskuloskeletale stelsel",
-          "Sirkulasiestelsel",
+          "Ondersteuning en vervoer in plante",
+          "Ondersteuningstelsel in diere (skelet)",
+          "Menslike sirkulasiestelsel",
         ],
       },
       {
         term: 3,
-        title: "Geskiedenis van lewe en ekosisteme",
+        title: "Geskiedenis van lewe en biodiversiteit",
         topics: [
-          "Fossiele en uitsterwings",
-          "Die biosfeer",
-          "Ekosisteme",
-          "Energievloei",
-          "Omgewingsiklusse",
+          "Geskiedenis van lewe op aarde",
+          "Biodiversiteit en klassifikasie",
+          "Omgewingstudies",
         ],
       },
       {
         term: 4,
-        title: "Biodiversiteit en klassifikasie",
+        title: "Hersiening en eindeksamen",
         topics: [
-          "Biodiversiteit",
-          "Geskiedenis van lewe op Aarde",
-          "Die 5-koninkryk-klassifikasiestelsel",
+          "Hersiening van kwartaal 1 tot 3",
+          "Eindeksamen",
         ],
       },
     ],
@@ -96,35 +118,37 @@ export const syllabus: Record<Grade, GradeSyllabus> = {
     terms: [
       {
         term: 1,
-        title: "Biodiversiteit en klassifikasie",
+        title: "Mikro-organismes en biodiversiteit",
         topics: [
           "Mikro-organismes",
-          "Klassifikasie van plante",
-          "Klassifikasie van diere",
+          "Biodiversiteit van plante",
+          "Biodiversiteit van diere",
         ],
       },
       {
         term: 2,
-        title: "Lewensprosesse in plante en diere",
+        title: "Fotosintese, respirasie en voeding",
         topics: [
           "Fotosintese",
           "Selrespirasie",
-          "Dierevoeding en die spysverteringstelsel",
+          "Dierevoeding",
         ],
       },
       {
         term: 3,
         title: "Gaswisseling, uitskeiding en ekologie",
         topics: [
-          "Asemhalingstelsel",
-          "Uitskeiding in mense (nierstelsel)",
-          "Populasie-ekologie",
+          "Gaswisseling",
+          "Ekskresie (uitskeiding)",
+          "Bevolkingsekologie",
         ],
       },
       {
         term: 4,
         title: "Menslike impak op die omgewing",
-        topics: ["Waterkrisis", "Besoedeling", "Kossekuriteit"],
+        topics: [
+          "Menslike impak op die omgewing",
+        ],
       },
     ],
   },
@@ -137,38 +161,36 @@ export const syllabus: Record<Grade, GradeSyllabus> = {
         term: 1,
         title: "DNA, meiose en voortplanting",
         topics: [
-          "DNA: die kode van die lewe",
-          "RNA en proteïensintese",
+          "DNA/RNA",
           "Meiose",
-          "Reproduksie in gewerweldes",
+          "Voortplanting (gewerweldes en mense)",
         ],
       },
       {
         term: 2,
-        title: "Mens: voortplanting en regulering",
+        title: "Genetika en reaksie op die omgewing",
         topics: [
-          "Menslike voortplanting",
+          "Genetika (oorerwing)",
+          "Menslike reaksie op die omgewing (senustelsel)",
           "Endokriene stelsel",
           "Homeostase",
-          "Senuweestelsel en sintuie",
+          "Plante se reaksie op die omgewing",
         ],
       },
       {
         term: 3,
-        title: "Plantreaksies, genetika en evolusie",
+        title: "Evolusie",
         topics: [
-          "Planthormone",
-          "Genetika en oorerwing",
-          "Evolusie: teorieë en bewyse",
+          "Evolusie deur natuurlike seleksie",
+          "Menslike evolusie",
         ],
       },
       {
         term: 4,
-        title: "Menslike evolusie en eksamen",
+        title: "Hersiening en eindeksamen",
         topics: [
-          "Menslike evolusie (fossielbewyse)",
-          "Eksamenvoorbereiding: Vraestel 1",
-          "Eksamenvoorbereiding: Vraestel 2",
+          "Voorbereiding vir Vraestel 1",
+          "Voorbereiding vir Vraestel 2",
         ],
       },
     ],

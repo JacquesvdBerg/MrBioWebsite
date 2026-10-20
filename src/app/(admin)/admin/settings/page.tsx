@@ -8,6 +8,8 @@ import {
 } from "@/components/admin-ui";
 import { DeleteButton } from "@/components/admin-client";
 import { getAiSettings } from "@/lib/ai-settings";
+import { getOpenAiKeyStatus } from "@/lib/openai-key";
+import { AiKeyPanel } from "./ai-key-panel";
 
 export const metadata = {
   title: "Instellings",
@@ -15,15 +17,22 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminSettingsPage() {
-  const settings = await getAiSettings();
+type PageProps = {
+  searchParams: Promise<{ ai?: string }>;
+};
+
+export default async function AdminSettingsPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const [settings, keyStatus] = await Promise.all([getAiSettings(), getOpenAiKeyStatus()]);
 
   return (
     <AdminPage
       title="Instellings"
       description="Huisreëls, vakterme en die nagtaak. Die woordelys gaan in elke AI-job — dit is hoe jy stomata keer voordat dit huidmondjies moet wees."
     >
-      <AdminPanel title="Vakterme" icon="list">
+      <AiKeyPanel status={keyStatus} result={params.ai} />
+
+      <AdminPanel title="Vakterme" icon="list" className="mt-6">
         <p className="mb-4 max-w-2xl text-sm leading-6 text-white/55">
           Voeg ’n term by wanneer die AI die Engelse woord direk vertaal. Die volgende nagtaak
           kry die volle lys: sê die Afrikaanse woord, nooit die verbode een nie.

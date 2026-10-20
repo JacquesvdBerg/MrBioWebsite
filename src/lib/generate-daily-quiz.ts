@@ -2,6 +2,7 @@ import "server-only";
 import { getAiSettings } from "@/lib/ai-settings";
 import { johannesburgDate } from "@/lib/dates";
 import { selectedGrades } from "@/lib/daily-job";
+import { requireOpenAiKey } from "@/lib/openai-key";
 import { quizBankSize } from "@/lib/quiz-length";
 import { parseQuizPayload, type QuizPayload } from "@/lib/quiz";
 import { buildQuizSystemPrompt, buildQuizUserPrompt } from "@/lib/quiz-prompt";
@@ -96,10 +97,7 @@ async function requestQuiz(input: {
   date: string;
   topic: ActivityTopic;
 }) {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    throw new Error("OPENAI_API_KEY is missing");
-  }
+  const apiKey = await requireOpenAiKey();
 
   const settings = await getAiSettings();
   const response = await fetch("https://api.openai.com/v1/chat/completions", {

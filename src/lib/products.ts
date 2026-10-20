@@ -9,6 +9,9 @@ export const productListingKinds = ["item", "bundle"] as const;
 export type ProductListingKind = (typeof productListingKinds)[number];
 
 export const productKindOptions = [
+  "Opsommings",
+  "Kernkaarte",
+  "Skyfievertonings",
   "Notas",
   "Werkkaarte",
   "Volledige pak",
@@ -16,6 +19,10 @@ export const productKindOptions = [
   "Opsomming",
   "Bundel",
 ] as const;
+
+/** Kinds sold per quarter with a full-year package, e.g. opsommings or kernkaarte. */
+const summaryKinds = new Set(["Opsommings", "Kernkaarte", "Opsomming"]);
+const slideKind = "Skyfievertonings";
 
 export type ShopProduct = {
   id: string;
@@ -148,4 +155,65 @@ export function parseBulletLines(value: string) {
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean);
+}
+
+/** Quarter number from a "-kw2" slug or a "Kwartaal 2" title. */
+export function quarterOf(product: ShopProduct) {
+  const match = product.slug.match(/-kw(\d)/) ?? product.title.match(/kwartaal\s*(\d)/i);
+  return match ? Number(match[1]) : null;
+}
+
+export function productLabel(product: ShopProduct) {
+  return [product.grade ? `Graad ${product.grade}` : null, product.kind, product.title]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+export type GradeCatalogue = {
+  grade: number;
+  summary: {
+    kind: string;
+    body: string;
+    quarters: ShopProduct[];
+    full: ShopProduct | null;
+  } | null;
+  slides: {
+    single: ShopProduct | null;
+    full: ShopProduct | null;
+  } | null;
+  /** Anything that is not part of the quarter series, shown as plain cards. */
+  other: ShopProduct[];
+};
+
+/** Group one grade's products into the price list from the teacher's document. */
+export function catalogueForGrade(products: ShopProduct[], grade: number): GradeCatalogue {
+  const own = products.filter((product) => product.grade === grade);
+  const quarterSeries = (match: (kind: string) => boolean) =>
+    own
+      .filter((product) => match(product.kind) && product.listingKind === "item" && quarterOf(product))
+      .sort((a, b) => (quarterOf(a) ?? 0) - (quarterOf(b) ?? 0));
+  // Summaries are the usual per-quarter series; Gr 9 sells its slides per quarter instead.
+  const summaryQuarters = quarterSeries((kind) => summaryKinds.has(kind));
+  const quarters = summaryQuarters.length > 0 ? summaryQuarters : quarterSeries((kind) => kind === slideKind);
+  const summaryFull =
+    own.find((product) => summaryKinds.has(product.kind) && product.listingKind === "bundle") ?? null;
+  const slideSingle =
+    own.find((product) => product.kind === slideKind && product.listingKind === "item" && !quarterOf(product)) ??
+    null;
+  const slideFull = own.find((product) => product.kind === slideKind && product.listingKind === "bundle") ?? null;
+  const used = new Set([...quarters, summaryFull, slideSingle, slideFull].filter(Boolean));
+  const lead = quarters[0] ?? summaryFull;
+
+  return {
+    grade,
+    summary: lead
+      ? { kind: lead.kind, body: lead.body, quarters, full: summaryFull }
+      : null,
+    slides: slideSingle || slideFull ? { single: slideSingle, full: slideFull } : null,
+    other: own.filter((product) => !used.has(product)),
+  };
+}
+
+export function hasCatalogue(catalogue: GradeCatalogue) {
+  return Boolean(catalogue.summary || catalogue.slides || catalogue.other.length > 0);
 }

@@ -1,4 +1,5 @@
 import "server-only";
+import { requireOpenAiKey } from "@/lib/openai-key";
 
 export async function requestOpenAiJson<T>(input: {
   schemaName: string;
@@ -6,10 +7,7 @@ export async function requestOpenAiJson<T>(input: {
   system: string;
   user: string;
 }): Promise<T> {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    throw new Error("OPENAI_API_KEY is missing");
-  }
+  const apiKey = await requireOpenAiKey();
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",

@@ -16,6 +16,7 @@ import { getSessionAccount } from "@/lib/auth-role";
 import { countCommentsByStatus } from "@/lib/comments";
 import { countEnquiriesByStatus } from "@/lib/enquiries";
 import { countUnreadChatThreads } from "@/lib/live-chat";
+import { getOpenAiKeyStatus } from "@/lib/openai-key";
 import { getAllProducts } from "@/lib/products";
 import { gradeColors, grades } from "@/lib/site";
 import { getAllTopics } from "@/lib/topics";
@@ -48,7 +49,7 @@ function share(part: number, whole: number) {
 const quickTones: DeskTone[] = ["green", "teal", "violet", "blue", "amber", "coral"];
 
 export default async function AdminDashboardPage() {
-  const [account, videos, activities, topics, facts, products, settings, newEnquiries, unreadChat, pendingComments] =
+  const [account, videos, activities, topics, facts, products, settings, newEnquiries, unreadChat, pendingComments, keyStatus] =
     await Promise.all([
       getSessionAccount(),
       getAllVideos(),
@@ -60,6 +61,7 @@ export default async function AdminDashboardPage() {
       countEnquiriesByStatus("new"),
       countUnreadChatThreads(),
       countCommentsByStatus("pending"),
+      getOpenAiKeyStatus(),
     ]);
 
   const liveVideos = videos.filter((video) => video.isPublished).length;
@@ -298,6 +300,16 @@ export default async function AdminDashboardPage() {
               </AdminBadge>
             }
           >
+            <div className="desk-kv">
+              <span className="text-white/55">AI-sleutel</span>
+              {keyStatus.state === "ready" ? (
+                <span className="font-bold text-white">Gekoppel</span>
+              ) : (
+                <Link href="/admin/settings#ai-sleutel" className="font-bold text-coral underline">
+                  Koppel nou
+                </Link>
+              )}
+            </div>
             <div className="desk-kv">
               <span className="text-white/55">Vlak</span>
               <span className="font-bold capitalize text-white">{settings.difficulty}</span>
