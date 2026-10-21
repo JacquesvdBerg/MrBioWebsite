@@ -7,7 +7,7 @@ import { SectionPage } from "@/components/section-page";
 import { Arrow } from "@/components/ui";
 import { enquiryReasons } from "@/lib/enquiries";
 import { getPublishedProducts, productLabel } from "@/lib/products";
-import { contactEmail, grades } from "@/lib/site";
+import { contactEmail, grades, youtubeChannel } from "@/lib/site";
 
 export const metadata = {
   title: "Kontak",
@@ -24,8 +24,9 @@ const cards = [
   },
   {
     title: "YouTube",
-    body: "@MnrBio",
-    note: "Nuwe les elke week. Los ’n kommentaar.",
+    body: "@lwonnie",
+    href: youtubeChannel,
+    note: "Gratis Lewenswetenskappe-videolesse.",
     icon: "youtube" as const,
   },
   {
@@ -163,8 +164,13 @@ export default async function ContactPage({ searchParams }: PageProps) {
 
             return (
               <Reveal key={card.title} delay={index * 70}>
-                {card.href?.startsWith("mailto:") ? (
-                  <a href={card.href} className="glass flex gap-4 rounded-[1.6rem] p-5 transition-colors hover:border-white/25">
+                {card.href?.startsWith("mailto:") || card.href?.startsWith("http") ? (
+                  <a
+                    href={card.href}
+                    target={card.href.startsWith("http") ? "_blank" : undefined}
+                    rel={card.href.startsWith("http") ? "noreferrer" : undefined}
+                    className="glass flex gap-4 rounded-[1.6rem] p-5 transition-colors hover:border-white/25"
+                  >
                     {inner}
                   </a>
                 ) : card.href ? (

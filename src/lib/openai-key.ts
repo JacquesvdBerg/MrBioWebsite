@@ -1,5 +1,5 @@
 import "server-only";
-import { createServiceClient } from "@/lib/supabase/service";
+import { deleteSecret, readSecret, readSecretRow, writeSecret } from "@/lib/app-secrets";
 
 // The OpenAI API key lives in public.app_secrets (service role only), set by
 // the teacher under Admin > Instellings. It is never sent to the browser.
@@ -15,28 +15,13 @@ export class OpenAiKeyMissingError extends Error {
   }
 }
 
-function isMissingTable(error: { code?: string; message?: string } | null) {
-  return Boolean(error && (error.code === "PGRST205" || error.code === "42P01"));
-}
-
 /** The stored key, or null. Cached for a minute so a nightly run reads it once. */
 export async function getOpenAiKey(): Promise<string | null> {
   if (cached && Date.now() - cached.at < CACHE_MS) {
     return cached.value;
   }
 
-  const service = createServiceClient();
-  if (!service) {
-    return null;
-  }
-
-  const { data, error } = await service.from("app_secrets").select("value").eq("key", KEY).maybeSingle();
-  if (error) {
-    console.error("Failed to read OpenAI key:", error.message);
-    return null;
-  }
-
-  cached = { value: (data as { value: string } | null)?.value ?? null, at: Date.now() };
+  cached = { value: await readSecret(KEY), at: Date.now() };
   return cached.value;
 }
 
@@ -55,26 +40,11 @@ export type OpenAiKeyStatus =
   | { state: "no-service" };
 
 export async function getOpenAiKeyStatus(): Promise<OpenAiKeyStatus> {
-  const service = createServiceClient();
-  if (!service) {
-    return { state: "no-service" };
+  const row = await readSecretRow(KEY);
+  if (row.state !== "ready") {
+    return row;
   }
-
-  const { data, error } = await service
-    .from("app_secrets")
-    .select("value, updated_at")
-    .eq("key", KEY)
-    .maybeSingle();
-
-  if (isMissingTable(error)) {
-    return { state: "no-table" };
-  }
-  if (error || !data) {
-    return { state: "missing" };
-  }
-
-  const row = data as { value: string; updated_at: string };
-  return { state: "ready", masked: `sk-…${row.value.slice(-4)}`, updatedAt: row.updated_at };
+  return { state: "ready", masked: `sk-…${row.value.slice(-4)}`, updatedAt: row.updatedAt };
 }
 
 /** Ask OpenAI whether the key works, without spending credit. */
@@ -94,38 +64,14 @@ export async function verifyOpenAiKey(key: string): Promise<"ok" | "invalid" | "
 }
 
 export async function saveOpenAiKey(key: string, userId: string | null) {
-  const service = createServiceClient();
-  if (!service) {
-    return "no-service" as const;
+  const result = await writeSecret(KEY, key, userId);
+  if (result === "saved") {
+    cached = null;
   }
-
-  const { error } = await service.from("app_secrets").upsert({
-    key: KEY,
-    value: key,
-    updated_at: new Date().toISOString(),
-    updated_by: userId,
-  });
-
-  if (isMissingTable(error)) {
-    return "no-table" as const;
-  }
-  if (error) {
-    console.error("Failed to save OpenAI key:", error.message);
-    return "failed" as const;
-  }
-
-  cached = null;
-  return "saved" as const;
+  return result;
 }
 
 export async function clearOpenAiKey() {
-  const service = createServiceClient();
-  if (!service) {
-    return;
-  }
-  const { error } = await service.from("app_secrets").delete().eq("key", KEY);
-  if (error && !isMissingTable(error)) {
-    console.error("Failed to remove OpenAI key:", error.message);
-  }
+  await deleteSecret(KEY);
   cached = null;
 }

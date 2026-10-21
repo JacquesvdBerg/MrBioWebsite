@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createAdminAccount } from "@/app/(admin)/admin/actions";
 import { AdminPage } from "@/components/admin-page";
 import {
@@ -10,6 +11,7 @@ import {
   deskField,
 } from "@/components/admin-ui";
 import { isServiceRoleConfigured, listAdminAccounts } from "@/lib/admin-accounts";
+import { getResendKeyStatus } from "@/lib/email";
 
 export const metadata = {
   title: "Rekeninge",
@@ -18,12 +20,37 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 type AccountsPageProps = {
-  searchParams: Promise<{ created?: string; error?: string }>;
+  searchParams: Promise<{ created?: string; error?: string; welcome?: string }>;
 };
 
-function accountNotice(error: string | undefined, created: boolean) {
+function welcomeProblem(result: string) {
+  switch (result) {
+    case "own-only":
+      return "sonder ’n eie domein stuur Resend net na die adres van jou Resend-rekening";
+    case "no-key":
+      return "geen Resend-sleutel is onder Instellings gekoppel nie";
+    case "limit":
+      return "Resend se daaglikse limiet is bereik";
+    default:
+      return "Resend het dit nie aanvaar nie";
+  }
+}
+
+function accountNotice(error: string | undefined, created: boolean, welcome: string | undefined) {
+  if (created && welcome && welcome !== "sent") {
+    return {
+      tone: "err" as const,
+      text: `Rekening is geskep, maar die welkom-e-pos het nie gegaan nie: ${welcomeProblem(welcome)}. Laat weet hulle self.`,
+    };
+  }
+
   if (created) {
-    return { tone: "ok" as const, text: "Rekening is geskep. Hulle kan nou inteken." };
+    return {
+      tone: "ok" as const,
+      text: welcome
+        ? "Rekening is geskep en die welkom-e-pos is gestuur. Gee self vir hulle die wagwoord."
+        : "Rekening is geskep. Hulle kan nou inteken.",
+    };
   }
 
   if (!error) {
@@ -51,14 +78,15 @@ function accountNotice(error: string | undefined, created: boolean) {
 
 export default async function AdminAccountsPage({ searchParams }: AccountsPageProps) {
   const params = await searchParams;
-  const accounts = await listAdminAccounts();
+  const [accounts, emailStatus] = await Promise.all([listAdminAccounts(), getResendKeyStatus()]);
   const hasService = isServiceRoleConfigured();
-  const notice = accountNotice(params.error, params.created === "1");
+  const canEmail = emailStatus.state === "ready";
+  const notice = accountNotice(params.error, params.created === "1", params.welcome);
 
   return (
     <AdminPage
       title="Rekeninge"
-      description="Skep admin-rekeninge vir werknemers vanaf die lessenaar — nie vanaf die inteken-blad nie. Stuur die wagwoord self; ons stuur nie ’n welkom-e-pos nie."
+      description="Skep admin-rekeninge vir werknemers hier, nie op die intekenblad nie. Gee self die wagwoord aan: die welkom-e-pos stuur net die intekenskakel, nooit die wagwoord nie."
     >
       {notice ? (
         <AdminNotice tone={notice.tone}>{notice.text}</AdminNotice>
@@ -66,7 +94,11 @@ export default async function AdminAccountsPage({ searchParams }: AccountsPagePr
 
       <AdminPanel title="Skep admin-rekening" icon="plus">
         {hasService ? (
-          <form action={createAdminAccount} className="grid gap-3 md:grid-cols-3">
+          <form action={createAdminAccount} className="grid gap-3 md:grid-cols-4">
+            <label className="desk-label">
+              Naam
+              <input className={deskField} name="name" autoComplete="off" placeholder="Bv. Louis Fourie" />
+            </label>
             <label className="desk-label">
               E-pos
               <input
@@ -93,6 +125,20 @@ export default async function AdminAccountsPage({ searchParams }: AccountsPagePr
                 Skep rekening
               </AdminBtn>
             </div>
+            {canEmail ? (
+              <label className="desk-check md:col-span-4">
+                <input type="checkbox" name="welcome" defaultChecked />
+                Stuur ’n welkom-e-pos met die intekenskakel
+              </label>
+            ) : (
+              <p className="text-sm text-white/45 md:col-span-4">
+                Koppel e-pos onder{" "}
+                <Link href="/admin/settings#e-pos" className="font-bold text-lime underline">
+                  Instellings
+                </Link>{" "}
+                om ’n welkom-e-pos te stuur.
+              </p>
+            )}
           </form>
         ) : (
           <AdminEmpty

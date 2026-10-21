@@ -8,8 +8,10 @@ import {
 } from "@/components/admin-ui";
 import { DeleteButton } from "@/components/admin-client";
 import { getAiSettings } from "@/lib/ai-settings";
+import { getEmailSettings, getResendKeyStatus } from "@/lib/email";
 import { getOpenAiKeyStatus } from "@/lib/openai-key";
 import { AiKeyPanel } from "./ai-key-panel";
+import { EmailPanel } from "./email-panel";
 
 export const metadata = {
   title: "Instellings",
@@ -18,19 +20,25 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  searchParams: Promise<{ ai?: string }>;
+  searchParams: Promise<{ ai?: string; epos?: string }>;
 };
 
 export default async function AdminSettingsPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const [settings, keyStatus] = await Promise.all([getAiSettings(), getOpenAiKeyStatus()]);
+  const [settings, keyStatus, emailStatus, emailSettings] = await Promise.all([
+    getAiSettings(),
+    getOpenAiKeyStatus(),
+    getResendKeyStatus(),
+    getEmailSettings(),
+  ]);
 
   return (
     <AdminPage
       title="Instellings"
-      description="Huisreëls, vakterme en die nagtaak. Die woordelys gaan in elke AI-job — dit is hoe jy stomata keer voordat dit huidmondjies moet wees."
+      description="Die AI-sleutel, e-pos kennisgewings, vakterme en huisreëls. Die woordelys gaan in elke AI-job: so keer jy stomata voordat dit huidmondjies moet wees."
     >
       <AiKeyPanel status={keyStatus} result={params.ai} />
+      <EmailPanel status={emailStatus} settings={emailSettings} result={params.epos} />
 
       <AdminPanel title="Vakterme" icon="list" className="mt-6">
         <p className="mb-4 max-w-2xl text-sm leading-6 text-white/55">

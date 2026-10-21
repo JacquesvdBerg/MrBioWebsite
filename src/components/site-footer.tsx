@@ -2,7 +2,7 @@ import Link from "next/link";
 import { MrBioLogo, MrBioMark } from "@/components/brand";
 import { MailIcon, YoutubeIcon } from "@/components/icons";
 import { Arrow } from "@/components/ui";
-import { footerNav, siteName } from "@/lib/site";
+import { footerNav, siteName, youtubeChannel } from "@/lib/site";
 
 export function SiteFooter() {
   return (
@@ -49,7 +49,7 @@ export function SiteFooter() {
               </p>
               <div className="mt-6 flex items-center gap-3">
                 <a
-                  href="https://youtube.com"
+                  href={youtubeChannel}
                   target="_blank"
                   rel="noreferrer"
                   className="flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/5 text-white transition-colors hover:border-coral hover:text-coral"
@@ -58,7 +58,7 @@ export function SiteFooter() {
                   <YoutubeIcon className="h-5 w-5" />
                 </a>
                 <span className="text-sm text-white/45">
-                  Nuwe video elke week op YouTube.
+                  Gratis videolesse op YouTube.
                 </span>
               </div>
             </div>

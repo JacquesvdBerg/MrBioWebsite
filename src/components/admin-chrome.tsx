@@ -22,10 +22,13 @@ export type AdminCounts = Partial<Record<string, number>>;
 
 export function AdminChrome({
   children,
+  banner,
   counts = {},
   user,
 }: {
   children: ReactNode;
+  /** Shown under the top bar on every page, e.g. missing setup. */
+  banner?: ReactNode;
   /** Badge numbers keyed by nav href, e.g. unread chats on /admin/live-chat. */
   counts?: AdminCounts;
   user: { name: string; email: string };
@@ -244,6 +247,7 @@ export function AdminChrome({
 
           <ThemeToggle />
         </header>
+        {banner}
         <div className="desk-content">{children}</div>
       </div>
     </>

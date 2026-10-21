@@ -1958,6 +1958,61 @@ html[data-theme="dark"] .shop-grade-num {
   }
 }
 
+/* ---------- home: YouTube channel strip under the grade cards ---------- */
+
+.yt-strip {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border-radius: 1.5rem;
+  background: var(--bg-2);
+  border: 1px solid color-mix(in srgb, var(--fg) 8%, transparent);
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--shade) 6%, transparent),
+    0 14px 34px -18px color-mix(in srgb, var(--shade) calc(40% * var(--shade-k) + 8%), transparent);
+}
+
+@media (min-width: 768px) {
+  .yt-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.yt-strip-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem 0.5rem 1rem;
+  border-radius: 1.1rem;
+  transition: background 0.2s ease;
+}
+
+.yt-strip-item:hover {
+  background: color-mix(in srgb, #ff0033 6%, transparent);
+}
+
+.yt-strip-text {
+  font-family: var(--font-display), "Trebuchet MS", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--fg);
+}
+
+.yt-strip-img {
+  width: min(16.5rem, 52%);
+  height: auto;
+  flex-shrink: 0;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.18));
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.yt-strip-item:hover .yt-strip-img {
+  transform: scale(1.05) rotate(-1.5deg);
+}
+
 /* ---------- shop: per-grade price list ---------- */
 
 .shop-banner {
@@ -3631,6 +3686,43 @@ html:not([data-theme="dark"]) .desk-sidebar {
   background: color-mix(in srgb, var(--lime) 11%, transparent);
   border: 1px solid color-mix(in srgb, var(--lime) 25%, transparent);
   color: color-mix(in srgb, var(--lime) 80%, var(--fg));
+}
+
+.desk-setup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin: 1rem 1.15rem 0;
+  padding: 0.85rem 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--sun) 40%, transparent);
+  background: color-mix(in srgb, var(--sun) 10%, transparent);
+  color: var(--fg);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.desk-setup-icon {
+  color: var(--sun);
+}
+
+/* Wide enough that the button drops to its own line on a phone. */
+.desk-setup-text {
+  flex: 1 1 15rem;
+  min-width: 0;
+}
+
+.desk-setup p a {
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (min-width: 768px) {
+  .desk-setup {
+    margin: 1.2rem 2rem 0;
+  }
 }
 
 .desk-notice.is-err {

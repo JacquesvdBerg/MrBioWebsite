@@ -2,10 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { requireLearner } from "@/lib/auth-role";
 import { isCommentKind } from "@/lib/comments";
 import { isEnquiryReason } from "@/lib/enquiries";
 import { getChatThread, previewChat } from "@/lib/live-chat";
+import { notifyChat, notifyComment, notifyEnquiry } from "@/lib/notifications";
 import { isGrade } from "@/lib/site";
 import { createAnonClient } from "@/lib/supabase/anon";
 import { createClient } from "@/lib/supabase/server";
@@ -53,12 +55,13 @@ export async function submitEnquiry(formData: FormData) {
     redirect(`/contact?${failQuery.toString()}`);
   }
 
+  const grade = optionalGrade(formData);
   const { error } = await supabase.from("enquiries").insert({
     name,
     email,
     reason,
     product_slug: productSlug || null,
-    grade: optionalGrade(formData),
+    grade,
     message,
     status: "new",
   });
@@ -68,6 +71,8 @@ export async function submitEnquiry(formData: FormData) {
     failQuery.set("fout", "stoor");
     redirect(`/contact?${failQuery.toString()}`);
   }
+
+  after(() => notifyEnquiry({ name, email, reason, grade, productSlug, message }));
 
   revalidatePath("/admin/enquiries");
   revalidatePath("/admin");
@@ -90,11 +95,12 @@ export async function submitComment(formData: FormData) {
     redirect("/comments?fout=stoor");
   }
 
+  const grade = optionalGrade(formData);
   const { error } = await supabase.from("comments").insert({
     author_name: authorName,
     kind,
     body,
-    grade: optionalGrade(formData),
+    grade,
     status: "pending",
   });
 
@@ -102,6 +108,8 @@ export async function submitComment(formData: FormData) {
     console.error("Failed to save comment:", error.message);
     redirect("/comments?fout=stoor");
   }
+
+  after(() => notifyComment({ authorName, kind, grade, body }));
 
   revalidatePath("/admin/comments");
   revalidatePath("/admin");
@@ -161,7 +169,19 @@ export async function startLearnerChat(formData: FormData) {
     redirect("/live-chat?fout=stoor");
   }
 
-  revalidateChat(data.id);
+  const threadId = data.id;
+  after(() =>
+    notifyChat({
+      threadId,
+      learnerName: account.name,
+      grade: account.grade,
+      topic,
+      body: question,
+      isNew: true,
+    }),
+  );
+
+  revalidateChat(threadId);
 }
 
 export async function replyLearnerChat(formData: FormData) {
@@ -205,6 +225,20 @@ export async function replyLearnerChat(formData: FormData) {
 
   if (threadError) {
     console.error("Failed to update learner chat thread:", threadError.message);
+  }
+
+  // One email per conversation turn: skip it while earlier messages are still unread.
+  if (!thread.unreadForAdmin) {
+    after(() =>
+      notifyChat({
+        threadId,
+        learnerName: thread.learnerName || account.name,
+        grade: thread.grade ?? account.grade,
+        topic: thread.topic,
+        body,
+        isNew: false,
+      }),
+    );
   }
 
   revalidateChat(threadId);

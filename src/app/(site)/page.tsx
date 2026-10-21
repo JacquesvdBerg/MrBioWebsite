@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ActivityIcon } from "@/components/activity-icon";
 import { MrBioMark } from "@/components/brand";
@@ -8,7 +9,7 @@ import { Reveal } from "@/components/reveal";
 import { Arrow, ButtonLink, SectionHeading } from "@/components/ui";
 import { Visual } from "@/components/visual";
 import { getSessionAccount } from "@/lib/auth-role";
-import { activityTypes, gradePath, grades } from "@/lib/site";
+import { activityTypes, gradePath, grades, youtubeChannel, youtubeJoin } from "@/lib/site";
 import { syllabus } from "@/lib/syllabus";
 import { getPublishedWeeklyFacts } from "@/lib/weekly-facts";
 
@@ -77,6 +78,33 @@ export default async function HomePage() {
             </Reveal>
           ))}
         </div>
+
+        <Reveal delay={120}>
+          <div className="yt-strip">
+            <a href={youtubeChannel} target="_blank" rel="noreferrer" className="yt-strip-item">
+              <span className="yt-strip-text">Vir gratis videolesse, besoek die kanaal</span>
+              <Image
+                src="/images/brand/youtube-kanaal.webp"
+                alt="YouTube: Lewenswetenskappe Lesse. Klik hier"
+                width={960}
+                height={346}
+                sizes="(max-width: 640px) 80vw, 300px"
+                className="yt-strip-img"
+              />
+            </a>
+            <a href={youtubeJoin} target="_blank" rel="noreferrer" className="yt-strip-item">
+              <span className="yt-strip-text">Ondersteun die kanaal as lid</span>
+              <Image
+                src="/images/brand/youtube-lid.webp"
+                alt="YouTube: Lewenswetenskappe Lesse. Sluit aan as ondersteunende lid"
+                width={960}
+                height={450}
+                sizes="(max-width: 640px) 80vw, 300px"
+                className="yt-strip-img"
+              />
+            </a>
+          </div>
+        </Reveal>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pt-20 md:px-6">

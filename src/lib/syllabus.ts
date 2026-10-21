@@ -1,6 +1,5 @@
 // CAPS (KABV) year plan per grade and term. Grades 10–12 follow the teacher's
-// "Opvoedkundige materiaal te koop" list (October 2026). Grades 8–9 only list
-// the quarters he has material for.
+// "Opvoedkundige materiaal te koop" list (October 2026).
 
 import type { Grade } from "@/lib/site";
 
@@ -13,8 +12,6 @@ export type SyllabusTerm = {
 export type GradeSyllabus = {
   grade: Grade;
   summary: string;
-  /** Second half of the page heading when a grade has fewer than four quarters. */
-  tagline?: string;
   playlist: string;
   terms: SyllabusTerm[];
 };
@@ -27,12 +24,13 @@ export function isSeniorGrade(grade: number): grade is SeniorGrade {
   return (seniorGrades as readonly number[]).includes(grade);
 }
 
-// Gr 8: for now only KW1 and KW2 have material. Topics are the lessons in the
-// teacher's GR8 playlist, which labels each video by quarter.
+// Gr 8 and 9 list every quarter so parents can see the whole year, even where
+// the teacher only sells material for some quarters (see the shop). Gr 8 KW1
+// follows the lessons in his GR8 playlist; the rest is the KABV
+// Natuurwetenskappe year plan.
 const grade8: GradeSyllabus = {
   grade: 8,
-  summary: "Natuurwetenskappe: kwartaal 1 en 2 is beskikbaar. Meer volg binnekort.",
-  tagline: "Meer volg.",
+  summary: "Natuurwetenskappe, kwartaal vir kwartaal. Die skyfies vir kwartaal 1 en 2 is reeds te koop.",
   playlist: "https://www.youtube.com/playlist?list=PLFZb-n-QApHk",
   terms: [
     {
@@ -47,20 +45,73 @@ const grade8: GradeSyllabus = {
         "Mikro-organismes",
       ],
     },
-    { term: 2, title: "Materie en materiale", topics: ["Materie en materiale"] },
+    {
+      term: 2,
+      title: "Materie en materiale",
+      topics: ["Atome", "Die deeltjiemodel van materie", "Chemiese reaksies"],
+    },
+    {
+      term: 3,
+      title: "Energie en verandering",
+      topics: [
+        "Statiese elektrisiteit",
+        "Energie-oordrag in elektriese stelsels",
+        "Serie- en parallelstroombane",
+        "Sigbare lig",
+      ],
+    },
+    {
+      term: 4,
+      title: "Planeet Aarde en die ruimte",
+      topics: ["Die sonnestelsel", "Buite die sonnestelsel", "Kyk die ruimte in"],
+    },
   ],
 };
 
-// Gr 9: MnrBio only covers the biology component (KW1 and KW4). KW2 and KW3
-// are Skeinat, which is not taught here, so they are left out.
+// Gr 9: the teacher covers the biology quarters (KW1 and KW4); KW2 and KW3 are
+// the Skeinat part. KW4's biology topics still have to come from him.
 const grade9: GradeSyllabus = {
   grade: 9,
-  summary: "Die biologie-deel van Natuurwetenskappe: kwartaal 1 en 4.",
-  tagline: "Net biologie.",
+  summary:
+    "Natuurwetenskappe, kwartaal vir kwartaal. Die skyfies vir die biologie (kwartaal 1 en 4) is te koop.",
   playlist: "https://www.youtube.com/playlist?list=PLHZVYsyyT3ymScZU0e_N7Oipf7OCUHSgQ",
   terms: [
-    { term: 1, title: "Biologie", topics: ["Onderwerpe kom hier."] },
-    { term: 4, title: "Biologie", topics: ["Onderwerpe kom hier."] },
+    {
+      term: 1,
+      title: "Lewe en lewende dinge",
+      topics: [
+        "Selle as die basiese eenhede van lewe",
+        "Stelsels in die menslike liggaam",
+        "Menslike voortplanting",
+        "Sirkulasie- en respiratoriese stelsels",
+        "Spysverteringstelsel",
+      ],
+    },
+    {
+      term: 2,
+      title: "Materie en materiale",
+      topics: [
+        "Verbindings",
+        "Chemiese reaksies",
+        "Reaksies van metale en niemetale met suurstof",
+        "Sure, basisse en pH",
+        "Reaksies van sure met basisse, metaaloksiede en metale",
+      ],
+    },
+    {
+      term: 3,
+      title: "Energie en verandering",
+      topics: [
+        "Kragte",
+        "Elektriese selle as energiestelsels",
+        "Weerstand",
+        "Serie- en parallelstroombane",
+        "Veiligheid met elektrisiteit",
+        "Energie en die nasionale elektrisiteitsnetwerk",
+        "Koste van elektrisiteit",
+      ],
+    },
+    { term: 4, title: "Biologie", topics: ["Onderwerpe volg binnekort."] },
   ],
 };
 

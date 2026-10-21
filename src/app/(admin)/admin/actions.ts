@@ -11,6 +11,15 @@ import { slugify } from "@/lib/slug";
 import { getAiSettings, saveAiSettings } from "@/lib/ai-settings";
 import { getSessionAccount } from "@/lib/auth-role";
 import { clearOpenAiKey, saveOpenAiKey, verifyOpenAiKey } from "@/lib/openai-key";
+import {
+  clearResendKey,
+  defaultSender,
+  getEmailSettings,
+  getResendKey,
+  saveEmailSettings,
+  saveResendKey,
+} from "@/lib/email";
+import { sendTestEmail, sendWelcomeEmail } from "@/lib/notifications";
 import { toCommentStatus } from "@/lib/comments";
 import { toEnquiryStatus } from "@/lib/enquiries";
 import { parseBulletLines } from "@/lib/products";
@@ -367,6 +376,76 @@ export async function removeOpenAiKeyAction() {
   redirect("/admin/settings?ai=removed#ai-sleutel");
 }
 
+function emailResult(result: string): never {
+  revalidatePath("/admin/settings");
+  revalidatePath("/admin");
+  redirect(`/admin/settings?epos=${result}#e-pos`);
+}
+
+export async function saveResendKeyAction(formData: FormData) {
+  await requireAdmin();
+  const key = String(formData.get("resend_key") ?? "").trim();
+
+  if (!/^re_[A-Za-z0-9_]{16,}$/.test(key)) {
+    emailResult("format");
+  }
+
+  // Sending the test email is the check: it proves the key works and that mail arrives.
+  const check = await sendTestEmail(key, await getEmailSettings());
+  if (check !== "sent" && check !== "own-only" && check !== "from-domain") {
+    emailResult(check);
+  }
+
+  const account = await getSessionAccount();
+  const saved = await saveResendKey(key, account?.userId ?? null);
+  if (saved !== "saved") {
+    emailResult(saved);
+  }
+  // A key that works but can't reach the address yet is still kept; the notice explains the fix.
+  emailResult(check === "sent" ? "saved" : check);
+}
+
+export async function removeResendKeyAction() {
+  await requireAdmin();
+  await clearResendKey();
+  emailResult("removed");
+}
+
+const emailAddress = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
+
+export async function saveEmailSettingsAction(formData: FormData) {
+  await requireAdmin();
+  const to = String(formData.get("to") ?? "").trim();
+  const from = String(formData.get("from") ?? "").trim() || defaultSender;
+  const fromAddress = from.match(/<([^<>]+)>$/)?.[1] ?? from;
+
+  if (!emailAddress.test(to)) {
+    emailResult("to");
+  }
+  if (!emailAddress.test(fromAddress)) {
+    emailResult("from");
+  }
+
+  const account = await getSessionAccount();
+  const saved = await saveEmailSettings(
+    {
+      to,
+      from,
+      enquiries: formData.get("enquiries") === "on",
+      chat: formData.get("chat") === "on",
+      comments: formData.get("comments") === "on",
+    },
+    account?.userId ?? null,
+  );
+  emailResult(saved === "saved" ? "settings" : saved);
+}
+
+export async function sendTestEmailAction() {
+  await requireAdmin();
+  const result = await sendTestEmail((await getResendKey()) ?? "", await getEmailSettings());
+  emailResult(result === "sent" ? "test" : result);
+}
+
 export async function addAiTerm(formData: FormData) {
   await requireAdmin();
   const use = String(formData.get("use") ?? "").trim();
@@ -475,6 +554,7 @@ export async function createAdminAccount(formData: FormData) {
 
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const name = String(formData.get("name") ?? "").trim();
 
   if (!email) {
     redirect("/admin/accounts?error=email");
@@ -490,19 +570,35 @@ export async function createAdminAccount(formData: FormData) {
     redirect("/admin/accounts?error=service");
   }
 
-  const { error } = await service.auth.admin.createUser({
+  const { data, error } = await service.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
     app_metadata: { role: "admin" },
+    user_metadata: name ? { display_name: name } : undefined,
   });
 
-  if (error) {
-    redirect(`/admin/accounts?error=${accountCreateError(error.message)}`);
+  if (error || !data.user) {
+    redirect(`/admin/accounts?error=${accountCreateError(error?.message ?? "")}`);
   }
 
+  // The new-user trigger runs before Supabase attaches app_metadata, so it
+  // files every new login as a learner. Mark this profile as admin here.
+  const { error: profileError } = await service.from("profiles").upsert({
+    id: data.user.id,
+    email,
+    kind: "admin",
+    display_name: name || email.split("@")[0],
+  });
+
+  if (profileError) {
+    console.error("Failed to mark new admin profile:", profileError.message);
+  }
+
+  const welcome = formData.get("welcome") === "on" ? await sendWelcomeEmail({ email, name }) : null;
+
   revalidatePath("/admin/accounts");
-  redirect("/admin/accounts?created=1");
+  redirect(`/admin/accounts?created=1${welcome ? `&welcome=${welcome}` : ""}`);
 }
 
 function optionalGrade(formData: FormData, name = "grade") {

@@ -19,8 +19,6 @@ import { syllabus } from "@/lib/syllabus";
 
 export const revalidate = 300;
 
-const quarterWords: Record<number, string> = { 2: "Twee", 3: "Drie" };
-
 type GradePageProps = {
   params: Promise<{ grade: string }>;
 };
@@ -54,18 +52,7 @@ export default async function GradePage({ params }: GradePageProps) {
   return (
     <SectionPage
       eyebrow={`Graad ${grade}`}
-      title={
-        plan.terms.length === 4 ? (
-          <>
-            Vier kwartale. <span className="gradient-text">Een jaar.</span>
-          </>
-        ) : (
-          <>
-            {plan.terms.length === 1 ? "Een kwartaal." : `${quarterWords[plan.terms.length] ?? plan.terms.length} kwartale.`}{" "}
-            <span className="gradient-text">{plan.tagline}</span>
-          </>
-        )
-      }
+      title={<>Vier kwartale. <span className="gradient-text">Een jaar.</span></>}
       description={plan.summary}
       crumbs={[
         { href: "/", label: "Tuis" },

@@ -1,6 +1,11 @@
 export const siteName = "MnrBio";
 export const siteTagline = "Lewenswetenskappe";
+/** Public address for links, the sitemap and social previews. Set NEXT_PUBLIC_SITE_URL once a custom domain is live. */
+export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mr-bio-website.vercel.app";
 export const contactEmail = "25kzorlf@gmail.com";
+/** The teacher's YouTube channel, "Lewenswetenskappe Lesse". */
+export const youtubeChannel = "https://www.youtube.com/@lwonnie";
+export const youtubeJoin = "https://www.youtube.com/@lwonnie/join";
 
 export type NavChild = {
   href: string;
