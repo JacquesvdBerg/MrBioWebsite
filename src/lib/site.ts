@@ -26,6 +26,7 @@ export const publicNav: readonly NavItem[] = [
   { href: "/shop", label: "Winkel" },
   { href: "/play-and-learn", label: "Speletjies" },
   { href: "/live-chat", label: "Klets" },
+  { href: "/comments", label: "Forum" },
 ];
 
 export const footerNav = [
