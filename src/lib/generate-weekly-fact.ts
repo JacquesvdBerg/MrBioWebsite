@@ -6,7 +6,7 @@ import { requestOpenAiJson } from "@/lib/openai-json";
 import { grades } from "@/lib/site";
 import { slugify } from "@/lib/slug";
 import { createServiceClient } from "@/lib/supabase/service";
-import { syllabus } from "@/lib/syllabus";
+import { lifeScienceTopics } from "@/lib/syllabus";
 import { weeklyFactCategories } from "@/lib/weekly-facts";
 
 // Runs every Monday morning. A fact the teacher approved goes live first; with
@@ -49,18 +49,6 @@ function weekLabel(monday: string) {
   const yearStart = new Date(Date.UTC(thursday.getUTCFullYear(), 0, 1));
   const week = Math.ceil(((thursday.getTime() - yearStart.getTime()) / 86_400_000 + 1) / 7);
   return { week, label: `Week ${week} · ${thursday.getUTCFullYear()}` };
-}
-
-/** Life-science topics only: grades 8 and 9 are Natural Sciences, so skip their physics and chemistry terms. */
-function topicsFor(grade: number) {
-  const plan = syllabus[grade as keyof typeof syllabus];
-  if (!plan) {
-    return [];
-  }
-  return plan.terms
-    .filter((term) => grade >= 10 || /lewe|biologie/i.test(term.title))
-    .flatMap((term) => term.topics)
-    .filter((topic) => !/binnekort/i.test(topic));
 }
 
 function systemPrompt(settings: AiSettings) {
@@ -148,7 +136,7 @@ export async function runWeeklyFactJob(options: { date?: string; dryRun?: boolea
     .order("created_at", { ascending: false })
     .limit(30);
   const used = (recent ?? []).map((row) => `- ${row.title}`).join("\n") || "- (nog geen)";
-  const topics = topicsFor(grade).map((topic) => `- ${topic}`).join("\n");
+  const topics = lifeScienceTopics(grade).map((topic) => `- ${topic.title}`).join("\n");
 
   try {
     const fact = await requestOpenAiJson<{ title: string; body: string; category: Category }>({

@@ -68,12 +68,16 @@ Do not run OpenAI from Postgres.
 
 | When (SAST) | Path | What |
 | --- | --- | --- |
-| Monday 00:05 | `/api/jobs/weekly-games/10` | All games for graad 10 |
-| Monday 00:20 | `/api/jobs/weekly-games/11` | All games for graad 11 |
-| Monday 00:35 | `/api/jobs/weekly-games/12` | All games for graad 12 |
-| Monday 06:00 | `/api/jobs/weekly-fact` | Feit van die week |
+| Monday 00:05 | `/api/jobs/weekly-games/8` | All games for graad 8 |
+| Monday 01:05 | `/api/jobs/weekly-games/9` | All games for graad 9 |
+| Monday 02:05 | `/api/jobs/weekly-games/10` | All games for graad 10 |
+| Monday 03:05 | `/api/jobs/weekly-games/11` | All games for graad 11 |
+| Monday 04:05 | `/api/jobs/weekly-games/12` | All games for graad 12 |
+| Monday 06:05 | `/api/jobs/weekly-fact` | Feit van die week |
 
-One grade per call keeps each run inside the 300 second limit. On the Hobby plan Vercel may start a job any time within the scheduled hour.
+Each grade gets its own hour: one call stays inside the 300 second limit, and runs never overlap, which keeps a new OpenAI account under its tokens-per-minute limit (requests also wait and retry on a 429). On the Hobby plan Vercel may start a job any time within the scheduled hour.
+
+Topics come from **Admin > Onderwerpe**, seeded from the year plan in `src/lib/syllabus.ts` (`lifeScienceTopics`): Life Sciences only, so graad 8 and 9 keep just their biology quarter, and revision or exam quarters are left out. The job prefers this quarter's topics and rotates through the whole year when a quarter has none.
 
 The game pages show the newest set dated on or before today, so a Monday set stays up all week.
 

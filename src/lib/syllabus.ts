@@ -247,3 +247,23 @@ export const syllabus: Record<Grade, GradeSyllabus> = {
     ],
   },
 };
+
+/** School quarter for a YYYY-MM-DD date: January to March is term 1, and so on. */
+export function termOf(date: string) {
+  return Math.ceil(Number(date.slice(5, 7)) / 3) as SyllabusTerm["term"];
+}
+
+/**
+ * Topics the weekly games and facts may use: Life Sciences only. Grades 8 and 9
+ * keep just their biology quarters (no Natural Sciences chemistry or physics),
+ * and revision or exam quarters are not topics.
+ */
+export function lifeScienceTopics(grade: Grade) {
+  return syllabus[grade].terms
+    .filter((term) => (grade >= 10 ? !/hersiening|eksamen/i.test(term.title) : /lewe|biologie/i.test(term.title)))
+    .flatMap((term) =>
+      term.topics
+        .filter((topic) => !/binnekort/i.test(topic))
+        .map((topic) => ({ term: term.term, termTitle: term.title, title: topic })),
+    );
+}

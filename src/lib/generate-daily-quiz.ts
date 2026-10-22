@@ -2,7 +2,7 @@ import "server-only";
 import { getAiSettings } from "@/lib/ai-settings";
 import { johannesburgDate } from "@/lib/dates";
 import { selectedGrades } from "@/lib/daily-job";
-import { requireOpenAiKey } from "@/lib/openai-key";
+import { requestOpenAiJson } from "@/lib/openai-json";
 import { quizBankSize } from "@/lib/quiz-length";
 import { parseQuizPayload, type QuizPayload } from "@/lib/quiz";
 import { buildQuizSystemPrompt, buildQuizUserPrompt } from "@/lib/quiz-prompt";
@@ -97,47 +97,13 @@ async function requestQuiz(input: {
   date: string;
   topic: ActivityTopic;
 }) {
-  const apiKey = await requireOpenAiKey();
-
   const settings = await getAiSettings();
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "gpt-4o",
-      temperature: 0.4,
-      messages: [
-        { role: "system", content: buildQuizSystemPrompt(settings) },
-        { role: "user", content: buildQuizUserPrompt(input) },
-      ],
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "daily_quiz",
-          strict: true,
-          schema: quizSchema,
-        },
-      },
-    }),
+  const parsed = await requestOpenAiJson<ModelQuiz>({
+    schemaName: "daily_quiz",
+    schema: quizSchema,
+    system: buildQuizSystemPrompt(settings),
+    user: buildQuizUserPrompt(input),
   });
-
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(`OpenAI ${response.status}: ${detail.slice(0, 400)}`);
-  }
-
-  const body = (await response.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-  };
-  const content = body.choices?.[0]?.message?.content;
-  if (!content) {
-    throw new Error("Empty OpenAI response");
-  }
-
-  const parsed = JSON.parse(content) as ModelQuiz;
   const quiz = toPayload(parsed);
 
   if (quiz.questions.length < 5) {

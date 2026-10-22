@@ -1,9 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
-    { "path": "/api/jobs/weekly-games/10", "schedule": "5 22 * * 0" },
-    { "path": "/api/jobs/weekly-games/11", "schedule": "20 22 * * 0" },
-    { "path": "/api/jobs/weekly-games/12", "schedule": "35 22 * * 0" },
-    { "path": "/api/jobs/weekly-fact", "schedule": "0 4 * * 1" }
+    { "path": "/api/jobs/weekly-games/8", "schedule": "5 22 * * 0" },
+    { "path": "/api/jobs/weekly-games/9", "schedule": "5 23 * * 0" },
+    { "path": "/api/jobs/weekly-games/10", "schedule": "5 0 * * 1" },
+    { "path": "/api/jobs/weekly-games/11", "schedule": "5 1 * * 1" },
+    { "path": "/api/jobs/weekly-games/12", "schedule": "5 2 * * 1" },
+    { "path": "/api/jobs/weekly-fact", "schedule": "5 4 * * 1" }
   ]
 }

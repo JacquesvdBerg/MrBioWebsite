@@ -150,8 +150,8 @@ export const grades = [8, 9, 10, 11, 12] as const;
 
 export type Grade = (typeof grades)[number];
 
-/** Grades the weekly game jobs still generate. 8 and 9 wait for a year plan. */
-export const jobGrades = [10, 11, 12] as const;
+/** Grades the weekly game jobs generate: all of them, biology topics only for 8 and 9. */
+export const jobGrades = grades;
 
 export function isGrade(value: string | number): value is Grade {
   const grade = typeof value === "string" ? Number(value) : value;

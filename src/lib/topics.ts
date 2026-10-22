@@ -1,7 +1,9 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import type { Grade } from "@/lib/site";
+import { johannesburgDate } from "@/lib/dates";
+import { isGrade, type Grade } from "@/lib/site";
+import { lifeScienceTopics, termOf } from "@/lib/syllabus";
 
 export type ActivityTopic = {
   id: string;
@@ -57,7 +59,12 @@ export async function getAllTopics() {
   return data.map(toTopic);
 }
 
-export async function pickNextTopic(grade: number) {
+/**
+ * The active topic used longest ago, preferring this quarter's topics so the
+ * games follow the classroom. Quarters without topics of their own (revision,
+ * or Gr 8 and 9 outside biology) rotate through the whole year.
+ */
+export async function pickNextTopic(grade: number, date = johannesburgDate()) {
   const supabase = createServiceClient() ?? (await createClient());
   const { data, error } = await supabase
     .from("activity_topics")
@@ -68,12 +75,16 @@ export async function pickNextTopic(grade: number) {
     .eq("is_active", true)
     .order("last_used_on", { ascending: true, nullsFirst: true })
     .order("sort_order", { ascending: true })
-    .limit(1)
-    .maybeSingle();
+    .returns<TopicRow[]>();
 
-  if (error || !data) {
+  if (error || !data || data.length === 0) {
     return null;
   }
 
-  return toTopic(data as TopicRow);
+  const term = termOf(date);
+  const thisTerm = new Set(
+    isGrade(grade) ? lifeScienceTopics(grade).filter((topic) => topic.term === term).map((topic) => topic.title) : [],
+  );
+  const topics = data.map(toTopic);
+  return topics.find((topic) => thisTerm.has(topic.title)) ?? topics[0];
 }
