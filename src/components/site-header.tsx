@@ -3,10 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { signOutPublic } from "@/app/(site)/actions";
 import { MrBioLogo } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Arrow } from "@/components/ui";
 import { publicNav, type NavChild, type NavItem } from "@/lib/site";
+
+function initialsOf(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  return parts.length ? parts.slice(0, 2).map((part) => part[0]!.toUpperCase()).join("") : "?";
+}
 
 function isActive(pathname: string, item: NavItem) {
   if (item.href === "/") {
@@ -306,9 +312,13 @@ export function SiteHeader({
             {account ? (
               <Link
                 href="/rekening"
-                className="hidden rounded-full px-3.5 py-2 text-[13.5px] font-bold text-white/65 transition-colors hover:text-white xl:inline-flex"
+                aria-label={`My rekening (${account.name})`}
+                className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 p-1 text-[13.5px] font-bold text-white/80 transition-colors hover:border-lime/50 hover:text-white xl:pr-3.5"
               >
-                {account.name}
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lime font-display text-sm font-extrabold text-ink">
+                  {initialsOf(account.name)}
+                </span>
+                <span className="hidden max-w-[9rem] truncate xl:inline">{account.name}</span>
               </Link>
             ) : (
               <Link
@@ -430,8 +440,15 @@ export function SiteHeader({
               Kontak
             </Link>
             <Link href="/rekening" onClick={() => setOpen(false)}>
-              {account ? account.name : "Teken in"}
+              {account ? "My rekening" : "Teken in"}
             </Link>
+            {account ? (
+              <form action={signOutPublic}>
+                <button type="submit" className="font-semibold text-white/50">
+                  Teken uit
+                </button>
+              </form>
+            ) : null}
           </div>
         </nav>
       </div>

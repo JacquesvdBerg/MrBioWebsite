@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { requestPasswordReset } from "@/app/auth/actions";
 import { deskField } from "@/components/admin-ui";
 import { createClient } from "@/lib/supabase/client";
 
@@ -31,29 +32,28 @@ export function LoginForm({
     const password = String(form.get("password") ?? "");
 
     try {
-      const supabase = createClient();
-
       if (mode === "forgot") {
-        const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth/callback?next=/auth/update-password`,
-        });
-
-        if (resetError) {
-          throw resetError;
+        const result = await requestPasswordReset({ email });
+        if (result.status === "error") {
+          throw new Error(result.message);
         }
-
-        setNotice("As daardie e-pos ’n rekening het, stuur ons ’n herstel-skakel.");
+        setNotice(result.status === "check-email" ? result.message : null);
         setPending(false);
         return;
       }
 
+      const supabase = createClient();
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) {
-        throw signInError;
+        throw new Error(
+          signInError.message.toLowerCase().includes("invalid login")
+            ? "Die e-pos of wagwoord is verkeerd."
+            : signInError.message,
+        );
       }
 
       router.replace(nextPath);

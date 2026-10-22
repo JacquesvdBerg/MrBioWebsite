@@ -244,6 +244,29 @@ export async function replyLearnerChat(formData: FormData) {
   revalidateChat(threadId);
 }
 
+export async function updateLearnerProfile(formData: FormData) {
+  const account = await requireLearner("/rekening");
+  const name = formText(formData, "name").slice(0, 80);
+
+  if (!name) {
+    redirect("/rekening?fout=naam");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ display_name: name, grade: optionalGrade(formData) })
+    .eq("id", account.userId);
+
+  if (error) {
+    console.error("Failed to update learner profile:", error.message);
+    redirect("/rekening?fout=stoor");
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/rekening?gestoor=1");
+}
+
 export async function signOutPublic() {
   const supabase = await createClient();
   await supabase.auth.signOut();

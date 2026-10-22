@@ -37,7 +37,7 @@ export function UpdatePasswordForm() {
 
       const { data: claimsData } = await supabase.auth.getClaims();
       const meta = claimsData?.claims?.app_metadata as { role?: string } | undefined;
-      router.replace(meta?.role === "admin" ? "/admin" : "/live-chat");
+      router.replace(meta?.role === "admin" ? "/admin" : "/rekening?wagwoord=nuut");
       router.refresh();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Kon nie die wagwoord stoor nie.");
