@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { submitEnquiry } from "@/app/(site)/actions";
 import { Field, FormNote, Select, TextArea, TextInput } from "@/components/field";
@@ -83,9 +84,16 @@ export default async function ContactPage({ searchParams }: PageProps) {
               <p className="text-sm text-orange">Kon nie stoor nie. Probeer weer.</p>
             ) : null}
             {productSlug ? (
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/65">
-                Navraag oor <strong className="text-white">{productName}</strong>
-                {product ? <span className="text-white/80"> · R{product.price}</span> : null}
+              <div className="flex items-center gap-3.5 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/65">
+                {product?.imagePath ? (
+                  <span className="relative aspect-video w-24 shrink-0 overflow-hidden rounded-xl">
+                    <Image src={product.imagePath} alt="" fill sizes="96px" className="object-cover" />
+                  </span>
+                ) : null}
+                <span>
+                  Navraag oor <strong className="text-white">{productName}</strong>
+                  {product ? <span className="text-white/80"> · R{product.price}</span> : null}
+                </span>
               </div>
             ) : null}
             <input type="hidden" name="product_slug" value={productSlug} />

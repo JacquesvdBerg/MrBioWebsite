@@ -2092,6 +2092,40 @@ html[data-theme="dark"] .shop-grade-num {
   box-shadow: 0 8px 16px -10px var(--c2);
 }
 
+.shop-series-cover {
+  position: relative;
+  width: 6rem;
+  flex-shrink: 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 0.8rem;
+  box-shadow: 0 10px 20px -12px var(--c2);
+}
+
+@media (min-width: 640px) {
+  .shop-series-cover {
+    width: 8rem;
+  }
+}
+
+.shop-series-badge {
+  position: absolute;
+  right: 0.3rem;
+  bottom: 0.3rem;
+  display: grid;
+  height: 1.6rem;
+  width: 1.6rem;
+  place-items: center;
+  border-radius: 999px;
+  color: #ffffff;
+  background: linear-gradient(160deg, var(--c1), var(--c2));
+  box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.45);
+}
+
+.shop-series-badge.is-video {
+  background: linear-gradient(160deg, #ef4444, #b91c1c);
+}
+
 .shop-series-icon.is-video {
   background: linear-gradient(160deg, #ef4444, #b91c1c);
   box-shadow: 0 8px 16px -10px #b91c1c;

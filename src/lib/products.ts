@@ -40,7 +40,6 @@ export type ShopProduct = {
   pages: number | null;
   imagePath: string | null;
   isPublished: boolean;
-  isFeatured: boolean;
   sortOrder: number;
 };
 
@@ -60,12 +59,11 @@ type ProductRow = {
   pages: number | null;
   image_path: string | null;
   is_published: boolean;
-  is_featured: boolean;
   sort_order: number;
 };
 
 const columns =
-  "id, slug, title, kind, listing_kind, grade, price, was_price, bullets, body, tone, badge, pages, image_path, is_published, is_featured, sort_order";
+  "id, slug, title, kind, listing_kind, grade, price, was_price, bullets, body, tone, badge, pages, image_path, is_published, sort_order";
 
 function toListingKind(value: string): ProductListingKind {
   return value === "bundle" ? "bundle" : "item";
@@ -88,7 +86,6 @@ function toProduct(row: ProductRow): ShopProduct {
     pages: row.pages,
     imagePath: row.image_path,
     isPublished: row.is_published,
-    isFeatured: row.is_featured,
     sortOrder: row.sort_order,
   };
 }
@@ -113,20 +110,6 @@ export async function getPublishedProducts(): Promise<ShopProduct[]> {
   }
 
   return data.map(toProduct);
-}
-
-export async function getPublishedCatalogue() {
-  const products = await getPublishedProducts();
-  return {
-    items: products.filter((product) => product.listingKind === "item"),
-    bundles: products.filter((product) => product.listingKind === "bundle"),
-  };
-}
-
-export async function getFeaturedProducts(): Promise<ShopProduct[]> {
-  const { items } = await getPublishedCatalogue();
-  const featured = items.filter((product) => product.isFeatured);
-  return (featured.length > 0 ? featured : items).slice(0, 3);
 }
 
 export async function getAllProducts(): Promise<ShopProduct[]> {

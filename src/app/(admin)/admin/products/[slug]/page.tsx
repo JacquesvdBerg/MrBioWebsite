@@ -162,10 +162,6 @@ export default async function AdminProductEditorPage({
               <input type="checkbox" name="is_published" defaultChecked={product.isPublished} />
               Publiseer op die winkel
             </label>
-            <label className="desk-check">
-              <input type="checkbox" name="is_featured" defaultChecked={product.isFeatured} />
-              Wys op die tuisblad
-            </label>
           </div>
           <div className="md:col-span-2">
             <AdminBtn type="submit" icon="check">

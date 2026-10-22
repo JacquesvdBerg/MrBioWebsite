@@ -10,6 +10,29 @@ function enquire(product: ShopProduct) {
   return `/contact?produk=${encodeURIComponent(product.slug)}`;
 }
 
+/** The first photo uploaded on any product in a series, used as its cover. */
+function coverOf(products: ReadonlyArray<ShopProduct | null>) {
+  return products.find((product) => product?.imagePath)?.imagePath ?? null;
+}
+
+/** The series cover photo with a small kind badge, or the plain icon when there is no photo. */
+function SeriesMark({ cover, video }: { cover: string | null; video: boolean }) {
+  const icon = video ? <PlayIcon className="h-5 w-5" /> : <DocumentIcon className="h-5 w-5" />;
+
+  if (!cover) {
+    return <span className={`shop-series-icon ${video ? "is-video" : ""}`}>{icon}</span>;
+  }
+
+  return (
+    <span className="shop-series-cover">
+      <Image src={cover} alt="" fill sizes="144px" className="object-cover" />
+      <span className={`shop-series-badge ${video ? "is-video" : ""}`}>
+        {video ? <PlayIcon className="h-3.5 w-3.5" /> : <DocumentIcon className="h-3.5 w-3.5" />}
+      </span>
+    </span>
+  );
+}
+
 function Enquire({ product, primary = false }: { product: ShopProduct; primary?: boolean }) {
   return (
     <Link href={enquire(product)} className={`shop-enquire ${primary ? "is-primary" : ""}`}>
@@ -68,18 +91,16 @@ export function GradeCatalogue({
       <div className={`grid gap-5 lg:grid-cols-[1.2fr_1fr] ${banner ? "mt-5" : ""}`}>
         {summary ? (
           <article className="shop-series">
-            <div className="flex items-start gap-3.5">
-              <span className={`shop-series-icon ${slideSeries ? "is-video" : ""}`}>
-                {slideSeries ? <PlayIcon className="h-5 w-5" /> : <DocumentIcon className="h-5 w-5" />}
-              </span>
-              <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-start gap-3.5">
+              <SeriesMark cover={coverOf([summary.full, ...summary.quarters])} video={slideSeries} />
+              <div className="min-w-0 flex-1 basis-48">
                 <h3 className="font-display text-xl font-bold text-white">
                   {slideSeries ? "YT-video skyfievertonings" : summary.kind}
                 </h3>
                 {summary.body ? <p className="mt-0.5 text-sm leading-6 text-white/60">{summary.body}</p> : null}
               </div>
               {perQuarter ? (
-                <p className="shrink-0 text-right">
+                <p className="ml-auto shrink-0 text-right">
                   <span className="block font-display text-2xl font-extrabold tracking-[-0.03em] text-white">
                     R{perQuarter}
                   </span>
@@ -122,9 +143,7 @@ export function GradeCatalogue({
         {slides ? (
           <article className="shop-series">
             <div className="flex items-start gap-3.5">
-              <span className="shop-series-icon is-video">
-                <PlayIcon className="h-5 w-5" />
-              </span>
+              <SeriesMark cover={coverOf([slides.full, slides.single])} video />
               <div className="min-w-0 flex-1">
                 <h3 className="font-display text-xl font-bold text-white">YT-video skyfievertonings</h3>
                 <p className="mt-0.5 text-sm leading-6 text-white/60">
@@ -187,6 +206,17 @@ export function GradeCatalogue({
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {other.map((product) => (
             <article key={product.slug} className="shop-series">
+              {product.imagePath ? (
+                <div className="relative -mx-1 -mt-1 mb-4 aspect-video overflow-hidden rounded-2xl">
+                  <Image
+                    src={product.imagePath}
+                    alt=""
+                    fill
+                    sizes="(max-width: 640px) 100vw, 380px"
+                    className="object-cover"
+                  />
+                </div>
+              ) : null}
               <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-lime">{product.kind}</p>
               <h3 className="mt-1 font-display text-lg font-bold text-white">{product.title}</h3>
               {product.bullets.length > 0 ? (

@@ -849,7 +849,6 @@ export async function saveProduct(formData: FormData) {
       pages: pagesRaw ? Number(pagesRaw) || null : null,
       image_path: formText(formData, "image_path") || null,
       is_published: formData.get("is_published") === "on",
-      is_featured: listingKind === "item" && formData.get("is_featured") === "on",
       sort_order: Number.isFinite(sortOrder) ? sortOrder : 0,
     })
     .eq("slug", existingSlug);
