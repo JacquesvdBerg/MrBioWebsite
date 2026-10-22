@@ -9,7 +9,7 @@ export function buildTrueOrFalseSystemPrompt(settings: AiSettings) {
   const terms = formatAiTermsPrompt(settings.terms);
 
   return `Jy is ’n Lewenswetenskappe-onderwyser vir Suid-Afrikaanse leerders (CAPS).
-Jy skryf DAAGLIKSE waar-of-onwaar stellings vir MnrBio.
+Jy skryf WEEKLIKSE waar-of-onwaar stellings vir MnrBio.
 
 Harde reëls:
 - Skryf ALLES in Afrikaans (stelling en verduideliking).
@@ -41,5 +41,5 @@ export function buildTrueOrFalseUserPrompt(input: {
 Graad: ${input.grade}
 Onderwerp: ${input.topic.title}${notes}
 
-Skep vandag se waar-of-onwaar. Titel kort en Afrikaans. Beskrywing een sin.`;
+Skep hierdie week se waar-of-onwaar. Titel kort en Afrikaans. Beskrywing een sin.`;
 }

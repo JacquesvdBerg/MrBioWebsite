@@ -77,7 +77,7 @@ export const adminNavGroups: readonly AdminNavGroup[] = [
       {
         href: "/admin/topics",
         label: "Onderwerpe",
-        description: "Bank vir die daaglikse AI-jobs.",
+        description: "Bank vir die weeklikse AI-jobs.",
         icon: "list",
       },
     ],
@@ -134,7 +134,7 @@ export const adminNavGroups: readonly AdminNavGroup[] = [
       {
         href: "/admin/settings",
         label: "Instellings",
-        description: "AI-huisreëls en nagtaak.",
+        description: "AI-huisreëls en weektaak.",
         icon: "settings",
       },
     ],

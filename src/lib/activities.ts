@@ -409,6 +409,7 @@ export async function getAdminActivity(kind: ActivitySlug, slug: string) {
   return toActivity(data as ActivityRow);
 }
 
+/** The newest generated set on or before `playOn`. Sets come out weekly, so this is the current week's. */
 export async function getDailyActivity(
   grade: number,
   playOn: string,
@@ -426,8 +427,10 @@ export async function getDailyActivity(
     .eq("kind", kind)
     .eq("source", "ai-daily")
     .eq("grade", grade)
-    .eq("play_on", playOn)
+    .lte("play_on", playOn)
     .eq("is_published", true)
+    .order("play_on", { ascending: false })
+    .limit(1)
     .maybeSingle();
 
   if (error || !data) {

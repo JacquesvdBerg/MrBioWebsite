@@ -28,8 +28,8 @@ const pillars = [
     tone: "purple" as const,
   },
   {
-    title: "Elke dag ’n bietjie",
-    body: "Daaglikse uitdagings van tien minute werk beter as een lang sessie voor die eksamen. Ons bou vir gewoontes.",
+    title: "’n Bietjie elke week",
+    body: "Kort uitdagings van tien minute werk beter as een lang sessie voor die eksamen. Ons bou vir gewoontes.",
     tone: "orange" as const,
   },
 ];
@@ -60,15 +60,15 @@ const timeline = [
 const faqs = [
   {
     q: "Is MnrBio gratis?",
-    a: "Die video’s, weeklikse feite en daaglikse oefeninge is gratis. Die notas en eksamenpakke in die winkel word gekoop, en sommige oefeninge sal later ’n rekening vereis.",
+    a: "Die video’s, die feit van die week en die oefeninge is gratis. Die notas en eksamenpakke in die winkel word gekoop, en sommige oefeninge sal later ’n rekening vereis.",
   },
   {
     q: "Moet ek aanmeld om te oefen?",
     a: "Nee. Kies jou graad en begin. Ons werk aan rekeninge sodat jy jou vordering en punte kan bewaar.",
   },
   {
-    q: "Hoe word die daaglikse vrae gemaak?",
-    a: "Die onderwyser stel die onderwerpe en keur elke stel vrae goed voordat dit verskyn. Niks gaan outomaties live nie.",
+    q: "Hoe word die weeklikse vrae gemaak?",
+    a: "Die onderwyser kies die onderwerpe en die vakterme. Elke Maandag skryf AI ’n nuwe stel binne daardie onderwerpe, en die onderwyser kan enige stel verander of afhaal.",
   },
   {
     q: "Kan my skool dit gebruik?",

@@ -32,7 +32,7 @@ export function DailyQuizStart({
         router.push(`/play-and-learn/${kind}/${slug}?vrae=${length}`);
       }}
     >
-      <p className="text-sm font-bold text-navy">Hoeveel vrae vandag?</p>
+      <p className="text-sm font-bold text-navy">Hoeveel vrae wil jy doen?</p>
       <div className="quiz-length mt-3">
         <input
           type="range"
@@ -62,11 +62,11 @@ export function DailyQuizStart({
         </div>
       </div>
       <p className="mt-2 text-sm text-muted">
-        {length} vrae uit vandag se bank van {available}. Almal wat {length}{" "}
+        {length} vrae uit hierdie week se bank van {available}. Almal wat {length}{" "}
         kies, kry dieselfde vrae.
       </p>
       <button type="submit" className="quiz-cta mt-5 w-full sm:w-auto">
-        Begin vandag
+        Begin
       </button>
     </form>
   );

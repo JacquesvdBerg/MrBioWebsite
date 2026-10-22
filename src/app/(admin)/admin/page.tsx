@@ -156,7 +156,7 @@ export default async function AdminDashboardPage() {
               ? `${waiting} ${waiting === 1 ? "ding wag" : "dinge wag"} op jou aandag.`
               : "Alles is op datum. Tyd vir iets nuuts?"}{" "}
             {settings.paused
-              ? "Die nagtaak is gepouseer."
+              ? "Die weektaak is gepouseer."
               : `Die oefenbank het ${liveActivities} live aktiwiteite.`}
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
@@ -294,7 +294,7 @@ export default async function AdminDashboardPage() {
 
         <div className="grid content-start gap-6">
           <AdminPanel
-            title="Nagtaak"
+            title="Weektaak"
             icon="spark"
             action={
               <AdminBadge tone={settings.paused ? "wait" : "live"}>
@@ -302,6 +302,10 @@ export default async function AdminDashboardPage() {
               </AdminBadge>
             }
           >
+            <div className="desk-kv">
+              <span className="text-white/55">Skedule</span>
+              <span className="font-bold text-white">Elke Maandag vroegoggend</span>
+            </div>
             <div className="desk-kv">
               <span className="text-white/55">AI-sleutel</span>
               {keyStatus.state === "ready" ? (
@@ -375,7 +379,7 @@ export default async function AdminDashboardPage() {
             <AdminEmpty
               icon="puzzle"
               title="Die oefenbank is leeg"
-              body="Skryf een vasvra, of laat die nagtaak die eerste een bou."
+              body="Skryf een vasvra, of laat die weektaak die eerste een bou."
               action={<AdminBtn href="/admin/activities/quiz/new">Nuwe vasvra</AdminBtn>}
             />
           ) : (
@@ -387,7 +391,7 @@ export default async function AdminDashboardPage() {
                     <p className="text-sm text-white/55">
                       {activityKindLabel(activity.kind)}
                       {activity.grade ? ` · Graad ${activity.grade}` : ""}
-                      {activity.source === "ai-daily" ? " · Nagtaak" : ""}
+                      {activity.source === "ai-daily" ? " · Weektaak" : ""}
                     </p>
                   </div>
                   <AdminBadge tone={activity.isPublished ? "live" : "draft"}>

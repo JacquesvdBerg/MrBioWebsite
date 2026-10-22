@@ -62,24 +62,27 @@ In Bruno, start with `{ "grade": 10 }` on **Daily all games**. All grades × all
 
 Do not run OpenAI from Postgres.
 
-## Cron — not created yet
+## Weekly schedule (Vercel Cron)
 
-**A production scheduler still needs to be created.** Prefer one nightly call to `/api/jobs/daily-all`.
+`vercel.json` schedules the jobs. Vercel calls each path with `GET` and `Authorization: Bearer <CRON_SECRET>`, so `CRON_SECRET` must stay set in Vercel. Times are UTC; South Africa is UTC+2.
 
-`localhost` cannot be reached from Supabase or Vercel. Deploy first, then point the scheduler at the public origin.
+| When (SAST) | Path | What |
+| --- | --- | --- |
+| Monday 00:05 | `/api/jobs/weekly-games/10` | All games for graad 10 |
+| Monday 00:20 | `/api/jobs/weekly-games/11` | All games for graad 11 |
+| Monday 00:35 | `/api/jobs/weekly-games/12` | All games for graad 12 |
+| Monday 06:00 | `/api/jobs/weekly-fact` | Feit van die week |
 
-Preferred: **Supabase `pg_cron` + `pg_net`** around **00:05 Africa/Johannesburg** (`SAST`, UTC+2, no DST). Alternative: Vercel Cron.
+One grade per call keeps each run inside the 300 second limit. On the Hobby plan Vercel may start a job any time within the scheduled hour.
 
-```sql
--- TODO: enable pg_cron and pg_net, then schedule this.
-select net.http_post(
-  url := 'https://YOUR_DOMAIN/api/jobs/daily-all',
-  headers := jsonb_build_object(
-    'Authorization', 'Bearer YOUR_CRON_SECRET',
-    'Content-Type', 'application/json'
-  ),
-  body := '{}'::jsonb
-);
+The game pages show the newest set dated on or before today, so a Monday set stays up all week.
+
+The fact job publishes the oldest fact the teacher marked **Goedgekeur**. With none waiting, OpenAI writes one for the grade whose turn it is (by ISO week, cycling 8 to 12) and publishes it. It skips a week that already has a published fact, and respects the pause switch in Settings.
+
+Run by hand (same secret):
+
 ```
-
-Until that job exists, generate from Bruno after deploy.
+POST /api/jobs/weekly-games/10
+POST /api/jobs/weekly-fact
+POST /api/jobs/weekly-fact?dry=1   # writes a fact and returns it without saving
+```

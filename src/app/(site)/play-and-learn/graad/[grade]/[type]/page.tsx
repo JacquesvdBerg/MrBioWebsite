@@ -75,14 +75,14 @@ function dailyCopy(type: ActivitySlug) {
     case "word-search":
       return {
         title: "Woordsoektog van die week",
-        description: "Vind vandag se vakterme in die rooster.",
+        description: "Vind hierdie week se vakterme in die rooster.",
         extra: "Ekstra oefening",
         unit: "woorde",
       };
     case "crossword":
       return {
         title: "Kruiswoord van die week",
-        description: "Leidrade uit vandag se onderwerp.",
+        description: "Leidrade uit hierdie week se onderwerp.",
         extra: "Ekstra oefening",
         unit: "leidrade",
       };
@@ -195,11 +195,12 @@ export default async function GradeTypeActivitiesPage({
 
   const copy = dailyCopy(type);
   const today = johannesburgDate();
-  const [daily, archive, published] = await Promise.all([
+  const [daily, olderSets, published] = await Promise.all([
     getDailyActivity(grade, today, type),
     getDailyArchive(grade, today, type),
     getPublishedActivitiesByGradeAndKind(grade, type),
   ]);
+  const archive = olderSets.filter((item) => item.id !== daily?.id);
   const available = daily ? activityItemCount(daily) : 0;
   const practice = published.filter((item) => item.source !== "ai-daily");
 
@@ -226,7 +227,7 @@ export default async function GradeTypeActivitiesPage({
               <div>
                 <p className="flex flex-wrap items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-green">
                   <span className="pulse-dot" />
-                  Vandag · {formatPlayDate(today)}
+                  Week van {formatPlayDate(daily.playOn ?? today)}
                   {daily.topic ? <span className="text-muted">· {daily.topic}</span> : null}
                 </p>
                 <h2 className="mt-3 font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.03em] text-navy md:text-4xl">
@@ -242,7 +243,7 @@ export default async function GradeTypeActivitiesPage({
                     href={activityPlayHref(daily) ?? "/play-and-learn"}
                     className="btn btn-navy mt-6"
                   >
-                    Begin vandag
+                    Begin
                     <Arrow />
                   </Link>
                 )}
@@ -253,7 +254,7 @@ export default async function GradeTypeActivitiesPage({
                 </span>
                 <span className="font-display text-3xl font-extrabold text-navy">{available}</span>
                 <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted">
-                  {copy.unit} vandag
+                  {copy.unit}
                 </span>
               </div>
             </div>
@@ -266,7 +267,7 @@ export default async function GradeTypeActivitiesPage({
               <ActivityIcon kind={type} />
             </span>
             <p className="mt-5 font-display text-2xl font-bold text-white">
-              Vandag se {meta.title.toLowerCase()} is nog op pad.
+              Hierdie week se {meta.title.toLowerCase()} is nog op pad.
             </p>
             <p className="mt-2 text-white/55">
               Nuwe uitdagings verskyn elke week. Probeer intussen die argief of ’n ander oefening.
@@ -277,7 +278,7 @@ export default async function GradeTypeActivitiesPage({
 
       {archive.length > 0 ? (
         <section className="mt-20">
-          <SectionHeading eyebrow="Argief" title="Doen vorige dae weer" />
+          <SectionHeading eyebrow="Argief" title="Doen vorige weke weer" />
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {archive.map((item, index) => {
               const href = activityPlayHref(item);

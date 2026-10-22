@@ -29,7 +29,7 @@ const rules = [
   },
   {
     title: "Doen gister weer",
-    body: "Die argief hou vorige dae. Perfek om voor ’n toets te hersien.",
+    body: "Die argief hou vorige weke. Perfek om voor ’n toets te hersien.",
   },
 ];
 

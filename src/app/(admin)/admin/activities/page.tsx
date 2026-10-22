@@ -45,7 +45,7 @@ export default async function AdminActivitiesPage({ searchParams }: PageProps) {
   return (
     <AdminPage
       title="Aktiwiteite"
-      description={`Handmatige vasvrae en waar-of-onwaar, plus wat die nagtaak bou. ${live} van ${activities.length} is live, ${nightly} kom van die nagtaak.`}
+      description={`Handmatige vasvrae en waar-of-onwaar, plus wat die weektaak bou. ${live} van ${activities.length} is live, ${nightly} kom van die weektaak.`}
       actions={
         <>
           <AdminBtn href="/admin/activities/quiz/new" icon="plus">
@@ -62,7 +62,7 @@ export default async function AdminActivitiesPage({ searchParams }: PageProps) {
           <AdminEmpty
             icon="puzzle"
             title={activities.length === 0 ? "Nog geen aktiwiteite nie" : "Niks vir hierdie graad nie"}
-            body="Skryf ’n vasvra self, of voeg onderwerpe by en laat die nagtaak begin."
+            body="Skryf ’n vasvra self, of voeg onderwerpe by en laat die weektaak begin."
             action={
               <AdminBtn href="/admin/activities/quiz/new" icon="plus">
                 Begin ’n vasvra
@@ -91,7 +91,7 @@ export default async function AdminActivitiesPage({ searchParams }: PageProps) {
                       <p className="text-sm text-white/55">
                         {activityKindLabel(activity.kind)}
                         {activity.grade ? ` · Graad ${activity.grade}` : ""}
-                        {activity.source === "ai-daily" ? " · Nagtaak" : ""}
+                        {activity.source === "ai-daily" ? " · Weektaak" : ""}
                       </p>
                     </div>
                   </div>

@@ -42,7 +42,7 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
 
       <AdminPanel title="Vakterme" icon="list" className="mt-6">
         <p className="mb-4 max-w-2xl text-sm leading-6 text-white/55">
-          Voeg ’n term by wanneer die AI die Engelse woord direk vertaal. Die volgende nagtaak
+          Voeg ’n term by wanneer die AI die Engelse woord direk vertaal. Die volgende weektaak
           kry die volle lys: sê die Afrikaanse woord, nooit die verbode een nie.
         </p>
         <form action={addAiTerm} className="grid gap-3 md:grid-cols-4">
@@ -118,7 +118,7 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
             </label>
             <label className="desk-check">
               <input type="checkbox" name="paused" defaultChecked={settings.paused} />
-              Pouseer nagtaak (geen nuwe vasvrae)
+              Pouseer weektaak (geen nuwe speletjies of AI-feite)
             </label>
             <AdminBtn type="submit" icon="check">
               Stoor instellings

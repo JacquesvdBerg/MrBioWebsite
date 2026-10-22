@@ -14,7 +14,7 @@ export function AdminSetupBanner({ ai, email }: { ai: KeyState; email: KeyState 
   const needs = [
     ai === "ready"
       ? null
-      : { href: "/admin/settings#ai-sleutel", label: "die AI-sleutel", why: "sodat die nagtaak nuwe vasvrae skryf" },
+      : { href: "/admin/settings#ai-sleutel", label: "die AI-sleutel", why: "sodat die weektaak nuwe vasvrae skryf" },
     email === "ready"
       ? null
       : { href: "/admin/settings#e-pos", label: "e-pos", why: "sodat jy van nuwe navrae, kletsvrae en kommentaar hoor" },

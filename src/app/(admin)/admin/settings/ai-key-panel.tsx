@@ -4,8 +4,8 @@ import { AdminBadge, AdminBtn, AdminNotice, AdminPanel, deskField } from "@/comp
 import type { OpenAiKeyStatus } from "@/lib/openai-key";
 
 const notices: Record<string, { tone: "ok" | "err"; text: string }> = {
-  saved: { tone: "ok", text: "Die sleutel werk en is gestoor. Die nagtaak gebruik dit van nou af." },
-  removed: { tone: "ok", text: "Die sleutel is verwyder. Die nagtaak stop tot jy ’n nuwe een byvoeg." },
+  saved: { tone: "ok", text: "Die sleutel werk en is gestoor. Die weektaak gebruik dit van nou af." },
+  removed: { tone: "ok", text: "Die sleutel is verwyder. Die weektaak stop tot jy ’n nuwe een byvoeg." },
   format: { tone: "err", text: "Dit lyk nie soos ’n OpenAI-sleutel nie. ’n Sleutel begin met sk-." },
   invalid: { tone: "err", text: "OpenAI het die sleutel afgekeur. Kopieer dit weer en probeer." },
   unreachable: { tone: "err", text: "Kon nie OpenAI bereik nie. Probeer weer oor ’n minuut." },
@@ -37,7 +37,7 @@ export function AiKeyPanel({ status, result }: { status: OpenAiKeyStatus; result
         <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
           <div>
             <p className="text-sm leading-6 text-white/60">
-              Die nagtaak gebruik OpenAI om die daaglikse vasvrae en speletjies te skryf. Dit loop op jou
+              Die weektaak gebruik OpenAI om elke Maandag die vasvrae, speletjies en die feit van die week te skryf. Dit loop op jou
               eie OpenAI-rekening, so jy betaal net vir wat gebruik word.
             </p>
 
@@ -77,7 +77,7 @@ export function AiKeyPanel({ status, result }: { status: OpenAiKeyStatus; result
               <form action={removeOpenAiKeyAction} className="mt-3">
                 <DeleteButton
                   label="Verwyder sleutel"
-                  confirm="Verwyder die OpenAI-sleutel? Die nagtaak stop tot jy ’n nuwe een byvoeg."
+                  confirm="Verwyder die OpenAI-sleutel? Die weektaak stop tot jy ’n nuwe een byvoeg."
                 />
               </form>
             ) : null}

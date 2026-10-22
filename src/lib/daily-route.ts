@@ -5,7 +5,8 @@ import { runDailyAllJob } from "@/lib/generate-daily-all";
 import { runDailyKindJob } from "@/lib/generate-daily-kind";
 import { runDailyQuizJob } from "@/lib/generate-daily-quiz";
 import { runDailyTrueOrFalseJob } from "@/lib/generate-daily-true-or-false";
-import { activityTypes, type ActivitySlug } from "@/lib/site";
+import { runWeeklyFactJob } from "@/lib/generate-weekly-fact";
+import { activityTypes, isJobGrade, type ActivitySlug } from "@/lib/site";
 
 export const dailyJobRuntime = {
   runtime: "nodejs" as const,
@@ -138,4 +139,41 @@ export function dailyAllHandlers() {
       return Response.json(result, { status: result.ok ? 200 : 422 });
     },
   };
+}
+
+/** Vercel Cron: GET with the CRON_SECRET bearer token, one grade per call so each gets the full time limit. */
+export async function runScheduledGrade(request: Request, grade: number) {
+  const denied = await authorize(request);
+  if (denied) {
+    return denied;
+  }
+  if (!isJobGrade(grade)) {
+    return Response.json({ ok: false, error: "This grade has no weekly games" }, { status: 404 });
+  }
+
+  const result = await runDailyAllJob({ grade });
+
+  for (const item of result.results) {
+    if (item.status === "created") {
+      revalidateDaily(item.kind, item.grade, item.slug);
+    }
+  }
+
+  return Response.json(result, { status: result.ok ? 200 : 422 });
+}
+
+/** Vercel Cron: the weekly fact. Also accepts POST for a manual run. */
+export async function runScheduledFact(request: Request) {
+  const denied = await authorize(request);
+  if (denied) {
+    return denied;
+  }
+
+  const params = new URL(request.url).searchParams;
+  const date = params.get("date") ?? "";
+  const result = await runWeeklyFactJob({
+    date: /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : undefined,
+    dryRun: params.get("dry") === "1",
+  });
+  return Response.json(result, { status: result.ok ? 200 : 422 });
 }

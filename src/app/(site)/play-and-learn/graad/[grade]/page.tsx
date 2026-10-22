@@ -112,7 +112,7 @@ export default async function GradeActivitiesPage({ params }: GradePageProps) {
                 {live ? (
                   <span className="inline-flex items-center gap-1.5 text-xs font-bold text-white/50">
                     <span className="pulse-dot" />
-                    {count === 0 ? "Daagliks" : `${count} ${count === 1 ? "stel" : "stelle"}`}
+                    {count === 0 ? "Weekliks" : `${count} ${count === 1 ? "stel" : "stelle"}`}
                   </span>
                 ) : null}
               </div>

@@ -28,7 +28,7 @@ function capsRules(settings: AiSettings, extra: string) {
     : "";
 
   return `Jy is ’n Lewenswetenskappe-onderwyser vir Suid-Afrikaanse leerders (CAPS).
-Jy skryf DAAGLIKSE Oefen & toets-inhoud vir MnrBio.
+Jy skryf WEEKLIKSE Oefen & toets-inhoud vir MnrBio.
 
 Harde reëls:
 - Skryf ALLES in Afrikaans.
@@ -161,7 +161,7 @@ export const gameSpecs: GameSpec[] = [
         "\nSkep presies 25 meerkeusevrae (4 opsies, een reg). Kort, duidelik, goed vir ’n spoedronde.",
       ),
     user: (input) =>
-      userPrompt({ ...input, task: "Skep vandag se spoedvasvra." }),
+      userPrompt({ ...input, task: "Skep hierdie week se spoedvasvra." }),
     toContent: (model, topic) => quizFromModel(model, topic, "spoedvasvra"),
   },
   {
@@ -183,7 +183,7 @@ export const gameSpecs: GameSpec[] = [
         "\nSkep 20 CAPS-vakterme. Enkele woorde of kort saamgestelde woorde. Geen sinne.",
       ),
     user: (input) =>
-      userPrompt({ ...input, task: "Skep vandag se woordsoektog-woorde." }),
+      userPrompt({ ...input, task: "Skep hierdie week se woordsoektog-woorde." }),
     toContent: (model, topic) => {
       const payload: WordSearchPayload = parseWordSearchPayload({
         words: model.words,
@@ -227,7 +227,7 @@ export const gameSpecs: GameSpec[] = [
         "\nSkep 12 kruiswoord-items. Antwoorde is enkele Afrikaanse vakterme sonder spasies. hint is ’n kort wenk wat die antwoord nie gee nie — ’n eienskap, konteks of eerste letter.",
       ),
     user: (input) =>
-      userPrompt({ ...input, task: "Skep vandag se kruiswoord." }),
+      userPrompt({ ...input, task: "Skep hierdie week se kruiswoord." }),
     toContent: (model, topic) => {
       const payload: CrosswordPayload = parseCrosswordPayload({
         entries: model.entries,
@@ -269,7 +269,7 @@ export const gameSpecs: GameSpec[] = [
         settings,
         "\nSkep 12 pare: term (left) en betekenis (right).",
       ),
-    user: (input) => userPrompt({ ...input, task: "Skep vandag se pare." }),
+    user: (input) => userPrompt({ ...input, task: "Skep hierdie week se pare." }),
     toContent: (model, topic) => {
       const payload: PairsPayload = parsePairsPayload({ pairs: model.pairs });
       return {
@@ -310,7 +310,7 @@ export const gameSpecs: GameSpec[] = [
         "\nSkep 8 geheue-pare: kort term (left) en kort betekenis (right).",
       ),
     user: (input) =>
-      userPrompt({ ...input, task: "Skep vandag se geheuekaarte." }),
+      userPrompt({ ...input, task: "Skep hierdie week se geheuekaarte." }),
     toContent: (model, topic) => {
       const payload: PairsPayload = parsePairsPayload({ pairs: model.pairs });
       return {
@@ -351,7 +351,7 @@ export const gameSpecs: GameSpec[] = [
         "\nSkep 8 prosesse. Elke proses het 4 tot 6 stappe in die REGTE volgorde.",
       ),
     user: (input) =>
-      userPrompt({ ...input, task: "Skep vandag se volgorde-aktiwiteite." }),
+      userPrompt({ ...input, task: "Skep hierdie week se volgorde-aktiwiteite." }),
     toContent: (model, topic) => {
       const payload: PutInOrderPayload = parsePutInOrderPayload({
         items: model.items,
@@ -394,7 +394,7 @@ export const gameSpecs: GameSpec[] = [
         "\nSkep 10 genommerde onderdele van EEN bekende CAPS-struktuur. label is die naam, hint beskryf waar dit sit / wat dit doen.",
       ),
     user: (input) =>
-      userPrompt({ ...input, task: "Skep vandag se diagram-etikette." }),
+      userPrompt({ ...input, task: "Skep hierdie week se diagram-etikette." }),
     toContent: (model, topic) => {
       const payload: DiagramPayload = parseDiagramPayload({
         parts: model.parts,
@@ -438,7 +438,7 @@ export const gameSpecs: GameSpec[] = [
         "\nSkep 4 kategorieë en 20 items. Elke item se category moet EXAK een van die kategorie-name wees.",
       ),
     user: (input) =>
-      userPrompt({ ...input, task: "Skep vandag se sorteer-aktiwiteit." }),
+      userPrompt({ ...input, task: "Skep hierdie week se sorteer-aktiwiteit." }),
     toContent: (model, topic) => {
       const categories = Array.isArray(model.categories)
         ? model.categories

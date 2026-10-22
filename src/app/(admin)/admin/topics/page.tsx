@@ -26,7 +26,7 @@ export default async function AdminTopicsPage() {
   return (
     <AdminPage
       title="Onderwerpe"
-      description="Die nagtaak kies die onderwerp wat die langste nie gebruik is nie, en bou ’n nuwe 25-vraag vasvra. Onderwerpe word herwin."
+      description="Die weektaak kies die onderwerp wat die langste nie gebruik is nie, en bou ’n nuwe 25-vraag vasvra. Onderwerpe word herwin."
     >
       <AdminPanel title="Voeg ’n onderwerp by" icon="plus" collapsible defaultOpen={topics.length === 0}>
         <form action={createTopic} className="grid gap-3 md:grid-cols-4">
@@ -68,7 +68,7 @@ export default async function AdminTopicsPage() {
             <AdminPanel key={grade} title={`Graad ${grade} · ${rows.length}`} icon="list">
               {rows.length === 0 ? (
                 <p className="text-sm text-white/50">
-                  Nog geen onderwerpe nie — voeg een hierbo by sodat die nagtaak iets het om uit te kies.
+                  Nog geen onderwerpe nie — voeg een hierbo by sodat die weektaak iets het om uit te kies.
                 </p>
               ) : (
                 <ul>
@@ -100,7 +100,7 @@ export default async function AdminTopicsPage() {
                         </form>
                         <form action={deleteTopic}>
                           <input type="hidden" name="id" value={topic.id} />
-                          <DeleteButton confirm="Verwyder hierdie onderwerp uit die nagtaak se bank?" />
+                          <DeleteButton confirm="Verwyder hierdie onderwerp uit die weektaak se bank?" />
                         </form>
                       </div>
                     </li>
