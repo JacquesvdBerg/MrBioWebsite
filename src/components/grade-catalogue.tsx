@@ -58,6 +58,8 @@ export function GradeCatalogue({
   const quarterPrices = new Set(summary?.quarters.map((product) => product.price));
   const perQuarter = quarterPrices.size === 1 ? [...quarterPrices][0] : null;
   const slideSeries = summary?.kind === "Skyfievertonings";
+  const summaryCover = summary ? coverOf([summary.full, ...summary.quarters]) : null;
+  const slidesCover = slides ? coverOf([slides.full, slides.single]) : null;
 
   return (
     <section
@@ -91,16 +93,16 @@ export function GradeCatalogue({
       <div className={`grid gap-5 lg:grid-cols-[1.2fr_1fr] ${banner ? "mt-5" : ""}`}>
         {summary ? (
           <article className="shop-series">
-            <div className="flex flex-wrap items-start gap-3.5">
-              <SeriesMark cover={coverOf([summary.full, ...summary.quarters])} video={slideSeries} />
-              <div className="min-w-0 flex-1 basis-48">
+            <div className={`shop-series-head ${summaryCover ? "has-cover" : ""}`}>
+              <SeriesMark cover={summaryCover} video={slideSeries} />
+              <div className="min-w-0 flex-1">
                 <h3 className="font-display text-xl font-bold text-white">
                   {slideSeries ? "YT-video skyfievertonings" : summary.kind}
                 </h3>
                 {summary.body ? <p className="mt-0.5 text-sm leading-6 text-white/60">{summary.body}</p> : null}
               </div>
               {perQuarter ? (
-                <p className="ml-auto shrink-0 text-right">
+                <p className="shrink-0 text-right">
                   <span className="block font-display text-2xl font-extrabold tracking-[-0.03em] text-white">
                     R{perQuarter}
                   </span>
@@ -124,14 +126,14 @@ export function GradeCatalogue({
 
             {summary.full ? (
               <div className="shop-full">
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 grow basis-52">
                   <p className="flex flex-wrap items-center gap-2 font-display text-lg font-bold text-white">
                     {summary.full.title}
                     {saving > 0 ? <span className="shop-save">Spaar R{saving}</span> : null}
                   </p>
                   <p className="text-sm text-white/60">{summary.full.bullets[0] ?? summary.full.body}</p>
                 </div>
-                <span className="font-display text-2xl font-extrabold tracking-[-0.03em] text-white">
+                <span className="ml-auto font-display text-2xl font-extrabold tracking-[-0.03em] text-white">
                   R{summary.full.price}
                 </span>
                 <Enquire product={summary.full} primary />
@@ -142,8 +144,8 @@ export function GradeCatalogue({
 
         {slides ? (
           <article className="shop-series">
-            <div className="flex items-start gap-3.5">
-              <SeriesMark cover={coverOf([slides.full, slides.single])} video />
+            <div className={`shop-series-head ${slidesCover ? "has-cover" : ""}`}>
+              <SeriesMark cover={slidesCover} video />
               <div className="min-w-0 flex-1">
                 <h3 className="font-display text-xl font-bold text-white">YT-video skyfievertonings</h3>
                 <p className="mt-0.5 text-sm leading-6 text-white/60">
@@ -188,11 +190,11 @@ export function GradeCatalogue({
 
             {slides.full ? (
               <div className="shop-full">
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 grow basis-52">
                   <p className="font-display text-lg font-bold text-white">{slides.full.title}</p>
                   <p className="text-sm text-white/60">Al die skyfievertonings vir die jaar</p>
                 </div>
-                <span className="font-display text-2xl font-extrabold tracking-[-0.03em] text-white">
+                <span className="ml-auto font-display text-2xl font-extrabold tracking-[-0.03em] text-white">
                   R{slides.full.price}
                 </span>
                 <Enquire product={slides.full} primary />

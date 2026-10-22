@@ -2092,9 +2092,15 @@ html[data-theme="dark"] .shop-grade-num {
   box-shadow: 0 8px 16px -10px var(--c2);
 }
 
+.shop-series-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
 .shop-series-cover {
   position: relative;
-  width: 6rem;
+  width: 8rem;
   flex-shrink: 0;
   aspect-ratio: 16 / 9;
   overflow: hidden;
@@ -2102,9 +2108,18 @@ html[data-theme="dark"] .shop-grade-num {
   box-shadow: 0 10px 20px -12px var(--c2);
 }
 
-@media (min-width: 640px) {
-  .shop-series-cover {
-    width: 8rem;
+/* Phones: the cover runs full width on top, then the title with the price beside it. */
+@media (max-width: 639px) {
+  .shop-series-head.has-cover {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.9rem 0.75rem;
+  }
+
+  .shop-series-head.has-cover .shop-series-cover {
+    grid-column: 1 / -1;
+    width: 100%;
+    border-radius: 1.1rem;
   }
 }
 
