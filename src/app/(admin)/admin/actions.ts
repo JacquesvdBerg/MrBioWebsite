@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { mediaBucket } from "@/lib/media-bucket";
 import { requireAdmin } from "@/lib/require-admin";
 import { parseQuizPayload } from "@/lib/quiz";
-import { grades, isActivitySlug, isGrade } from "@/lib/site";
+import { grades, isActivitySlug, isGrade, siteUrl } from "@/lib/site";
 import { parseTrueOrFalsePayload } from "@/lib/true-or-false";
 import { slugify } from "@/lib/slug";
 import { getAiSettings, saveAiSettings } from "@/lib/ai-settings";
@@ -19,7 +19,7 @@ import {
   saveEmailSettings,
   saveResendKey,
 } from "@/lib/email";
-import { confirmLink } from "@/lib/auth-links";
+import { confirmLink, isLinkType, sendResetEmail } from "@/lib/auth-links";
 import { sendTestEmail, sendWelcomeEmail } from "@/lib/notifications";
 import { toCommentStatus } from "@/lib/comments";
 import { closePasswordHelp, findAccountByEmail, isPlainEmail } from "@/lib/password-help";
@@ -556,40 +556,51 @@ function passwordHelpRedirect(error: string, email: string): never {
   redirect(`/admin/accounts?${params.toString()}#wagwoord`);
 }
 
-export async function setLearnerPassword(formData: FormData) {
+type PasswordChange =
+  | { ok: true; id: string; email: string }
+  | { ok: false; code: "email" | "password" | "service" | "admin-password" | "learner" | "weak" | "failed" };
+
+function generatedPassword() {
+  const letters = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+  const digits = "23456789";
+  const alphabet = letters + digits;
+  const bytes = new Uint8Array(12);
+  crypto.getRandomValues(bytes);
+  const chars = [...bytes].map((byte, index) => {
+    if (index === 0) return letters[byte % letters.length];
+    if (index === 1) return digits[byte % digits.length];
+    return alphabet[byte % alphabet.length];
+  });
+  return chars.join("");
+}
+
+async function changeLearnerPassword(email: string, password: string): Promise<PasswordChange> {
   await requireAdmin();
-  const email = formText(formData, "email").toLowerCase();
-  const password = String(formData.get("password") ?? "");
-
-  if (!isPlainEmail(email)) {
-    passwordHelpRedirect("email", email);
+  const normalized = email.trim().toLowerCase();
+  if (!isPlainEmail(normalized)) {
+    return { ok: false, code: "email" };
   }
-
   if (password.length < 8) {
-    passwordHelpRedirect("password", email);
+    return { ok: false, code: "password" };
   }
 
   const service = createServiceClient();
   if (!service) {
-    passwordHelpRedirect("service", email);
+    return { ok: false, code: "service" };
   }
 
-  const account = await findAccountByEmail(email);
+  const account = await findAccountByEmail(normalized);
   switch (account.status) {
     case "found":
       break;
     case "admin":
-      passwordHelpRedirect("admin-password", email);
-      break;
+      return { ok: false, code: "admin-password" };
     case "missing":
-      passwordHelpRedirect("learner", email);
-      break;
+      return { ok: false, code: "learner" };
     case "no-service":
-      passwordHelpRedirect("service", email);
-      break;
+      return { ok: false, code: "service" };
     case "error":
-      passwordHelpRedirect("failed", email);
-      break;
+      return { ok: false, code: "failed" };
     default: {
       const exhaustive: never = account;
       return exhaustive;
@@ -600,16 +611,75 @@ export async function setLearnerPassword(formData: FormData) {
     password,
     email_confirm: true,
   });
-
   if (error) {
     console.error("Failed to set learner password:", error.message);
-    passwordHelpRedirect(error.message.toLowerCase().includes("password") ? "weak" : "failed", email);
+    return { ok: false, code: error.message.toLowerCase().includes("password") ? "weak" : "failed" };
   }
 
   await closePasswordHelp(account.id, account.email);
   revalidatePath("/admin/accounts");
-  const params = new URLSearchParams({ saved: "1", email: account.email });
+  return { ok: true, id: account.id, email: account.email };
+}
+
+function passwordChangeMessage(code: Exclude<PasswordChange, { ok: true }>["code"]) {
+  switch (code) {
+    case "email":
+      return "Daardie e-posadres lyk nie reg nie.";
+    case "password":
+      return "Wagwoord moet minstens 8 karakters wees.";
+    case "service":
+      return "Die dienssleutel ontbreek, so ek kan nie die wagwoord verander nie.";
+    case "admin-password":
+      return "Admin-wagwoorde verander jy nie op hierdie vorm nie.";
+    case "learner":
+      return "Geen leerderrekening met daardie e-pos nie.";
+    case "weak":
+      return "Kies ’n sterker wagwoord: minstens 8 karakters, met letters en syfers.";
+    case "failed":
+      return "Kon nie die wagwoord verander nie. Probeer weer.";
+    default: {
+      const exhaustive: never = code;
+      return exhaustive;
+    }
+  }
+}
+
+export async function setLearnerPassword(formData: FormData) {
+  const email = formText(formData, "email").toLowerCase();
+  const password = String(formData.get("password") ?? "");
+  const result = await changeLearnerPassword(email, password);
+  if (!result.ok) {
+    passwordHelpRedirect(result.code, email);
+  }
+
+  const params = new URLSearchParams({ saved: "1", email: result.email });
   redirect(`/admin/accounts?${params.toString()}#wagwoord`);
+}
+
+export async function generateLearnerPassword(email: string): Promise<
+  | { status: "ok"; password: string }
+  | { status: "error"; message: string }
+> {
+  const password = generatedPassword();
+  const result = await changeLearnerPassword(email, password);
+  if (!result.ok) {
+    return { status: "error", message: passwordChangeMessage(result.code) };
+  }
+  return { status: "ok", password };
+}
+
+function isOwnResetLink(url: string) {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return false;
+  }
+
+  const site = new URL(siteUrl);
+  const sameSite = parsed.hostname === site.hostname || parsed.hostname.endsWith(".mnrbio.co.za");
+  const type = parsed.searchParams.get("type") ?? "";
+  return sameSite && parsed.pathname === "/auth/confirm" && Boolean(parsed.searchParams.get("token_hash")) && isLinkType(type);
 }
 
 export async function createPasswordResetLink(email: string): Promise<
@@ -657,6 +727,31 @@ export async function createPasswordResetLink(email: string): Promise<
     "/auth/update-password",
   );
   return { status: "ok", url };
+}
+
+export async function emailPasswordResetLink(email: string, url: string): Promise<
+  | { status: "ok" }
+  | { status: "error"; message: string }
+> {
+  await requireAdmin();
+  const normalized = email.trim().toLowerCase();
+  if (!isPlainEmail(normalized) || !isOwnResetLink(url)) {
+    return { status: "error", message: "Die skakel is nie geldig nie. Maak ’n nuwe een." };
+  }
+
+  const account = await findAccountByEmail(normalized);
+  if (account.status !== "found") {
+    return { status: "error", message: "Geen leerderrekening met daardie e-pos nie." };
+  }
+
+  const sent = await sendResetEmail(account.email, url);
+  if (sent !== "sent") {
+    return { status: "error", message: "Die e-pos het nie uitgegaan nie. Kopieer die skakel en stuur dit self." };
+  }
+
+  await closePasswordHelp(account.id, account.email);
+  revalidatePath("/admin/accounts");
+  return { status: "ok" };
 }
 
 export async function createAdminAccount(formData: FormData) {

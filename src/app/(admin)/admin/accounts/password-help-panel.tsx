@@ -1,5 +1,5 @@
 import { setLearnerPassword } from "@/app/(admin)/admin/actions";
-import { ResetLinkButton } from "@/app/(admin)/admin/accounts/reset-link-button";
+import { GeneratePasswordButton, ResetLinkButton } from "@/app/(admin)/admin/accounts/reset-link-button";
 import { AdminBtn, AdminEmpty, AdminPanel, deskField } from "@/components/admin-ui";
 import { PasswordField } from "@/components/password-field";
 import { formatRelativeAf } from "@/lib/dates";
@@ -30,8 +30,8 @@ export function PasswordHelpPanel({
   return (
     <AdminPanel title="Wagwoordhulp" icon="users">
       <p className="text-sm leading-6 text-white/60">
-        As die herstel-e-pos nie by iemand uitkom nie, verskyn hulle hier. Kies ’n nuwe wagwoord en stuur dit self,
-        of maak ’n skakel wat hulle oopmaak om self een te kies.
+        As iemand nie kan inteken nie, verskyn hulle hier. Genereer ’n wagwoord en stuur dit self, of stuur ’n
+        herstel-skakel wat hulle oopmaak om self een te kies.
       </p>
 
       {hasService ? (
@@ -83,9 +83,7 @@ export function PasswordHelpPanel({
                 <p className="text-xs text-white/40">{formatRelativeAf(request.createdAt)}</p>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <AdminBtn href={`/admin/accounts?email=${encodeURIComponent(request.email)}#wagwoord`} size="sm">
-                  Gebruik hierdie e-pos
-                </AdminBtn>
+                <GeneratePasswordButton email={request.email} />
                 <ResetLinkButton email={request.email} />
               </div>
             </li>
@@ -106,11 +104,7 @@ export function PasswordHelpPanel({
                   <p className="truncate text-sm text-white/55">{learner.email}</p>
                   <p className="text-xs text-white/40">{learnerLabel(learner)}</p>
                 </div>
-                {learner.email ? (
-                  <AdminBtn href={`/admin/accounts?email=${encodeURIComponent(learner.email)}#wagwoord`} tone="ghost" size="sm">
-                    Kies wagwoord
-                  </AdminBtn>
-                ) : null}
+                {learner.email ? <GeneratePasswordButton email={learner.email} /> : null}
               </li>
             ))}
           </ul>
