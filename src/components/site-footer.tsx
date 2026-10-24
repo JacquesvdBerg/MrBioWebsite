@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MrBioLogo, MrBioMark } from "@/components/brand";
 import { MailIcon, YoutubeIcon } from "@/components/icons";
-import { Arrow } from "@/components/ui";
+import { NewsletterForm } from "@/components/newsletter-form";
 import { footerNav, siteName, youtubeChannel } from "@/lib/site";
 
 export function SiteFooter() {
@@ -20,20 +20,7 @@ export function SiteFooter() {
               Bly op hoogte van nuwe lesse, die weeklikse feit en gratis hulpbronne.
             </p>
           </div>
-          <form className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
-            <input
-              type="email"
-              name="email"
-              placeholder="Jou e-posadres"
-              disabled
-              aria-label="E-posadres"
-              className="newsletter-input"
-            />
-            <button type="button" className="btn btn-lime" disabled>
-              Skryf in
-              <Arrow className="h-4 w-4" />
-            </button>
-          </form>
+          <NewsletterForm />
           <MrBioMark className="hidden h-24 w-24 -my-6 xl:block" />
         </div>
       </div>

@@ -114,6 +114,12 @@ export const adminNavGroups: readonly AdminNavGroup[] = [
         description: "Modereer die forum.",
         icon: "comment",
       },
+      {
+        href: "/admin/newsletter",
+        label: "Nuusbrief",
+        description: "Adresse uit die voetskrif, en stuur ’n brief.",
+        icon: "inbox",
+      },
     ],
   },
   {

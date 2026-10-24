@@ -1208,6 +1208,22 @@ export async function replyToComment(formData: FormData) {
   redirect(back);
 }
 
+export async function deleteNewsletterSubscriber(formData: FormData) {
+  const supabase = await requireAdmin();
+  const id = formText(formData, "id");
+  if (!id) {
+    return;
+  }
+
+  const { error } = await supabase.from("newsletter_subscribers").delete().eq("id", id);
+  if (error) {
+    console.error("Failed to remove newsletter subscriber:", error.message);
+    return;
+  }
+
+  revalidatePath("/admin/newsletter");
+}
+
 export async function deleteComment(formData: FormData) {
   const supabase = await requireAdmin();
   const id = formText(formData, "id");

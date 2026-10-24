@@ -9,6 +9,7 @@ import { isEnquiryReason } from "@/lib/enquiries";
 import { getChatThread, previewChat } from "@/lib/live-chat";
 import { notifyChat, notifyComment, notifyEnquiry } from "@/lib/notifications";
 import { isGrade, otherAudience } from "@/lib/site";
+import { addNewsletterSubscriber, isNewsletterEmail } from "@/lib/newsletter";
 import { createAnonClient } from "@/lib/supabase/anon";
 import { createClient } from "@/lib/supabase/server";
 
@@ -24,6 +25,28 @@ function optionalGrade(formData: FormData) {
 
   const grade = Number(raw);
   return isGrade(grade) ? grade : null;
+}
+
+export async function subscribeNewsletter(input: {
+  email: string;
+  website?: string;
+}): Promise<{ ok: true } | { ok: false; message: string }> {
+  if (input.website?.trim()) {
+    return { ok: true };
+  }
+
+  const email = input.email.trim().toLowerCase();
+  if (!isNewsletterEmail(email)) {
+    return { ok: false, message: "Sit ’n geldige e-posadres in." };
+  }
+
+  const saved = await addNewsletterSubscriber(email);
+  if (saved === "failed") {
+    return { ok: false, message: "Kon nie stoor nie. Probeer weer." };
+  }
+
+  revalidatePath("/admin/newsletter");
+  return { ok: true };
 }
 
 export async function submitEnquiry(formData: FormData) {
