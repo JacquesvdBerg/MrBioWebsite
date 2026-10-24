@@ -8,7 +8,8 @@ import {
   resendConfirmation,
   type AuthResult,
 } from "@/app/auth/actions";
-import { grades } from "@/lib/site";
+import { GradeOptions } from "@/components/grade-options";
+import { PasswordField } from "@/components/password-field";
 import { createClient } from "@/lib/supabase/client";
 
 type Mode = "signin" | "register" | "forgot";
@@ -152,12 +153,11 @@ export function AccountForm({
           </label>
           <label className="block">
             <span className="text-[13px] font-bold text-white">Graad</span>
-            <select className="input-dark mt-1.5 w-full" name="grade" defaultValue="10">
-              {grades.map((grade) => (
-                <option key={grade} value={grade}>
-                  Graad {grade}
-                </option>
-              ))}
+            <span className="mt-0.5 block text-xs font-semibold text-white/45">
+              Kies Ander as jy ’n ouer of onderwyser is.
+            </span>
+            <select className="input-dark mt-1.5 w-full" name="grade" defaultValue="10" required>
+              <GradeOptions />
             </select>
           </label>
           {/* Left empty by people; bots fill it in. */}
@@ -176,9 +176,9 @@ export function AccountForm({
         <input className="input-dark mt-1.5 w-full" name="email" type="email" autoComplete="email" required />
       </label>
       {mode !== "forgot" ? (
-        <label className="block">
+        <div>
           <span className="flex items-center justify-between text-[13px] font-bold text-white">
-            Wagwoord
+            <label htmlFor="account-password">Wagwoord</label>
             {mode === "signin" ? (
               <button type="button" className="font-semibold text-lime" onClick={() => switchMode("forgot")}>
                 Vergeet?
@@ -187,15 +187,14 @@ export function AccountForm({
               <span className="font-semibold text-white/45">Minstens 8 karakters</span>
             )}
           </span>
-          <input
-            className="input-dark mt-1.5 w-full"
+          <PasswordField
+            id="account-password"
             name="password"
-            type="password"
             autoComplete={mode === "register" ? "new-password" : "current-password"}
             minLength={mode === "register" ? 8 : undefined}
             required
           />
-        </label>
+        </div>
       ) : (
         <p className="text-sm leading-6 text-white/55">
           Ons stuur ’n skakel na jou e-pos. Maak dit oop om ’n nuwe wagwoord te kies.

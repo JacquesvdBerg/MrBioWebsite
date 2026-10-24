@@ -7,6 +7,7 @@ import {
   type EmailSettings,
   type SendResult,
 } from "@/lib/email";
+import { passwordHelpReason } from "@/lib/password-help";
 import { createAnonClient } from "@/lib/supabase/anon";
 import { siteName, siteUrl } from "@/lib/site";
 
@@ -107,6 +108,7 @@ export async function notifyComment(comment: {
   authorName: string;
   kind: string;
   grade: number | null;
+  audience: "ander" | null;
   body: string;
 }) {
   await notifyTeacher("comments", {
@@ -116,7 +118,7 @@ export async function notifyComment(comment: {
     rows: [
       ["Van", short(comment.authorName)],
       ["Soort", comment.kind],
-      ["Graad", gradeText(comment.grade)],
+      ["Graad", comment.audience === "ander" ? "Ander" : gradeText(comment.grade)],
     ],
     quote: comment.body,
     action: { label: "Keur goed of verwyder", href: deskLink("/admin/comments") },
@@ -142,6 +144,30 @@ export function sendTestEmail(key: string, settings: EmailSettings) {
       action: { label: "Maak die instellings oop", href: deskLink("/admin/settings#e-pos") },
     },
   });
+}
+
+/** The teacher can read this. The learner's reset mail did not go out. */
+export async function notifyPasswordHelp(email: string, reason: string) {
+  const [key, settings] = await Promise.all([getResendKey(), getEmailSettings()]);
+  const result = await sendEmail(key, {
+    to: settings.to,
+    from: settings.from,
+    content: {
+      subject: `Wagwoordhulp: ${email}`,
+      heading: "Iemand kan nie ’n nuwe wagwoord kies nie",
+      intro:
+        "Die herstel-skakel het nie by hulle uitgekom nie. Maak Rekeninge oop, kies ’n nuwe wagwoord, en stuur dit self vir hulle.",
+      rows: [
+        ["E-pos", email],
+        ["Rede", passwordHelpReason(reason)],
+      ],
+      action: { label: "Help met die wagwoord", href: deskLink("/admin/accounts") },
+    },
+  });
+
+  if (result !== "sent") {
+    console.error("Password help email was not sent:", result);
+  }
 }
 
 /** Tell a new admin their account is ready. The password is never emailed. */

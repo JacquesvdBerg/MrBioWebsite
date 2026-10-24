@@ -11,6 +11,17 @@ const SETTINGS_KEY = "email_settings";
 /** Resend's shared test sender. It can only deliver to the Resend account's own address. */
 export const defaultSender = `${siteName} <onboarding@resend.dev>`;
 
+function siteDomain() {
+  try {
+    return new URL(siteUrl).hostname.replace(/^www\./, "");
+  } catch {
+    return "mnrbio.co.za";
+  }
+}
+
+/** Password and confirm mail. The test sender above cannot reach learners. */
+export const domainSender = `${siteName} <kennisgewings@${siteDomain()}>`;
+
 export const notifyKinds = ["enquiries", "chat", "comments"] as const;
 
 export type NotifyKind = (typeof notifyKinds)[number];

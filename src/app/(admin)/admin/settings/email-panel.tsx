@@ -150,12 +150,12 @@ export function EmailPanel({
                 <input className={deskField} name="to" type="email" defaultValue={settings.to} required />
               </label>
               <label className="desk-label">
-                Van-adres (los leeg)
+                Van-adres vir kennisgewings
                 <input
                   className={deskField}
                   name="from"
                   defaultValue={settings.from === defaultSender ? "" : settings.from}
-                  placeholder={defaultSender}
+                  placeholder="MnrBio <kennisgewings@mnrbio.co.za>"
                   autoComplete="off"
                 />
               </label>
@@ -200,9 +200,9 @@ export function EmailPanel({
               </li>
             </ol>
             <p className="mt-4 rounded-xl bg-white/5 px-3.5 py-2.5 text-xs leading-5 text-white/55">
-              Die gratis plan is genoeg vir ’n klas se navrae. Sonder ’n eie domein kan Resend net na die adres
-              van jou Resend-rekening stuur. Dit werk vir jou kennisgewings, maar welkom-e-posse aan ander
-              mense gaan eers deur wanneer ’n domein soos mnrbio.co.za in Resend geverifieer is.
+              Wagwoord- en bevestigings-e-posse gaan uit vanaf kennisgewings@mnrbio.co.za. Resend stuur dit eers
+              wanneer daardie domein op die Domains-bladsy Verified wys. Los die van-adres hierbo leeg as
+              kennisgewings aan jou nog deur Resend se toetsadres moet gaan.
             </p>
           </div>
         </div>

@@ -2,10 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { confirmLink, isLinkType, sendConfirmEmail, sendResetEmail } from "@/lib/auth-links";
+import { notifyPasswordHelp } from "@/lib/notifications";
+import { recordPasswordHelp } from "@/lib/password-help";
 import { safeNextPath } from "@/lib/safe-next";
-import { contactEmail, isGrade } from "@/lib/site";
+import { contactEmail, isGrade, otherAudience } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 
@@ -105,12 +108,19 @@ export async function registerLearner(input: {
     return unavailable;
   }
 
+  const pickedOther = input.grade === otherAudience;
   const account = { email, name, password: input.password, next };
   const { data, error } = await service.auth.admin.generateLink({
     type: "signup",
     email,
     password: input.password,
-    options: { data: { display_name: name, grade: isGrade(grade) ? String(grade) : "" } },
+    options: {
+      data: {
+        display_name: name,
+        grade: !pickedOther && isGrade(grade) ? String(grade) : "",
+        audience: pickedOther ? otherAudience : "",
+      },
+    },
   });
 
   if (error || !data?.user) {
@@ -196,6 +206,19 @@ export async function requestPasswordReset(input: { email: string }): Promise<Au
   }
 
   console.error("Reset email not sent:", sent);
+  const userId = data.user?.id;
+  const recorded = userId ? await recordPasswordHelp(email, userId, sent) : "failed";
+  if (recorded === "saved") {
+    after(() => notifyPasswordHelp(email, sent));
+  }
+
+  if (recorded === "saved" || recorded === "exists") {
+    return {
+      status: "error",
+      message: `Ons kan nie nou ’n e-pos na jou stuur nie. Die onderwyser het die versoek en kan vir jou ’n nuwe wagwoord gee. Jy kan ook ’n e-pos stuur aan ${contactEmail}.`,
+    };
+  }
+
   return {
     status: "error",
     message: `Ons kan nie nou ’n e-pos stuur nie. Stuur ’n e-pos aan ${contactEmail}, dan help die onderwyser jou.`,

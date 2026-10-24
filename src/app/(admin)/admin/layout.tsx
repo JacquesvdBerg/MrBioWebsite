@@ -2,6 +2,7 @@ import { AdminChrome } from "@/components/admin-chrome";
 import { AdminSetupBanner } from "@/components/admin-setup-banner";
 import { getSessionAccount } from "@/lib/auth-role";
 import { countCommentsByStatus } from "@/lib/comments";
+import { countOpenPasswordHelp } from "@/lib/password-help";
 import { getResendKeyStatus } from "@/lib/email";
 import { countEnquiriesByStatus } from "@/lib/enquiries";
 import { countUnreadChatThreads } from "@/lib/live-chat";
@@ -14,11 +15,12 @@ export const dynamic = "force-dynamic";
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   await requireAdmin();
 
-  const [account, unreadChat, pendingComments, newEnquiries, aiKey, emailKey] = await Promise.all([
+  const [account, unreadChat, pendingComments, newEnquiries, passwordHelp, aiKey, emailKey] = await Promise.all([
     getSessionAccount(),
     countUnreadChatThreads(),
     countCommentsByStatus("pending"),
     countEnquiriesByStatus("new"),
+    countOpenPasswordHelp(),
     getOpenAiKeyStatus(),
     getResendKeyStatus(),
   ]);
@@ -32,6 +34,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           "/admin/live-chat": unreadChat,
           "/admin/comments": pendingComments,
           "/admin/enquiries": newEnquiries,
+          "/admin/accounts": passwordHelp,
         }}
       >
         {children}

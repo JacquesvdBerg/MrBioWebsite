@@ -19,8 +19,10 @@ import {
   saveEmailSettings,
   saveResendKey,
 } from "@/lib/email";
+import { confirmLink } from "@/lib/auth-links";
 import { sendTestEmail, sendWelcomeEmail } from "@/lib/notifications";
 import { toCommentStatus } from "@/lib/comments";
+import { closePasswordHelp, findAccountByEmail, isPlainEmail } from "@/lib/password-help";
 import { toEnquiryStatus } from "@/lib/enquiries";
 import { parseBulletLines } from "@/lib/products";
 import { createClient } from "@/lib/supabase/server";
@@ -549,6 +551,114 @@ function accountCreateError(message: string) {
   return "failed";
 }
 
+function passwordHelpRedirect(error: string, email: string): never {
+  const params = new URLSearchParams({ error, email });
+  redirect(`/admin/accounts?${params.toString()}#wagwoord`);
+}
+
+export async function setLearnerPassword(formData: FormData) {
+  await requireAdmin();
+  const email = formText(formData, "email").toLowerCase();
+  const password = String(formData.get("password") ?? "");
+
+  if (!isPlainEmail(email)) {
+    passwordHelpRedirect("email", email);
+  }
+
+  if (password.length < 8) {
+    passwordHelpRedirect("password", email);
+  }
+
+  const service = createServiceClient();
+  if (!service) {
+    passwordHelpRedirect("service", email);
+  }
+
+  const account = await findAccountByEmail(email);
+  switch (account.status) {
+    case "found":
+      break;
+    case "admin":
+      passwordHelpRedirect("admin-password", email);
+      break;
+    case "missing":
+      passwordHelpRedirect("learner", email);
+      break;
+    case "no-service":
+      passwordHelpRedirect("service", email);
+      break;
+    case "error":
+      passwordHelpRedirect("failed", email);
+      break;
+    default: {
+      const exhaustive: never = account;
+      return exhaustive;
+    }
+  }
+
+  const { error } = await service.auth.admin.updateUserById(account.id, {
+    password,
+    email_confirm: true,
+  });
+
+  if (error) {
+    console.error("Failed to set learner password:", error.message);
+    passwordHelpRedirect(error.message.toLowerCase().includes("password") ? "weak" : "failed", email);
+  }
+
+  await closePasswordHelp(account.id, account.email);
+  revalidatePath("/admin/accounts");
+  const params = new URLSearchParams({ saved: "1", email: account.email });
+  redirect(`/admin/accounts?${params.toString()}#wagwoord`);
+}
+
+export async function createPasswordResetLink(email: string): Promise<
+  | { status: "ok"; url: string }
+  | { status: "error"; message: string }
+> {
+  await requireAdmin();
+  const normalized = email.trim().toLowerCase();
+  if (!isPlainEmail(normalized)) {
+    return { status: "error", message: "Daardie e-posadres lyk nie reg nie." };
+  }
+
+  const service = createServiceClient();
+  if (!service) {
+    return { status: "error", message: "Die dienssleutel ontbreek, so ek kan nie ’n skakel maak nie." };
+  }
+
+  const account = await findAccountByEmail(normalized);
+  switch (account.status) {
+    case "found":
+      break;
+    case "admin":
+      return { status: "error", message: "Admin-rekeninge kry nie hier ’n skakel nie." };
+    case "missing":
+      return { status: "error", message: "Geen leerderrekening met daardie e-pos nie." };
+    case "no-service":
+      return { status: "error", message: "Die dienssleutel ontbreek, so ek kan nie ’n skakel maak nie." };
+    case "error":
+      return { status: "error", message: "Kon nie die rekening vind nie. Probeer weer." };
+    default: {
+      const exhaustive: never = account;
+      return exhaustive;
+    }
+  }
+
+  const { data, error } = await service.auth.admin.generateLink({ type: "recovery", email: account.email });
+  if (error || !data.properties?.hashed_token) {
+    console.error("Failed to make a reset link:", error?.message);
+    return { status: "error", message: "Kon nie ’n skakel maak nie. Probeer weer." };
+  }
+
+  const url = await confirmLink(
+    data.properties.hashed_token,
+    data.properties.verification_type,
+    "/auth/update-password",
+  );
+  return { status: "ok", url };
+}
+
 export async function createAdminAccount(formData: FormData) {
   await requireAdmin();
 
@@ -940,6 +1050,67 @@ export async function setCommentStatus(formData: FormData) {
   revalidatePath("/comments");
   revalidatePath("/admin/comments");
   revalidatePath("/admin");
+}
+
+function commentReturnPath(formData: FormData) {
+  if (formText(formData, "return_to") !== "admin") {
+    return "/comments";
+  }
+
+  const status = toCommentStatus(formText(formData, "status"));
+  return status === "pending" ? "/admin/comments" : `/admin/comments?status=${status}`;
+}
+
+function withCommentFault(path: string, fault: string) {
+  const [base, query] = path.split("?");
+  const params = new URLSearchParams(query ?? "");
+  params.set("fout", fault);
+  return `${base}?${params.toString()}`;
+}
+
+export async function replyToComment(formData: FormData) {
+  const supabase = await requireAdmin();
+  const back = commentReturnPath(formData);
+  const parentId = formText(formData, "parent_id");
+  const body = formText(formData, "body").slice(0, 4000);
+
+  if (!parentId || !body) {
+    redirect(withCommentFault(back, "antwoord"));
+  }
+
+  const { data: parent, error: parentError } = await supabase
+    .from("comments")
+    .select("id, parent_id")
+    .eq("id", parentId)
+    .maybeSingle();
+
+  if (parentError || !parent) {
+    console.error("Failed to find the comment being answered:", parentError?.message);
+    redirect(withCommentFault(back, "stoor"));
+  }
+
+  const account = await getSessionAccount();
+  const rootId = typeof parent.parent_id === "string" ? parent.parent_id : parent.id;
+  const { error } = await supabase.from("comments").insert({
+    author_name: (account?.name || "Onderwyser").slice(0, 80),
+    kind: "Gedagte",
+    body,
+    grade: null,
+    audience: null,
+    status: "approved",
+    parent_id: rootId,
+    author_role: "teacher",
+  });
+
+  if (error) {
+    console.error("Failed to save comment reply:", error.message);
+    redirect(withCommentFault(back, "stoor"));
+  }
+
+  revalidatePath("/comments");
+  revalidatePath("/admin/comments");
+  revalidatePath("/admin");
+  redirect(back);
 }
 
 export async function deleteComment(formData: FormData) {

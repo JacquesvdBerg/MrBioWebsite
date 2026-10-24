@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { signOutPublic, updateLearnerProfile } from "@/app/(site)/actions";
 import { AccountForm } from "@/app/(site)/rekening/account-form";
+import { GradeOptions } from "@/components/grade-options";
 import { SectionPage } from "@/components/section-page";
 import { Arrow } from "@/components/ui";
 import { getSessionAccount } from "@/lib/auth-role";
@@ -8,7 +9,7 @@ import { formatDeskDate, formatRelativeAf } from "@/lib/dates";
 import { getLearnerChatThreads } from "@/lib/live-chat";
 import { getPurchasesForUser } from "@/lib/purchases";
 import { safeNextPath } from "@/lib/safe-next";
-import { gradeActivitiesPath, gradeColors, gradePath, grades, isGrade } from "@/lib/site";
+import { gradeActivitiesPath, gradeColors, gradePath, isGrade } from "@/lib/site";
 
 export const metadata = {
   title: "My rekening",
@@ -178,7 +179,7 @@ export default async function AccountPage({ searchParams }: PageProps) {
               className="rounded-full px-3.5 py-1.5 text-sm font-bold text-white"
               style={{ background: grade ? colorTo : "rgba(255,255,255,0.12)" }}
             >
-              {grade ? `Graad ${grade}` : "Geen graad nie"}
+              {account.audience === "ander" ? "Ander" : grade ? `Graad ${grade}` : "Geen graad nie"}
             </span>
           </div>
 
@@ -196,13 +197,12 @@ export default async function AccountPage({ searchParams }: PageProps) {
             </label>
             <label className="block">
               <span className="text-[13px] font-bold text-white">Graad</span>
-              <select className="input-dark mt-1.5 w-full" name="grade" defaultValue={grade ?? ""}>
-                <option value="">Geen graad</option>
-                {grades.map((option) => (
-                  <option key={option} value={option}>
-                    Graad {option}
-                  </option>
-                ))}
+              <select
+                className="input-dark mt-1.5 w-full"
+                name="grade"
+                defaultValue={account.audience === "ander" ? "ander" : (grade ?? "")}
+              >
+                <GradeOptions emptyLabel="Geen graad" />
               </select>
             </label>
             <button type="submit" className="btn btn-lime">

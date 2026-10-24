@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { createAdminAccount } from "@/app/(admin)/admin/actions";
+import { PasswordHelpPanel } from "@/app/(admin)/admin/accounts/password-help-panel";
+import { PasswordField } from "@/components/password-field";
 import { AdminPage } from "@/components/admin-page";
 import {
   AdminBadge,
@@ -11,6 +13,7 @@ import {
   deskField,
 } from "@/components/admin-ui";
 import { isServiceRoleConfigured, listAdminAccounts } from "@/lib/admin-accounts";
+import { isPlainEmail, listLearnerAccounts, listOpenPasswordHelp } from "@/lib/password-help";
 import { getResendKeyStatus } from "@/lib/email";
 
 export const metadata = {
@@ -20,7 +23,7 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 type AccountsPageProps = {
-  searchParams: Promise<{ created?: string; error?: string; welcome?: string }>;
+  searchParams: Promise<{ created?: string; error?: string; welcome?: string; saved?: string; email?: string }>;
 };
 
 function welcomeProblem(result: string) {
@@ -36,7 +39,19 @@ function welcomeProblem(result: string) {
   }
 }
 
-function accountNotice(error: string | undefined, created: boolean, welcome: string | undefined) {
+function accountNotice(
+  error: string | undefined,
+  created: boolean,
+  welcome: string | undefined,
+  savedEmail: string | undefined,
+) {
+  if (savedEmail) {
+    return {
+      tone: "ok" as const,
+      text: `Die wagwoord vir ${savedEmail} is verander. Stuur die nuwe wagwoord self vir hulle.`,
+    };
+  }
+
   if (created && welcome && welcome !== "sent") {
     return {
       tone: "err" as const,
@@ -70,28 +85,47 @@ function accountNotice(error: string | undefined, created: boolean, welcome: str
     case "exists":
       return { tone: "err" as const, text: "Daardie e-pos het al ’n rekening." };
     case "failed":
-      return { tone: "err" as const, text: "Kon nie die rekening skep nie." };
+      return { tone: "err" as const, text: "Kon nie die rekening skep of die wagwoord verander nie." };
+    case "learner":
+      return { tone: "err" as const, text: "Geen leerderrekening met daardie e-pos nie." };
+    case "admin-password":
+      return { tone: "err" as const, text: "Admin-wagwoorde verander jy nie op hierdie vorm nie." };
+    case "weak":
+      return {
+        tone: "err" as const,
+        text: "Kies ’n sterker wagwoord: minstens 8 karakters, met letters en syfers.",
+      };
     default:
-      return { tone: "err" as const, text: "Kon nie die rekening skep nie." };
+      return { tone: "err" as const, text: "Kon nie die rekening skep of die wagwoord verander nie." };
   }
 }
 
 export default async function AdminAccountsPage({ searchParams }: AccountsPageProps) {
   const params = await searchParams;
-  const [accounts, emailStatus] = await Promise.all([listAdminAccounts(), getResendKeyStatus()]);
+  const helpEmail = params.email && isPlainEmail(params.email) ? params.email : "";
+  const savedEmail = params.saved === "1" && helpEmail ? helpEmail : undefined;
+  const [accounts, emailStatus, requests, learners] = await Promise.all([
+    listAdminAccounts(),
+    getResendKeyStatus(),
+    listOpenPasswordHelp(),
+    listLearnerAccounts(),
+  ]);
   const hasService = isServiceRoleConfigured();
   const canEmail = emailStatus.state === "ready";
-  const notice = accountNotice(params.error, params.created === "1", params.welcome);
+  const notice = accountNotice(params.error, params.created === "1", params.welcome, savedEmail);
 
   return (
     <AdminPage
       title="Rekeninge"
-      description="Skep admin-rekeninge vir werknemers hier, nie op die intekenblad nie. Gee self die wagwoord aan: die welkom-e-pos stuur net die intekenskakel, nooit die wagwoord nie."
+      description="Skep admin-rekeninge vir werknemers hier, nie op die intekenblad nie. Gee self die wagwoord aan: die welkom-e-pos stuur net die intekenskakel, nooit die wagwoord nie. Hier stel jy ook ’n nuwe wagwoord as iemand se herstel-e-pos nie uitgekom het nie."
     >
       {notice ? (
         <AdminNotice tone={notice.tone}>{notice.text}</AdminNotice>
       ) : null}
 
+      <PasswordHelpPanel requests={requests} learners={learners} email={helpEmail} hasService={hasService} />
+
+      <div className="mt-6">
       <AdminPanel title="Skep admin-rekening" icon="plus">
         {hasService ? (
           <form action={createAdminAccount} className="grid gap-3 md:grid-cols-4">
@@ -109,17 +143,17 @@ export default async function AdminAccountsPage({ searchParams }: AccountsPagePr
                 required
               />
             </label>
-            <label className="desk-label">
-              Wagwoord
-              <input
-                className={deskField}
+            <div className="desk-label">
+              <label htmlFor="admin-password">Wagwoord</label>
+              <PasswordField
+                id="admin-password"
                 name="password"
-                type="password"
+                variant="desk"
                 autoComplete="new-password"
                 minLength={8}
                 required
               />
-            </label>
+            </div>
             <div className="flex items-end">
               <AdminBtn type="submit" icon="plus">
                 Skep rekening
@@ -147,6 +181,7 @@ export default async function AdminAccountsPage({ searchParams }: AccountsPagePr
           />
         )}
       </AdminPanel>
+      </div>
 
       <div className="mt-6">
         <AdminPanel title={`${accounts.length} rekeninge`} icon="users">

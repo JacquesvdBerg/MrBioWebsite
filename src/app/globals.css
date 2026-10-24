@@ -1557,6 +1557,11 @@ html:has(.mrbio) body {
   opacity: 0.7;
 }
 
+.password-field::-ms-reveal,
+.password-field::-ms-clear {
+  display: none;
+}
+
 select.input-dark option {
   color: var(--navy);
 }

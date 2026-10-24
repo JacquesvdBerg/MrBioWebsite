@@ -148,6 +148,9 @@ export const homeShortcuts = [
 
 export const grades = [8, 9, 10, 11, 12] as const;
 
+/** Parents, teachers, and anyone who is not in grade 8 to 12. */
+export const otherAudience = "ander";
+
 export type Grade = (typeof grades)[number];
 
 /** Grades the weekly game jobs generate: all of them, biology topics only for 8 and 9. */

@@ -1,16 +1,18 @@
 import { submitComment } from "@/app/(site)/actions";
 import { Field, FormNote, Select, TextArea, TextInput } from "@/components/field";
+import { GradeOptions } from "@/components/grade-options";
 import { Reveal } from "@/components/reveal";
 import { SectionPage } from "@/components/section-page";
+import { TeacherReplyBox, TeacherReplyProvider } from "@/components/teacher-reply";
 import { Arrow, SectionHeading } from "@/components/ui";
 import {
   commentAccent,
   commentAuthorLine,
   commentKinds,
   getApprovedComments,
+  threadComments,
 } from "@/lib/comments";
 import { formatRelativeAf } from "@/lib/dates";
-import { grades } from "@/lib/site";
 
 export const metadata = {
   title: "Forum",
@@ -26,7 +28,7 @@ type PageProps = {
 
 export default async function CommentsPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const comments = await getApprovedComments();
+  const comments = threadComments(await getApprovedComments());
   const trending = [...commentKinds]
     .map((kind) => ({
       kind,
@@ -64,32 +66,53 @@ export default async function CommentsPage({ searchParams }: PageProps) {
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {comments.map((comment, index) => (
-                <Reveal key={comment.id} delay={index * 60}>
-                  <article className="glass rounded-[1.75rem] p-6 transition-colors hover:border-white/25">
-                    <div className="flex items-start gap-4">
-                      <span
-                        className="cell h-11 w-11 shrink-0"
-                        style={{
-                          ["--cell-a" as string]: commentAccent(comment.kind),
-                          ["--cell-b" as string]: "#10203a",
-                          ["--cell-glow" as string]: "transparent",
-                        }}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                          <span className="font-bold text-white">{commentAuthorLine(comment)}</span>
-                          <span className="chip !py-0.5 !text-[11px]">{comment.kind}</span>
-                          <span className="text-white/40">{formatRelativeAf(comment.createdAt)}</span>
+            <TeacherReplyProvider>
+              <div className="space-y-4">
+                {comments.map((comment, index) => (
+                  <Reveal key={comment.id} delay={index * 60}>
+                    <article className="glass rounded-[1.75rem] p-6 transition-colors hover:border-white/25">
+                      <div className="flex items-start gap-4">
+                        <span
+                          className="cell h-11 w-11 shrink-0"
+                          style={{
+                            ["--cell-a" as string]: commentAccent(comment.kind),
+                            ["--cell-b" as string]: "#10203a",
+                            ["--cell-glow" as string]: "transparent",
+                          }}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                            <span className="font-bold text-white">{commentAuthorLine(comment)}</span>
+                            <span className="chip !py-0.5 !text-[11px]">{comment.kind}</span>
+                            <span className="text-white/40">{formatRelativeAf(comment.createdAt)}</span>
+                          </div>
+                          <p className="mt-3 whitespace-pre-wrap leading-7 text-white/75">{comment.body}</p>
+                          {comment.replies.length > 0 ? (
+                            <ul className="mt-4 space-y-4 border-t border-white/10 pt-4">
+                              {comment.replies.map((reply) => (
+                                <li key={reply.id} className="border-l-2 border-lime/40 pl-4">
+                                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                                    <span className="font-bold text-white">
+                                      {reply.authorRole === "teacher" ? reply.authorName : commentAuthorLine(reply)}
+                                    </span>
+                                    <span className="chip !py-0.5 !text-[11px]">
+                                      {reply.authorRole === "teacher" ? "Onderwyser" : reply.kind}
+                                    </span>
+                                    <span className="text-white/40">{formatRelativeAf(reply.createdAt)}</span>
+                                  </div>
+                                  <p className="mt-2 whitespace-pre-wrap leading-7 text-white/75">{reply.body}</p>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : null}
+                          <TeacherReplyBox parentId={comment.id} />
                         </div>
-                        <p className="mt-3 whitespace-pre-wrap leading-7 text-white/75">{comment.body}</p>
                       </div>
-                    </div>
-                  </article>
-                </Reveal>
-              ))}
-            </div>
+                    </article>
+                  </Reveal>
+                ))}
+              </div>
+            </TeacherReplyProvider>
           )}
         </section>
 
@@ -111,20 +134,18 @@ export default async function CommentsPage({ searchParams }: PageProps) {
               {params.fout === "stoor" ? (
                 <p className="text-sm text-orange">Kon nie stoor nie. Probeer weer.</p>
               ) : null}
+              {params.fout === "antwoord" ? (
+                <p className="text-sm text-orange">Sit ’n antwoord in.</p>
+              ) : null}
               <Field label="Naam" hint="Of skuilnaam">
                 <TextInput name="name" placeholder="Jou naam" disabled={false} required />
               </Field>
               <Field label="Tipe">
                 <Select name="type" options={commentKinds} disabled={false} />
               </Field>
-              <Field label="Graad" hint="Opsioneel">
+              <Field label="Graad" hint="Opsioneel. Ander is vir ’n ouer of onderwyser.">
                 <select className="input-dark" name="grade" defaultValue="">
-                  <option value="">—</option>
-                  {grades.map((grade) => (
-                    <option key={grade} value={grade}>
-                      Graad {grade}
-                    </option>
-                  ))}
+                  <GradeOptions emptyLabel="Geen" />
                 </select>
               </Field>
               <Field label="Boodskap">

@@ -128,7 +128,7 @@ export const adminNavGroups: readonly AdminNavGroup[] = [
       {
         href: "/admin/accounts",
         label: "Rekeninge",
-        description: "Skep admin-rekeninge vir die span.",
+        description: "Admin-rekeninge en wagwoordhulp vir leerders.",
         icon: "users",
       },
       {

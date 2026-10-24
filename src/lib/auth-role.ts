@@ -10,6 +10,7 @@ export type SessionAccount = {
   email: string;
   name: string;
   grade: number | null;
+  audience: "ander" | null;
   kind: AccountKind;
   isAdmin: boolean;
 };
@@ -49,7 +50,7 @@ export async function getSessionAccount(): Promise<SessionAccount | null> {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, email, grade, kind")
+    .select("display_name, email, grade, audience, kind")
     .eq("id", userId)
     .maybeSingle();
 
@@ -68,6 +69,7 @@ export async function getSessionAccount(): Promise<SessionAccount | null> {
     email,
     name: profile?.display_name || email.split("@")[0] || "Leerder",
     grade: typeof profile?.grade === "number" ? profile.grade : null,
+    audience: profile?.audience === "ander" ? "ander" : null,
     kind,
     isAdmin: kind === "admin",
   };

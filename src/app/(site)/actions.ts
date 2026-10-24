@@ -8,7 +8,7 @@ import { isCommentKind } from "@/lib/comments";
 import { isEnquiryReason } from "@/lib/enquiries";
 import { getChatThread, previewChat } from "@/lib/live-chat";
 import { notifyChat, notifyComment, notifyEnquiry } from "@/lib/notifications";
-import { isGrade } from "@/lib/site";
+import { isGrade, otherAudience } from "@/lib/site";
 import { createAnonClient } from "@/lib/supabase/anon";
 import { createClient } from "@/lib/supabase/server";
 
@@ -95,12 +95,14 @@ export async function submitComment(formData: FormData) {
     redirect("/comments?fout=stoor");
   }
 
-  const grade = optionalGrade(formData);
+  const pickedOther = formText(formData, "grade") === otherAudience;
+  const grade = pickedOther ? null : optionalGrade(formData);
   const { error } = await supabase.from("comments").insert({
     author_name: authorName,
     kind,
     body,
     grade,
+    audience: pickedOther ? otherAudience : null,
     status: "pending",
   });
 
@@ -109,7 +111,7 @@ export async function submitComment(formData: FormData) {
     redirect("/comments?fout=stoor");
   }
 
-  after(() => notifyComment({ authorName, kind, grade, body }));
+  after(() => notifyComment({ authorName, kind, grade, audience: pickedOther ? otherAudience : null, body }));
 
   revalidatePath("/admin/comments");
   revalidatePath("/admin");
@@ -252,10 +254,15 @@ export async function updateLearnerProfile(formData: FormData) {
     redirect("/rekening?fout=naam");
   }
 
+  const pickedOther = formText(formData, "grade") === otherAudience;
   const supabase = await createClient();
   const { error } = await supabase
     .from("profiles")
-    .update({ display_name: name, grade: optionalGrade(formData) })
+    .update({
+      display_name: name,
+      grade: pickedOther ? null : optionalGrade(formData),
+      audience: pickedOther ? otherAudience : null,
+    })
     .eq("id", account.userId);
 
   if (error) {

@@ -10,15 +10,22 @@ export const commentStatuses = ["pending", "approved", "rejected"] as const;
 
 export type CommentStatus = (typeof commentStatuses)[number];
 
+export type CommentAuthorRole = "visitor" | "teacher";
+
 export type SiteComment = {
   id: string;
   authorName: string;
   kind: CommentKind;
   body: string;
   grade: number | null;
+  audience: "ander" | null;
   status: CommentStatus;
   createdAt: string;
+  parentId: string | null;
+  authorRole: CommentAuthorRole;
 };
+
+export type ThreadedComment = SiteComment & { replies: SiteComment[] };
 
 type CommentRow = {
   id: string;
@@ -26,11 +33,15 @@ type CommentRow = {
   kind: string;
   body: string;
   grade: number | null;
+  audience: string | null;
   status: string;
   created_at: string;
+  parent_id: string | null;
+  author_role: string | null;
 };
 
-const columns = "id, author_name, kind, body, grade, status, created_at";
+const columns =
+  "id, author_name, kind, body, grade, audience, status, created_at, parent_id, author_role";
 
 const commentAccents = ["#b8f542", "#5ad1ff", "#ffc857", "#9d8cff", "#ff6a4d"] as const;
 
@@ -53,9 +64,36 @@ function toComment(row: CommentRow): SiteComment {
     kind: toCommentKind(row.kind),
     body: row.body,
     grade: row.grade,
+    audience: row.audience === "ander" ? "ander" : null,
     status: toCommentStatus(row.status),
     createdAt: row.created_at,
+    parentId: row.parent_id,
+    authorRole: row.author_role === "teacher" ? "teacher" : "visitor",
   };
+}
+
+export function threadComments(comments: SiteComment[]): ThreadedComment[] {
+  const replies = new Map<string, SiteComment[]>();
+  const roots: SiteComment[] = [];
+
+  for (const comment of comments) {
+    if (!comment.parentId) {
+      roots.push(comment);
+      continue;
+    }
+
+    const list = replies.get(comment.parentId);
+    if (list) {
+      list.push(comment);
+    } else {
+      replies.set(comment.parentId, [comment]);
+    }
+  }
+
+  return roots.map((root) => ({
+    ...root,
+    replies: (replies.get(root.id) ?? []).slice().sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
+  }));
 }
 
 export function commentStatusLabel(status: CommentStatus) {
@@ -93,7 +131,10 @@ export function commentAccent(kind: CommentKind) {
   return commentAccents[index] ?? commentAccents[0];
 }
 
-export function commentAuthorLine(comment: SiteComment) {
+export function commentAuthorLine(comment: Pick<SiteComment, "authorName" | "grade" | "audience">) {
+  if (comment.audience === "ander") {
+    return `${comment.authorName} · Ander`;
+  }
   return comment.grade ? `${comment.authorName} · Gr. ${comment.grade}` : comment.authorName;
 }
 

@@ -1,6 +1,6 @@
 import "server-only";
 import { headers } from "next/headers";
-import { getEmailSettings, getResendKey, sendEmail, type SendResult } from "@/lib/email";
+import { defaultSender, domainSender, getEmailSettings, getResendKey, sendEmail, type SendResult } from "@/lib/email";
 import { siteName, siteUrl } from "@/lib/site";
 
 // Sign-up and password emails go out through Resend instead of Supabase's
@@ -34,7 +34,10 @@ export async function confirmLink(tokenHash: string, type: string, next: string)
 
 async function sendAuthEmail(to: string, content: Parameters<typeof sendEmail>[1]["content"]): Promise<SendResult> {
   const [key, settings] = await Promise.all([getResendKey(), getEmailSettings()]);
-  return sendEmail(key, { to, from: settings.from, replyTo: settings.to, content });
+  // A saved Van-adres on the real domain wins. The shared test sender cannot
+  // deliver a reset or confirm link to a learner.
+  const from = settings.from === defaultSender || settings.from.includes("@resend.dev") ? domainSender : settings.from;
+  return sendEmail(key, { to, from, replyTo: settings.to, content });
 }
 
 export function sendConfirmEmail(to: string, name: string, link: string) {

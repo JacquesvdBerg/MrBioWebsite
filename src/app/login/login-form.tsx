@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { requestPasswordReset } from "@/app/auth/actions";
 import { deskField } from "@/components/admin-ui";
+import { PasswordField } from "@/components/password-field";
 import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm({
@@ -93,14 +94,7 @@ export function LoginForm({
               Wagwoord vergeet?
             </button>
           </span>
-          <input
-            id="login-password"
-            className={deskField}
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-          />
+          <PasswordField id="login-password" name="password" variant="desk" autoComplete="current-password" required />
         </div>
       ) : (
         <p className="text-sm leading-6 text-white/55">

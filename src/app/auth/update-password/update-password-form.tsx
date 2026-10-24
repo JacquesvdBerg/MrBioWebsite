@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { deskField } from "@/components/admin-ui";
+import { PasswordField } from "@/components/password-field";
 import { createClient } from "@/lib/supabase/client";
 
 export function UpdatePasswordForm() {
@@ -47,28 +47,25 @@ export function UpdatePasswordForm() {
 
   return (
     <form className="mt-7 space-y-5" onSubmit={onSubmit}>
-      <label className="block">
-        <span className="text-[13px] font-bold text-white">Nuwe wagwoord</span>
-        <input
-          className={deskField}
-          name="password"
-          type="password"
-          autoComplete="new-password"
-          minLength={8}
-          required
-        />
-      </label>
-      <label className="block">
-        <span className="text-[13px] font-bold text-white">Bevestig wagwoord</span>
-        <input
-          className={deskField}
+      <div>
+        <label htmlFor="new-password" className="text-[13px] font-bold text-white">
+          Nuwe wagwoord
+        </label>
+        <PasswordField id="new-password" name="password" variant="desk" autoComplete="new-password" minLength={8} required />
+      </div>
+      <div>
+        <label htmlFor="confirm-password" className="text-[13px] font-bold text-white">
+          Bevestig wagwoord
+        </label>
+        <PasswordField
+          id="confirm-password"
           name="confirm"
-          type="password"
+          variant="desk"
           autoComplete="new-password"
           minLength={8}
           required
         />
-      </label>
+      </div>
       {error ? <p className="text-sm text-orange">{error}</p> : null}
       <button
         type="submit"
