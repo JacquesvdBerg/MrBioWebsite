@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { requireLearner } from "@/lib/auth-role";
-import { isCommentKind } from "@/lib/comments";
+import { articleKind, articleSlug, isCommentKind, isWebLink } from "@/lib/comments";
 import { isEnquiryReason } from "@/lib/enquiries";
 import { getChatThread, previewChat } from "@/lib/live-chat";
 import { notifyChat, notifyComment, notifyEnquiry } from "@/lib/notifications";
@@ -139,6 +139,50 @@ export async function submitComment(formData: FormData) {
   revalidatePath("/admin/comments");
   revalidatePath("/admin");
   redirect("/comments?gestuur=1");
+}
+
+/** A visitor shares an interesting article: a title and a link, waiting for approval. */
+export async function submitArticle(formData: FormData) {
+  const authorName = formText(formData, "name").slice(0, 80);
+  const title = formText(formData, "title").slice(0, 160);
+  const link = formText(formData, "link_url");
+  const note = formText(formData, "message").slice(0, 2000);
+
+  if (!authorName || !title || !link) {
+    redirect("/comments?fout=artikel#deel-artikel");
+  }
+  if (!isWebLink(link)) {
+    redirect("/comments?fout=skakel#deel-artikel");
+  }
+
+  const supabase = createAnonClient();
+
+  if (!supabase) {
+    redirect("/comments?fout=artikel-stoor#deel-artikel");
+  }
+
+  const { error } = await supabase.from("comments").insert({
+    author_name: authorName,
+    kind: articleKind,
+    title,
+    link_url: link,
+    body: note,
+    slug: articleSlug(title),
+    status: "pending",
+  });
+
+  if (error) {
+    console.error("Failed to save shared article:", error.message);
+    redirect("/comments?fout=artikel-stoor#deel-artikel");
+  }
+
+  after(() =>
+    notifyComment({ authorName, kind: articleKind, grade: null, audience: null, body: note, title, link }),
+  );
+
+  revalidatePath("/admin/comments");
+  revalidatePath("/admin");
+  redirect("/comments?gedeel=1#deel-artikel");
 }
 
 function revalidateChat(threadId?: string) {

@@ -110,17 +110,23 @@ export async function notifyComment(comment: {
   grade: number | null;
   audience: "ander" | null;
   body: string;
+  title?: string;
+  link?: string;
 }) {
+  const shared = Boolean(comment.title);
+
   await notifyTeacher("comments", {
-    subject: "Nuwe kommentaar wag vir goedkeuring",
-    heading: "Nuwe kommentaar op die forum",
+    subject: shared ? "Iemand het ’n artikel op die forum gedeel" : "Nuwe kommentaar wag vir goedkeuring",
+    heading: shared ? "’n Artikel wag vir goedkeuring" : "Nuwe kommentaar op die forum",
     intro: "Dit verskyn eers op die webwerf nadat jy dit goedgekeur het.",
     rows: [
       ["Van", short(comment.authorName)],
       ["Soort", comment.kind],
+      ["Titel", comment.title ?? ""],
+      ["Skakel", comment.link ?? ""],
       ["Graad", comment.audience === "ander" ? "Ander" : gradeText(comment.grade)],
     ],
-    quote: comment.body,
+    quote: comment.body || undefined,
     action: { label: "Keur goed of verwyder", href: deskLink("/admin/comments") },
   });
 }

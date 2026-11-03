@@ -1,4 +1,6 @@
-import { submitComment } from "@/app/(site)/actions";
+import Image from "next/image";
+import Link from "next/link";
+import { submitArticle, submitComment } from "@/app/(site)/actions";
 import { Field, FormNote, Select, TextArea, TextInput } from "@/components/field";
 import { GradeOptions } from "@/components/grade-options";
 import { Reveal } from "@/components/reveal";
@@ -6,10 +8,14 @@ import { SectionPage } from "@/components/section-page";
 import { TeacherReplyBox, TeacherReplyProvider } from "@/components/teacher-reply";
 import { Arrow, SectionHeading } from "@/components/ui";
 import {
+  articleExcerpt,
+  articlePath,
   commentAccent,
   commentAuthorLine,
   commentKinds,
   getApprovedComments,
+  isArticle,
+  linkHost,
   threadComments,
 } from "@/lib/comments";
 import { formatRelativeAf } from "@/lib/dates";
@@ -17,18 +23,20 @@ import { formatRelativeAf } from "@/lib/dates";
 export const metadata = {
   title: "Forum",
   description:
-    "Stel onderwerpe voor, deel terugvoer en lees wat ander MnrBio-leerders vra.",
+    "Lees die nuutste uit die biologie, deel ’n interessante artikel, stel onderwerpe voor en lees wat ander MnrBio-leerders vra.",
 };
 
 export const revalidate = 60;
 
 type PageProps = {
-  searchParams: Promise<{ gestuur?: string; fout?: string }>;
+  searchParams: Promise<{ gestuur?: string; gedeel?: string; fout?: string }>;
 };
 
 export default async function CommentsPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const comments = threadComments(await getApprovedComments());
+  const threads = threadComments(await getApprovedComments());
+  const articles = threads.filter((thread) => isArticle(thread));
+  const comments = threads.filter((thread) => !isArticle(thread));
   const trending = [...commentKinds]
     .map((kind) => ({
       kind,
@@ -46,13 +54,57 @@ export default async function CommentsPage({ searchParams }: PageProps) {
           Sê wat jy <span className="gradient-text">volgende wil leer.</span>
         </>
       }
-      description="Stel ’n onderwerp voor, vra ’n vraag of sê net dankie. Alles word eers deur die onderwyser gekeur voordat dit hier verskyn — so dit bly veilig en nuttig."
+      description="Lees die nuutste uit die biologie, deel ’n interessante artikel, stel ’n onderwerp voor of vra ’n vraag. Alles word eers deur die onderwyser gekeur voordat dit hier verskyn."
       crumbs={[
         { href: "/", label: "Tuis" },
         { href: "/comments", label: "Forum" },
       ]}
     >
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px]">
+        <div className="grid min-w-0 content-start gap-12">
+        {articles.length > 0 ? (
+          <section>
+            <SectionHeading eyebrow="Uit die biologie" title="Artikels" />
+            <div className="grid gap-4">
+              {articles.map((article, index) => (
+                <Reveal key={article.id} delay={index * 60}>
+                  <article className="glass grid gap-5 overflow-hidden rounded-[1.75rem] p-5 sm:grid-cols-[180px_minmax(0,1fr)] sm:p-6">
+                    {article.imagePath ? (
+                      <Link href={articlePath(article.slug!)} className="relative block aspect-video overflow-hidden rounded-2xl sm:aspect-square">
+                        <Image src={article.imagePath} alt="" fill sizes="(max-width: 640px) 100vw, 180px" className="object-cover" />
+                      </Link>
+                    ) : null}
+                    <div className={`min-w-0 ${article.imagePath ? "" : "sm:col-span-2"}`}>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                        <span className="font-bold text-white">{article.authorName}</span>
+                        <span className="chip !py-0.5 !text-[11px]">
+                          {article.authorRole === "teacher" ? "Onderwyser" : "Gedeel"}
+                        </span>
+                        <span className="text-white/40">{formatRelativeAf(article.createdAt)}</span>
+                      </div>
+                      <h3 className="mt-2 font-display text-xl font-bold leading-snug text-white">
+                        <Link href={articlePath(article.slug!)} className="hover:text-lime">
+                          {article.title}
+                        </Link>
+                      </h3>
+                      {article.body ? (
+                        <p className="mt-2 leading-7 text-white/65">{articleExcerpt(article.body)}</p>
+                      ) : null}
+                      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                        <Link href={articlePath(article.slug!)} className="inline-flex items-center gap-1.5 font-bold text-lime">
+                          Lees meer
+                          <Arrow className="h-3.5 w-3.5" />
+                        </Link>
+                        {article.linkUrl ? <span className="text-white/45">Bron: {linkHost(article.linkUrl)}</span> : null}
+                      </div>
+                    </div>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
         <section>
           <SectionHeading
             eyebrow="Goedgekeur"
@@ -62,7 +114,7 @@ export default async function CommentsPage({ searchParams }: PageProps) {
             <div className="glass rounded-[1.75rem] px-6 py-10 text-center">
               <p className="font-display text-xl font-bold text-white">Nog geen goedgekeurde plasings nie</p>
               <p className="mt-2 text-sm text-white/55">
-                Stuur die eerste een — dit verskyn hier ná keuring.
+                Stuur die eerste een. Dit verskyn hier ná keuring.
               </p>
             </div>
           ) : (
@@ -115,6 +167,7 @@ export default async function CommentsPage({ searchParams }: PageProps) {
             </TeacherReplyProvider>
           )}
         </section>
+        </div>
 
         <aside className="space-y-5 lg:sticky lg:top-28 lg:self-start">
           <Reveal>
@@ -166,6 +219,47 @@ export default async function CommentsPage({ searchParams }: PageProps) {
             </form>
           </Reveal>
 
+          <Reveal delay={60}>
+            <form
+              id="deel-artikel"
+              action={submitArticle}
+              className="glass scroll-mt-28 space-y-5 rounded-[1.9rem] p-6 md:p-7"
+            >
+              <div>
+                <p className="eyebrow">Iets interessant gelees?</p>
+                <h2 className="mt-3 font-display text-2xl font-extrabold text-white">Deel ’n artikel</h2>
+              </div>
+              {params.gedeel === "1" ? (
+                <p className="text-sm text-lime">Dankie. Die onderwyser kyk eers na die artikel.</p>
+              ) : null}
+              {params.fout === "artikel" ? (
+                <p className="text-sm text-orange">Sit jou naam, ’n titel en die skakel in.</p>
+              ) : null}
+              {params.fout === "skakel" ? (
+                <p className="text-sm text-orange">Die skakel moet met https:// begin.</p>
+              ) : null}
+              {params.fout === "artikel-stoor" ? (
+                <p className="text-sm text-orange">Kon nie stoor nie. Probeer weer.</p>
+              ) : null}
+              <Field label="Naam" hint="Of skuilnaam">
+                <TextInput name="name" placeholder="Jou naam" disabled={false} required />
+              </Field>
+              <Field label="Titel">
+                <TextInput name="title" placeholder="Bv. Nuwe spesie padda in Limpopo ontdek" disabled={false} required />
+              </Field>
+              <Field label="Skakel na die artikel">
+                <input className="input-dark" name="link_url" type="url" placeholder="https://" required />
+              </Field>
+              <Field label="Hoekom is dit interessant?" hint="Opsioneel">
+                <TextArea name="message" rows={3} placeholder="Een of twee sinne" disabled={false} />
+              </Field>
+              <button type="submit" className="btn btn-lime w-full">
+                Stuur vir goedkeuring
+                <Arrow />
+              </button>
+            </form>
+          </Reveal>
+
           {trending.length > 0 ? (
             <Reveal delay={80}>
               <div className="glass rounded-[1.9rem] p-6">
@@ -191,7 +285,7 @@ export default async function CommentsPage({ searchParams }: PageProps) {
               <p className="font-display text-lg font-bold text-white">Forumreëls</p>
               <ul className="mt-3 space-y-2 text-sm leading-6 text-white/65">
                 <li>Wees vriendelik. Ons is almal hier om te leer.</li>
-                <li>Geen persoonlike inligting nie — net ’n voornaam.</li>
+                <li>Geen persoonlike inligting nie, net ’n voornaam.</li>
                 <li>Vrae oor die werk is welkom. Toetsantwoorde word nie gedeel nie.</li>
               </ul>
             </div>

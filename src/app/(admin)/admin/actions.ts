@@ -21,7 +21,14 @@ import {
 } from "@/lib/email";
 import { confirmLink, isLinkType, sendResetEmail } from "@/lib/auth-links";
 import { sendTestEmail, sendWelcomeEmail } from "@/lib/notifications";
-import { toCommentStatus } from "@/lib/comments";
+import {
+  articleKind,
+  articlePath,
+  articleSlug,
+  isMissingArticleColumn,
+  isWebLink,
+  toCommentStatus,
+} from "@/lib/comments";
 import { closePasswordHelp, findAccountByEmail, isPlainEmail } from "@/lib/password-help";
 import { toEnquiryStatus } from "@/lib/enquiries";
 import { parseBulletLines } from "@/lib/products";
@@ -1242,6 +1249,89 @@ export async function deleteComment(formData: FormData) {
   revalidatePath("/comments");
   revalidatePath("/admin/comments");
   revalidatePath("/admin");
+}
+
+function revalidateArticle(slug?: string | null) {
+  revalidatePath("/comments");
+  revalidatePath("/admin/comments");
+  revalidatePath("/admin");
+  if (slug) {
+    revalidatePath(articlePath(slug));
+  }
+}
+
+function articleFields(formData: FormData) {
+  return {
+    title: formText(formData, "title").slice(0, 160),
+    body: formText(formData, "body").slice(0, 20000),
+    link: formText(formData, "link_url"),
+    imagePath: formText(formData, "image_path") || null,
+  };
+}
+
+/** The teacher's own article: published straight away, signed as the teacher. */
+export async function createArticle(formData: FormData) {
+  const supabase = await requireAdmin();
+  const { title, body, link, imagePath } = articleFields(formData);
+
+  if (!title || !body) {
+    redirect("/admin/comments?fout=artikel#nuwe-artikel");
+  }
+  if (link && !isWebLink(link)) {
+    redirect("/admin/comments?fout=skakel#nuwe-artikel");
+  }
+
+  const account = await getSessionAccount();
+  const slug = articleSlug(title);
+  const { error } = await supabase.from("comments").insert({
+    kind: articleKind,
+    title,
+    body,
+    link_url: link || null,
+    image_path: imagePath,
+    slug,
+    author_name: account?.name || "Onderwyser",
+    author_role: "teacher",
+    status: "approved",
+  });
+
+  if (error) {
+    console.error("Failed to publish article:", error.message);
+    redirect(`/admin/comments?fout=${isMissingArticleColumn(error) ? "databasis" : "stoor"}#nuwe-artikel`);
+  }
+
+  revalidateArticle(slug);
+  redirect("/admin/comments?status=approved&artikel=1");
+}
+
+export async function updateArticle(formData: FormData) {
+  const supabase = await requireAdmin();
+  const id = formText(formData, "id");
+  const back = commentReturnPath(formData);
+  const { title, body, link, imagePath } = articleFields(formData);
+
+  // A shared article may be just a title and a link.
+  if (!id || !title || (!body && !link)) {
+    redirect(withCommentFault(back, "artikel"));
+  }
+  if (link && !isWebLink(link)) {
+    redirect(withCommentFault(back, "skakel"));
+  }
+
+  const { data, error } = await supabase
+    .from("comments")
+    .update({ title, body, link_url: link || null, image_path: imagePath })
+    .eq("id", id)
+    .select("slug")
+    .maybeSingle();
+
+  if (error) {
+    console.error("Failed to save article:", error.message);
+    redirect(withCommentFault(back, "stoor"));
+  }
+
+  revalidateArticle(data?.slug);
+  redirect(back);
 }
 
 export async function replyToChat(formData: FormData) {
