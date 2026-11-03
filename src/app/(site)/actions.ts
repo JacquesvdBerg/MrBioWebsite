@@ -3,15 +3,18 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
-import { requireLearner } from "@/lib/auth-role";
+import { articleTextFromHtml, cleanArticleHtml, firstImageSrc } from "@/lib/article-html";
+import { getSessionAccount, requireLearner } from "@/lib/auth-role";
 import { articleKind, articleSlug, isCommentKind, isWebLink } from "@/lib/comments";
 import { isEnquiryReason } from "@/lib/enquiries";
 import { getChatThread, previewChat } from "@/lib/live-chat";
 import { notifyChat, notifyComment, notifyEnquiry } from "@/lib/notifications";
 import { isGrade, otherAudience } from "@/lib/site";
+import { mediaBucket } from "@/lib/media-bucket";
 import { addNewsletterSubscriber, isNewsletterEmail } from "@/lib/newsletter";
 import { createAnonClient } from "@/lib/supabase/anon";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 
 function formText(formData: FormData, name: string) {
   return String(formData.get(name) ?? "").trim();
@@ -141,48 +144,116 @@ export async function submitComment(formData: FormData) {
   redirect("/comments?gestuur=1");
 }
 
-/** A visitor shares an interesting article: a title and a link, waiting for approval. */
-export async function submitArticle(formData: FormData) {
-  const authorName = formText(formData, "name").slice(0, 80);
+export type ArticleFormState = { error: string } | null;
+
+/** A signed-in writer sends an article from the editor. It waits for the teacher's approval. */
+export async function submitArticle(_previous: ArticleFormState, formData: FormData): Promise<ArticleFormState> {
+  const account = await getSessionAccount();
+  if (!account) {
+    return { error: "Teken eers in om ’n artikel te stuur." };
+  }
+
+  const authorName = (formText(formData, "name") || account.name.split(" ")[0] || "Leser").slice(0, 80);
   const title = formText(formData, "title").slice(0, 160);
   const link = formText(formData, "link_url");
-  const note = formText(formData, "message").slice(0, 2000);
+  const html = cleanArticleHtml(String(formData.get("body_html") ?? "").slice(0, 300_000), { trusted: false });
+  const text = articleTextFromHtml(html).slice(0, 30_000);
 
-  if (!authorName || !title || !link) {
-    redirect("/comments?fout=artikel#deel-artikel");
+  if (!title) {
+    return { error: "Gee jou artikel ’n titel." };
   }
-  if (!isWebLink(link)) {
-    redirect("/comments?fout=skakel#deel-artikel");
+  if (!text && !firstImageSrc(html)) {
+    return { error: "Skryf iets in die artikel voor jy dit stuur." };
   }
-
-  const supabase = createAnonClient();
-
-  if (!supabase) {
-    redirect("/comments?fout=artikel-stoor#deel-artikel");
+  if (link && !isWebLink(link)) {
+    return { error: "Die skakel na die bron moet met https:// begin." };
   }
 
+  const supabase = await createClient();
   const { error } = await supabase.from("comments").insert({
     author_name: authorName,
+    author_id: account.userId,
     kind: articleKind,
     title,
-    link_url: link,
-    body: note,
+    link_url: link || null,
+    body: text,
+    body_html: html,
     slug: articleSlug(title),
+    grade: account.grade,
+    audience: account.audience,
     status: "pending",
   });
 
   if (error) {
-    console.error("Failed to save shared article:", error.message);
-    redirect("/comments?fout=artikel-stoor#deel-artikel");
+    console.error("Failed to save article:", error.message);
+    return { error: "Kon nie die artikel stoor nie. Probeer weer; jou teks is nog hier." };
   }
 
   after(() =>
-    notifyComment({ authorName, kind: articleKind, grade: null, audience: null, body: note, title, link }),
+    notifyComment({
+      authorName,
+      kind: articleKind,
+      grade: account.grade,
+      audience: account.audience,
+      body: text,
+      title,
+      link: link || undefined,
+    }),
   );
 
   revalidatePath("/admin/comments");
   revalidatePath("/admin");
-  redirect("/comments?gedeel=1#deel-artikel");
+  redirect("/comments/skryf?gestuur=1");
+}
+
+const forumImageTypes = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+const forumImagesPerWriter = 60;
+
+/**
+ * A signed-in writer gets a one-off address to upload one picture for an
+ * article, into their own folder. The bucket still checks type and size.
+ */
+export async function requestForumImageUpload(input: {
+  name: string;
+  type: string;
+  size: number;
+}): Promise<{ ok: true; path: string; token: string; url: string } | { ok: false; message: string }> {
+  const account = await getSessionAccount();
+  if (!account) {
+    return { ok: false, message: "Teken eers in om prente op te laai." };
+  }
+  if (!forumImageTypes.includes(input.type)) {
+    return { ok: false, message: "Gebruik ’n JPG-, PNG-, WebP- of GIF-prent." };
+  }
+  if (input.size > 8 * 1024 * 1024) {
+    return { ok: false, message: "Die prent is te groot. Hoogstens 8 MB." };
+  }
+
+  const service = createServiceClient();
+  if (!service) {
+    return { ok: false, message: "Kon nie die prent oplaai nie." };
+  }
+
+  const folder = `forum/${account.userId}`;
+  const { data: existing } = await service.storage.from(mediaBucket).list(folder, { limit: forumImagesPerWriter + 1 });
+  if ((existing?.length ?? 0) >= forumImagesPerWriter) {
+    return { ok: false, message: "Jy het al baie prente opgelaai. Vra die onderwyser om te help." };
+  }
+
+  const safeName = input.name.toLowerCase().replace(/[^a-z0-9._-]+/g, "-").slice(-60);
+  const path = `${folder}/${Date.now()}-${safeName}`;
+  const { data, error } = await service.storage.from(mediaBucket).createSignedUploadUrl(path);
+  if (error || !data) {
+    console.error("Failed to prepare a forum upload:", error?.message);
+    return { ok: false, message: "Kon nie die prent oplaai nie. Probeer weer." };
+  }
+
+  return {
+    ok: true,
+    path: data.path,
+    token: data.token,
+    url: service.storage.from(mediaBucket).getPublicUrl(path).data.publicUrl,
+  };
 }
 
 function revalidateChat(threadId?: string) {

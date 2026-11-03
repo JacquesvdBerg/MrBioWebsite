@@ -9,6 +9,7 @@ import { grades, isActivitySlug, isGrade, siteUrl } from "@/lib/site";
 import { parseTrueOrFalsePayload } from "@/lib/true-or-false";
 import { slugify } from "@/lib/slug";
 import { getAiSettings, saveAiSettings } from "@/lib/ai-settings";
+import { articleTextFromHtml, cleanArticleHtml, firstImageSrc } from "@/lib/article-html";
 import { getSessionAccount } from "@/lib/auth-role";
 import { clearOpenAiKey, saveOpenAiKey, verifyOpenAiKey } from "@/lib/openai-key";
 import {
@@ -1142,16 +1143,25 @@ export async function setCommentStatus(formData: FormData) {
     return;
   }
 
-  const { error } = await supabase.from("comments").update({ status }).eq("id", id);
+  const { data, error } = await supabase
+    .from("comments")
+    .update({ status })
+    .eq("id", id)
+    .select("*")
+    .maybeSingle<{ slug?: string | null }>();
 
   if (error) {
     console.error("Failed to update comment:", error.message);
     return;
   }
 
-  revalidatePath("/comments");
-  revalidatePath("/admin/comments");
-  revalidatePath("/admin");
+  revalidateArticle(data?.slug);
+
+  // The article editor sends the teacher back to the list afterwards.
+  const next = formText(formData, "next");
+  if (next.startsWith("/admin/comments")) {
+    redirect(next);
+  }
 }
 
 function commentReturnPath(formData: FormData) {
@@ -1239,16 +1249,19 @@ export async function deleteComment(formData: FormData) {
     return;
   }
 
-  const { error } = await supabase.from("comments").delete().eq("id", id);
+  const { data, error } = await supabase
+    .from("comments")
+    .delete()
+    .eq("id", id)
+    .select("*")
+    .maybeSingle<{ slug?: string | null }>();
 
   if (error) {
     console.error("Failed to delete comment:", error.message);
     return;
   }
 
-  revalidatePath("/comments");
-  revalidatePath("/admin/comments");
-  revalidatePath("/admin");
+  revalidateArticle(data?.slug);
 }
 
 function revalidateArticle(slug?: string | null) {
@@ -1260,35 +1273,57 @@ function revalidateArticle(slug?: string | null) {
   }
 }
 
+export type DeskArticleState = { error: string } | null;
+
 function articleFields(formData: FormData) {
+  const html = cleanArticleHtml(String(formData.get("body_html") ?? "").slice(0, 400_000), { trusted: true });
   return {
     title: formText(formData, "title").slice(0, 160),
-    body: formText(formData, "body").slice(0, 20000),
+    html,
+    text: articleTextFromHtml(html).slice(0, 30_000),
     link: formText(formData, "link_url"),
     imagePath: formText(formData, "image_path") || null,
   };
 }
 
-/** The teacher's own article: published straight away, signed as the teacher. */
-export async function createArticle(formData: FormData) {
-  const supabase = await requireAdmin();
-  const { title, body, link, imagePath } = articleFields(formData);
-
-  if (!title || !body) {
-    redirect("/admin/comments?fout=artikel#nuwe-artikel");
+function articleProblem(fields: ReturnType<typeof articleFields>) {
+  if (!fields.title) {
+    return "Gee die artikel ’n titel.";
   }
-  if (link && !isWebLink(link)) {
-    redirect("/admin/comments?fout=skakel#nuwe-artikel");
+  if (!fields.text && !firstImageSrc(fields.html)) {
+    return "Die artikel is nog leeg.";
+  }
+  if (fields.link && !isWebLink(fields.link)) {
+    return "Die skakel na die bron moet met https:// begin.";
+  }
+  return null;
+}
+
+function articleSaveError(error: { code?: string; message?: string }) {
+  console.error("Failed to save article:", error.message);
+  return isMissingArticleColumn(error)
+    ? "Die databasis is nog nie gereed vir die nuwe artikels nie. Vra die ontwikkelaar om die migrasie te laat loop."
+    : "Kon nie stoor nie. Probeer weer; jou teks is nog hier.";
+}
+
+/** The teacher's own article: published straight away, signed as the teacher. */
+export async function createArticle(_previous: DeskArticleState, formData: FormData): Promise<DeskArticleState> {
+  const supabase = await requireAdmin();
+  const fields = articleFields(formData);
+  const problem = articleProblem(fields);
+  if (problem) {
+    return { error: problem };
   }
 
   const account = await getSessionAccount();
-  const slug = articleSlug(title);
+  const slug = articleSlug(fields.title);
   const { error } = await supabase.from("comments").insert({
     kind: articleKind,
-    title,
-    body,
-    link_url: link || null,
-    image_path: imagePath,
+    title: fields.title,
+    body: fields.text,
+    body_html: fields.html,
+    link_url: fields.link || null,
+    image_path: fields.imagePath,
     slug,
     author_name: account?.name || "Onderwyser",
     author_role: "teacher",
@@ -1296,42 +1331,44 @@ export async function createArticle(formData: FormData) {
   });
 
   if (error) {
-    console.error("Failed to publish article:", error.message);
-    redirect(`/admin/comments?fout=${isMissingArticleColumn(error) ? "databasis" : "stoor"}#nuwe-artikel`);
+    return { error: articleSaveError(error) };
   }
 
   revalidateArticle(slug);
   redirect("/admin/comments?status=approved&artikel=1");
 }
 
-export async function updateArticle(formData: FormData) {
+/** Saves changes to any article; "approve" also puts a waiting one on the forum. */
+export async function updateArticle(_previous: DeskArticleState, formData: FormData): Promise<DeskArticleState> {
   const supabase = await requireAdmin();
   const id = formText(formData, "id");
-  const back = commentReturnPath(formData);
-  const { title, body, link, imagePath } = articleFields(formData);
-
-  // A shared article may be just a title and a link.
-  if (!id || !title || (!body && !link)) {
-    redirect(withCommentFault(back, "artikel"));
-  }
-  if (link && !isWebLink(link)) {
-    redirect(withCommentFault(back, "skakel"));
+  const fields = articleFields(formData);
+  const problem = id ? articleProblem(fields) : "Kon nie die artikel vind nie.";
+  if (problem) {
+    return { error: problem };
   }
 
+  const approve = formText(formData, "approve") === "1";
   const { data, error } = await supabase
     .from("comments")
-    .update({ title, body, link_url: link || null, image_path: imagePath })
+    .update({
+      title: fields.title,
+      body: fields.text,
+      body_html: fields.html,
+      link_url: fields.link || null,
+      image_path: fields.imagePath,
+      ...(approve ? { status: "approved" } : {}),
+    })
     .eq("id", id)
     .select("slug")
     .maybeSingle();
 
   if (error) {
-    console.error("Failed to save article:", error.message);
-    redirect(withCommentFault(back, "stoor"));
+    return { error: articleSaveError(error) };
   }
 
   revalidateArticle(data?.slug);
-  redirect(back);
+  redirect(approve ? "/admin/comments?status=approved&artikel=1" : `/admin/comments/artikel/${id}?gestoor=1`);
 }
 
 export async function replyToChat(formData: FormData) {

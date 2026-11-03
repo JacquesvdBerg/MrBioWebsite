@@ -26,6 +26,9 @@ export function AdminBtn({
   icon,
   size = "md",
   external = false,
+  name,
+  value,
+  disabled,
 }: {
   href?: string;
   children: ReactNode;
@@ -34,6 +37,10 @@ export function AdminBtn({
   icon?: AdminIconName;
   size?: "sm" | "md";
   external?: boolean;
+  /** Sent with the form when this button submits it. */
+  name?: string;
+  value?: string;
+  disabled?: boolean;
 }) {
   const className = `desk-btn desk-btn-${tone} ${size === "sm" ? "desk-btn-sm" : ""}`;
   const content = (
@@ -56,7 +63,7 @@ export function AdminBtn({
   }
 
   return (
-    <button type={type} className={className}>
+    <button type={type} className={className} name={name} value={value} disabled={disabled}>
       {content}
     </button>
   );

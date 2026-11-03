@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { submitArticle, submitComment } from "@/app/(site)/actions";
+import { submitComment } from "@/app/(site)/actions";
 import { Field, FormNote, Select, TextArea, TextInput } from "@/components/field";
 import { GradeOptions } from "@/components/grade-options";
 import { Reveal } from "@/components/reveal";
 import { SectionPage } from "@/components/section-page";
 import { TeacherReplyBox, TeacherReplyProvider } from "@/components/teacher-reply";
 import { Arrow, SectionHeading } from "@/components/ui";
+import { articleCover } from "@/lib/article-html";
 import {
   articleExcerpt,
   articlePath,
@@ -29,7 +30,7 @@ export const metadata = {
 export const revalidate = 60;
 
 type PageProps = {
-  searchParams: Promise<{ gestuur?: string; gedeel?: string; fout?: string }>;
+  searchParams: Promise<{ gestuur?: string; fout?: string }>;
 };
 
 export default async function CommentsPage({ searchParams }: PageProps) {
@@ -54,7 +55,7 @@ export default async function CommentsPage({ searchParams }: PageProps) {
           Sê wat jy <span className="gradient-text">volgende wil leer.</span>
         </>
       }
-      description="Lees die nuutste uit die biologie, deel ’n interessante artikel, stel ’n onderwerp voor of vra ’n vraag. Alles word eers deur die onderwyser gekeur voordat dit hier verskyn."
+      description="Lees die nuutste uit die biologie, skryf self ’n artikel, stel ’n onderwerp voor of vra ’n vraag. Alles word eers deur die onderwyser gekeur voordat dit hier verskyn."
       crumbs={[
         { href: "/", label: "Tuis" },
         { href: "/comments", label: "Forum" },
@@ -66,41 +67,46 @@ export default async function CommentsPage({ searchParams }: PageProps) {
           <section>
             <SectionHeading eyebrow="Uit die biologie" title="Artikels" />
             <div className="grid gap-4">
-              {articles.map((article, index) => (
-                <Reveal key={article.id} delay={index * 60}>
-                  <article className="glass grid gap-5 overflow-hidden rounded-[1.75rem] p-5 sm:grid-cols-[180px_minmax(0,1fr)] sm:p-6">
-                    {article.imagePath ? (
-                      <Link href={articlePath(article.slug!)} className="relative block aspect-video overflow-hidden rounded-2xl sm:aspect-square">
-                        <Image src={article.imagePath} alt="" fill sizes="(max-width: 640px) 100vw, 180px" className="object-cover" />
-                      </Link>
-                    ) : null}
-                    <div className={`min-w-0 ${article.imagePath ? "" : "sm:col-span-2"}`}>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                        <span className="font-bold text-white">{article.authorName}</span>
-                        <span className="chip !py-0.5 !text-[11px]">
-                          {article.authorRole === "teacher" ? "Onderwyser" : "Gedeel"}
-                        </span>
-                        <span className="text-white/40">{formatRelativeAf(article.createdAt)}</span>
-                      </div>
-                      <h3 className="mt-2 font-display text-xl font-bold leading-snug text-white">
-                        <Link href={articlePath(article.slug!)} className="hover:text-lime">
-                          {article.title}
+              {articles.map((article, index) => {
+                const cover = articleCover(article);
+                return (
+                  <Reveal key={article.id} delay={index * 60}>
+                    <article className="glass grid gap-5 overflow-hidden rounded-[1.75rem] p-5 sm:grid-cols-[180px_minmax(0,1fr)] sm:p-6">
+                      {cover ? (
+                        <Link href={articlePath(article.slug!)} className="relative block aspect-video overflow-hidden rounded-2xl sm:aspect-square">
+                          <Image src={cover} alt="" fill sizes="(max-width: 640px) 100vw, 180px" className="object-cover" />
                         </Link>
-                      </h3>
-                      {article.body ? (
-                        <p className="mt-2 leading-7 text-white/65">{articleExcerpt(article.body)}</p>
                       ) : null}
-                      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-                        <Link href={articlePath(article.slug!)} className="inline-flex items-center gap-1.5 font-bold text-lime">
-                          Lees meer
-                          <Arrow className="h-3.5 w-3.5" />
-                        </Link>
-                        {article.linkUrl ? <span className="text-white/45">Bron: {linkHost(article.linkUrl)}</span> : null}
+                      <div className={`min-w-0 ${cover ? "" : "sm:col-span-2"}`}>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                          <span className="font-bold text-white">
+                            {article.authorRole === "teacher" ? article.authorName : commentAuthorLine(article)}
+                          </span>
+                          {article.authorRole === "teacher" ? (
+                            <span className="chip !py-0.5 !text-[11px]">Onderwyser</span>
+                          ) : null}
+                          <span className="text-white/40">{formatRelativeAf(article.createdAt)}</span>
+                        </div>
+                        <h3 className="mt-2 font-display text-xl font-bold leading-snug text-white">
+                          <Link href={articlePath(article.slug!)} className="hover:text-lime">
+                            {article.title}
+                          </Link>
+                        </h3>
+                        {article.body ? (
+                          <p className="mt-2 leading-7 text-white/65">{articleExcerpt(article.body)}</p>
+                        ) : null}
+                        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                          <Link href={articlePath(article.slug!)} className="inline-flex items-center gap-1.5 font-bold text-lime">
+                            Lees meer
+                            <Arrow className="h-3.5 w-3.5" />
+                          </Link>
+                          {article.linkUrl ? <span className="text-white/45">Bron: {linkHost(article.linkUrl)}</span> : null}
+                        </div>
                       </div>
-                    </div>
-                  </article>
-                </Reveal>
-              ))}
+                    </article>
+                  </Reveal>
+                );
+              })}
             </div>
           </section>
         ) : null}
@@ -220,44 +226,20 @@ export default async function CommentsPage({ searchParams }: PageProps) {
           </Reveal>
 
           <Reveal delay={60}>
-            <form
-              id="deel-artikel"
-              action={submitArticle}
-              className="glass scroll-mt-28 space-y-5 rounded-[1.9rem] p-6 md:p-7"
-            >
+            <div id="skryf" className="glass scroll-mt-28 space-y-4 rounded-[1.9rem] p-6 md:p-7">
               <div>
                 <p className="eyebrow">Iets interessant gelees?</p>
-                <h2 className="mt-3 font-display text-2xl font-extrabold text-white">Deel ’n artikel</h2>
+                <h2 className="mt-3 font-display text-2xl font-extrabold text-white">Skryf ’n artikel</h2>
               </div>
-              {params.gedeel === "1" ? (
-                <p className="text-sm text-lime">Dankie. Die onderwyser kyk eers na die artikel.</p>
-              ) : null}
-              {params.fout === "artikel" ? (
-                <p className="text-sm text-orange">Sit jou naam, ’n titel en die skakel in.</p>
-              ) : null}
-              {params.fout === "skakel" ? (
-                <p className="text-sm text-orange">Die skakel moet met https:// begin.</p>
-              ) : null}
-              {params.fout === "artikel-stoor" ? (
-                <p className="text-sm text-orange">Kon nie stoor nie. Probeer weer.</p>
-              ) : null}
-              <Field label="Naam" hint="Of skuilnaam">
-                <TextInput name="name" placeholder="Jou naam" disabled={false} required />
-              </Field>
-              <Field label="Titel">
-                <TextInput name="title" placeholder="Bv. Nuwe spesie padda in Limpopo ontdek" disabled={false} required />
-              </Field>
-              <Field label="Skakel na die artikel">
-                <input className="input-dark" name="link_url" type="url" placeholder="https://" required />
-              </Field>
-              <Field label="Hoekom is dit interessant?" hint="Opsioneel">
-                <TextArea name="message" rows={3} placeholder="Een of twee sinne" disabled={false} />
-              </Field>
-              <button type="submit" className="btn btn-lime w-full">
-                Stuur vir goedkeuring
+              <p className="text-sm leading-6 text-white/65">
+                Skryf soos in Word, met opskrifte, tabelle en prente, of plak jou teks sommer in. Mnr. Bio lees dit
+                eers voordat dit op die forum verskyn.
+              </p>
+              <Link href="/comments/skryf" className="btn btn-lime w-full">
+                Begin skryf
                 <Arrow />
-              </button>
-            </form>
+              </Link>
+            </div>
           </Reveal>
 
           {trending.length > 0 ? (

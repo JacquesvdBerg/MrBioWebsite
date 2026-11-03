@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { SectionPage } from "@/components/section-page";
 import { TeacherReplyBox, TeacherReplyProvider } from "@/components/teacher-reply";
 import { Arrow } from "@/components/ui";
-import { articleExcerpt, articlePath, getApprovedArticle, linkHost } from "@/lib/comments";
+import { articleCover, cleanArticleHtml, wrapArticleTables } from "@/lib/article-html";
+import { articleExcerpt, articlePath, commentAuthorLine, getApprovedArticle, linkHost } from "@/lib/comments";
 import { formatRelativeAf } from "@/lib/dates";
 import { siteName, siteUrl } from "@/lib/site";
 
@@ -22,6 +23,7 @@ export async function generateMetadata({ params }: PageProps) {
     return { title: "Artikel" };
   }
 
+  const cover = articleCover(article);
   return {
     title: article.title,
     description: articleExcerpt(article.body || article.title, 155),
@@ -30,13 +32,13 @@ export async function generateMetadata({ params }: PageProps) {
       type: "article",
       title: article.title,
       url: articlePath(slug),
-      images: article.imagePath ? [article.imagePath] : undefined,
+      images: cover ? [cover] : undefined,
     },
     twitter: {
-      card: article.imagePath ? "summary_large_image" : "summary",
+      card: cover ? "summary_large_image" : "summary",
       title: article.title,
       description: articleExcerpt(article.body || article.title, 155),
-      images: article.imagePath ? [article.imagePath] : undefined,
+      images: cover ? [cover] : undefined,
     },
   };
 }
@@ -79,7 +81,9 @@ export default async function ArticlePage({ params }: PageProps) {
   }
 
   const teacher = article.authorRole === "teacher";
-  const byline = teacher ? `Deur ${article.authorName}, die onderwyser` : `Gedeel deur ${article.authorName}`;
+  const byline = teacher ? `Deur ${article.authorName}, die onderwyser` : `Deur ${commentAuthorLine(article)}`;
+  const cover = articleCover(article);
+  const html = article.bodyHtml ? wrapArticleTables(cleanArticleHtml(article.bodyHtml, { trusted: teacher })) : null;
   const structured = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -89,7 +93,7 @@ export default async function ArticlePage({ params }: PageProps) {
     author: { "@type": "Person", name: article.authorName },
     publisher: { "@type": "Organization", name: siteName, url: siteUrl },
     mainEntityOfPage: new URL(articlePath(slug), siteUrl).toString(),
-    ...(article.imagePath ? { image: [article.imagePath] } : {}),
+    ...(cover ? { image: [cover] } : {}),
   };
 
   return (
@@ -118,7 +122,11 @@ export default async function ArticlePage({ params }: PageProps) {
           </div>
         ) : null}
 
-        {article.body ? (
+        {html ? (
+          <div className="glass rounded-[1.75rem] p-6 md:p-9">
+            <div className="article-prose" dangerouslySetInnerHTML={{ __html: html }} />
+          </div>
+        ) : article.body ? (
           <div className="glass grid gap-5 rounded-[1.75rem] p-6 md:p-8">
             <ArticleText text={article.body} trusted={teacher} />
           </div>

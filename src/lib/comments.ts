@@ -34,6 +34,8 @@ export type SiteComment = {
   linkUrl: string | null;
   imagePath: string | null;
   slug: string | null;
+  /** Formatted article text from the editor; older articles only have `body`. */
+  bodyHtml: string | null;
 };
 
 export type ThreadedComment = SiteComment & { replies: SiteComment[] };
@@ -53,6 +55,7 @@ type CommentRow = {
   link_url?: string | null;
   image_path?: string | null;
   slug?: string | null;
+  body_html?: string | null;
 };
 
 // Every column, so the forum keeps working on a database that does not have
@@ -89,6 +92,7 @@ function toComment(row: CommentRow): SiteComment {
     linkUrl: row.link_url ?? null,
     imagePath: row.image_path ?? null,
     slug: row.slug ?? null,
+    bodyHtml: row.body_html ?? null,
   };
 }
 
@@ -291,4 +295,41 @@ export async function getApprovedArticle(slug: string): Promise<ThreadedComment 
     .returns<CommentRow[]>();
 
   return { ...toComment(data), replies: (replies ?? []).map(toComment) };
+}
+
+/** Articles the signed-in writer sent, newest first, with where each one stands. */
+export async function getMyArticles(userId: string): Promise<SiteComment[]> {
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
+    .from("comments")
+    .select(columns)
+    .eq("author_id", userId)
+    .eq("kind", articleKind)
+    .order("created_at", { ascending: false })
+    .limit(20)
+    .returns<CommentRow[]>();
+
+  if (error) {
+    console.error("Failed to load the writer's articles:", error.message);
+    return [];
+  }
+
+  return data.map(toComment);
+}
+
+/** One article in any state, for the desk editor. */
+export async function getDeskArticle(id: string): Promise<SiteComment | null> {
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
+    .from("comments")
+    .select(columns)
+    .eq("id", id)
+    .eq("kind", articleKind)
+    .maybeSingle<CommentRow>();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return toComment(data);
 }
