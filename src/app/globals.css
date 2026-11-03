@@ -1877,6 +1877,130 @@ html[data-theme="dark"] .hero-stage {
   }
 }
 
+/* News call-out under the hero buttons, after the client's sketch: a white
+   speech bubble with the "Nuus / Artikels" sticker hanging over its edge.
+   It stays white in both themes, like a sticker on the photo. */
+.hero-news {
+  --news-ink: #13254a;
+  --news-green: #23883a;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: min(100%, 30rem);
+  padding: 1rem 0.25rem 1rem 1.25rem;
+  border: 2px solid var(--news-ink);
+  border-radius: 1.6rem 1.6rem 1.6rem 0.45rem;
+  background: #ffffff;
+  color: var(--news-ink);
+  box-shadow: 0 22px 44px -24px color-mix(in srgb, var(--shade) calc(70% * var(--shade-k) + 20%), transparent);
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1),
+    box-shadow 0.3s ease;
+}
+
+html[data-theme="dark"] .hero-news {
+  border-color: var(--lime);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--lime) 18%, transparent),
+    0 24px 50px -22px rgba(0, 0, 0, 0.7);
+}
+
+.hero-news:hover {
+  transform: translateY(-3px);
+}
+
+.hero-news:has(.hero-news-link:focus-visible) {
+  outline: 3px solid var(--lime);
+  outline-offset: 4px;
+}
+
+.hero-news-text {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 0.6rem;
+}
+
+.hero-news-link {
+  font-family: var(--font-display), "Trebuchet MS", sans-serif;
+  font-size: 1.12rem;
+  font-weight: 800;
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+  color: inherit;
+  outline: none;
+}
+
+/* The whole bubble, sticker included, opens the article list. */
+.hero-news-link::after {
+  content: "";
+  position: absolute;
+  inset: -1.75rem -3rem -1.75rem 0;
+}
+
+.hero-news-latest {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: fit-content;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--news-green);
+  text-underline-offset: 3px;
+}
+
+.hero-news-latest:hover {
+  text-decoration: underline;
+}
+
+.hero-news-latest-label {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  background: color-mix(in srgb, var(--news-green) 13%, #ffffff);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.hero-news-icon {
+  position: relative;
+  width: 10.5rem;
+  height: auto;
+  flex-shrink: 0;
+  margin: -1.75rem -3rem -1.75rem 0;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.22));
+  transform: rotate(4deg);
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.hero-news:hover .hero-news-icon {
+  transform: rotate(-2deg) scale(1.06);
+}
+
+@media (max-width: 767px) {
+  .hero-news {
+    padding: 0.85rem 0.25rem 0.85rem 1rem;
+  }
+
+  .hero-news-link {
+    font-size: 1rem;
+  }
+
+  .hero-news-link::after {
+    inset: 0;
+  }
+
+  .hero-news-icon {
+    width: 7rem;
+    margin: -1.25rem -0.25rem -1.25rem 0;
+  }
+}
+
 /* ---------- shop: grade choice ---------- */
 
 .shop-grade {

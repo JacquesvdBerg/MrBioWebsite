@@ -297,6 +297,31 @@ export async function getApprovedArticle(slug: string): Promise<ThreadedComment 
   return { ...toComment(data), replies: (replies ?? []).map(toComment) };
 }
 
+/** The newest published article, for the call-out on the home page. */
+export async function getLatestArticle(): Promise<{ title: string; slug: string } | null> {
+  const supabase = createAnonClient();
+
+  if (!supabase) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("comments")
+    .select("title, slug")
+    .eq("kind", articleKind)
+    .eq("status", "approved")
+    .not("slug", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle<{ title: string | null; slug: string | null }>();
+
+  if (error || !data?.title || !data.slug) {
+    return null;
+  }
+
+  return { title: data.title, slug: data.slug };
+}
+
 /** Articles the signed-in writer sent, newest first, with where each one stands. */
 export async function getMyArticles(userId: string): Promise<SiteComment[]> {
   const supabase = await createServerClient();

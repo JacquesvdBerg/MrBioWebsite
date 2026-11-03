@@ -9,6 +9,7 @@ import { Reveal } from "@/components/reveal";
 import { Arrow, ButtonLink, SectionHeading } from "@/components/ui";
 import { Visual } from "@/components/visual";
 import { getSessionAccount } from "@/lib/auth-role";
+import { getLatestArticle } from "@/lib/comments";
 import { activityTypes, gradePath, grades, youtubeChannel, youtubeJoin } from "@/lib/site";
 import { syllabus } from "@/lib/syllabus";
 import { getPublishedWeeklyFacts } from "@/lib/weekly-facts";
@@ -47,15 +48,16 @@ const sampleChat = [
 ] as const;
 
 export default async function HomePage() {
-  const [facts, account] = await Promise.all([
+  const [facts, account, latestArticle] = await Promise.all([
     getPublishedWeeklyFacts(),
     getSessionAccount(),
+    getLatestArticle(),
   ]);
   const fact = facts[0] ?? null;
 
   return (
     <div className="pb-8">
-      <HomeHero />
+      <HomeHero latestArticle={latestArticle} />
 
       <section id="grade" className="mx-auto max-w-7xl scroll-mt-28 px-4 pt-16 md:px-6">
         <SectionHeading

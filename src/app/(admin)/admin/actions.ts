@@ -1265,6 +1265,8 @@ export async function deleteComment(formData: FormData) {
 }
 
 function revalidateArticle(slug?: string | null) {
+  // The home page names the newest article.
+  revalidatePath("/");
   revalidatePath("/comments");
   revalidatePath("/admin/comments");
   revalidatePath("/admin");

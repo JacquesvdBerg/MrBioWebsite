@@ -64,7 +64,7 @@ export default async function CommentsPage({ searchParams }: PageProps) {
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px]">
         <div className="grid min-w-0 content-start gap-12">
         {articles.length > 0 ? (
-          <section>
+          <section id="artikels" className="scroll-mt-28">
             <SectionHeading eyebrow="Uit die biologie" title="Artikels" />
             <div className="grid gap-4">
               {articles.map((article, index) => {
