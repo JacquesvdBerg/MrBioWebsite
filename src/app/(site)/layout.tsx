@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import { HideOnActivityPlay } from "@/components/hide-on-activity-play";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -20,6 +21,8 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
       <HideOnActivityPlay>
         <SiteFooter />
       </HideOnActivityPlay>
+      {/* Page views for the public site only, so the teacher's desk is not counted. */}
+      <Analytics />
     </div>
   );
 }
