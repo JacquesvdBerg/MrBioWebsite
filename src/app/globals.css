@@ -1877,6 +1877,141 @@ html[data-theme="dark"] .hero-stage {
   }
 }
 
+/* Tutorial button in the hero, after the client's "Kyk tutoriaal" design:
+   a navy pill with a lime rim and a YouTube play badge. Fixed colours, so it
+   looks the same in both themes. */
+.hero-tutorial {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.65rem 1.5rem 0.65rem 0.7rem;
+  border: 2px solid #b8f542;
+  border-radius: 999px;
+  background: #0c1a33;
+  color: #ffffff;
+  box-shadow:
+    0 0 0 4px rgba(184, 245, 66, 0.16),
+    0 18px 36px -18px rgba(5, 11, 22, 0.75);
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.7, 0.3, 1),
+    box-shadow 0.25s ease;
+}
+
+.hero-tutorial:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 6px rgba(184, 245, 66, 0.24),
+    0 22px 40px -18px rgba(5, 11, 22, 0.8);
+}
+
+.hero-tutorial:focus-visible {
+  outline: 3px solid var(--lime);
+  outline-offset: 4px;
+}
+
+.hero-tutorial-play {
+  display: grid;
+  width: 3.6rem;
+  height: 2.6rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 0.85rem;
+  background: #ff0033;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.18);
+}
+
+.hero-tutorial-play svg {
+  width: 1.6rem;
+  height: 1.6rem;
+  fill: #ffffff;
+}
+
+.hero-tutorial-title {
+  font-family: var(--font-display), "Trebuchet MS", sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.hero-tutorial-title span {
+  color: #b8f542;
+}
+
+.hero-tutorial-line {
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #b8f542;
+}
+
+/* Pop-up player for the tutorial. Tailwind's reset clears the margin that
+   centres a modal dialog, so it is set again here. */
+.video-dialog {
+  width: min(64rem, calc(100vw - 2rem));
+  max-width: none;
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid #b8f542;
+  border-radius: 1.4rem;
+  background: #0c1a33;
+  color: #ffffff;
+  pointer-events: auto;
+  box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.8);
+}
+
+.video-dialog[open] {
+  animation: video-pop 0.25s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.video-dialog::backdrop {
+  background: rgba(5, 11, 22, 0.78);
+  backdrop-filter: blur(4px);
+}
+
+@keyframes video-pop {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+.video-dialog-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #000000;
+}
+
+.video-dialog-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.video-dialog-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.75rem 0.75rem 1.25rem;
+}
+
+.video-dialog-bar a {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #b8f542;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .video-dialog[open] {
+    animation: none;
+  }
+}
+
 /* News call-out under the hero buttons, after the client's sketch: a white
    speech bubble with the "Nuus / Artikels" sticker hanging over its edge.
    It stays white in both themes, like a sticker on the photo. */

@@ -6,6 +6,9 @@ export const contactEmail = "25kzorlf@gmail.com";
 /** The teacher's YouTube channel, "Lewenswetenskappe Lesse". */
 export const youtubeChannel = "https://www.youtube.com/@lwonnie";
 export const youtubeJoin = "https://www.youtube.com/@lwonnie/join";
+/** The teacher's walk-through of the site, linked from the home page hero. */
+export const youtubeTutorialId = "MUpXVEXgUNk";
+export const youtubeTutorial = `https://www.youtube.com/watch?v=${youtubeTutorialId}`;
 
 export type NavChild = {
   href: string;

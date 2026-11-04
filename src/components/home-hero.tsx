@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { HeroScene } from "@/components/hero-scene";
-import { BeakerIcon } from "@/components/icons";
+import { TutorialButton } from "@/components/tutorial-button";
 import { Arrow } from "@/components/ui";
 import { articlePath } from "@/lib/comments";
+import { youtubeTutorial, youtubeTutorialId } from "@/lib/site";
 
 type HomeHeroProps = {
   /** The newest published article, named under the news call-out. */
@@ -30,19 +31,16 @@ export function HomeHero({ latestArticle }: HomeHeroProps) {
               </svg>
             </span>
           </h1>
-          <p className="rise mt-7 max-w-md text-lg leading-8 text-white/80 [animation-delay:120ms]">
-            Kort lesse wat die inhoud duidelik maak, en weeklikse vakverbande speletjies.
-          </p>
-
-          <div className="rise mt-9 flex flex-col items-start gap-4 [animation-delay:200ms]">
-            <a href="#grade" className="btn btn-navy btn-lg pointer-events-auto uppercase tracking-[0.04em]">
-              <BeakerIcon className="h-5 w-5" />
-              Kom ons ontdek!
-            </a>
-            <p className="flex items-center gap-2 text-sm font-bold text-white/70">
-              <span className="pulse-dot" aria-hidden />
-              Klik op die kolletjies om meer te ontdek
+          <blockquote className="rise mt-7 max-w-md [animation-delay:120ms]">
+            <p className="text-lg leading-8 text-white/80">
+              “Die belangrikste ding is om nie op te hou om vrae te vra nie. Nuuskierigheid het sy eie rede vir
+              bestaan.”
             </p>
+            <footer className="mt-2 text-sm font-bold text-white/55">Albert Einstein</footer>
+          </blockquote>
+
+          <div className="rise mt-8 [animation-delay:200ms]">
+            <TutorialButton videoId={youtubeTutorialId} href={youtubeTutorial} />
           </div>
 
           {/* The rise wrapper keeps its animation off the bubble's hover lift. */}
