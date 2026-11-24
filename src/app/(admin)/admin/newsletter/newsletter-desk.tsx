@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { deleteNewsletterSubscriber } from "@/app/(admin)/admin/actions";
 import { CopyButton, DeleteButton } from "@/components/admin-client";
 import { deskField } from "@/components/admin-ui";
 import { formatRelativeAf } from "@/lib/dates";
+import { contactEmail } from "@/lib/site";
 
 type NewsletterSubscriber = {
   id: string;
@@ -12,7 +13,7 @@ type NewsletterSubscriber = {
   createdAt: string;
 };
 
-const mailLimit = 1800;
+type MailApp = "outlook" | "gmail";
 
 function mailtoFor(emails: string[], subject: string, body: string) {
   const parts = [`bcc=${emails.map(encodeURIComponent).join(";")}`];
@@ -25,17 +26,69 @@ function mailtoFor(emails: string[], subject: string, body: string) {
   return `mailto:?${parts.join("&")}`;
 }
 
-function mailBatches(emails: string[], subject: string, body: string) {
+/** Gmail's compose window in the browser, on the teacher's own account. */
+function gmailFor(emails: string[], subject: string, body: string) {
+  const parts = [`authuser=${encodeURIComponent(contactEmail)}`, "view=cm", "fs=1"];
+  parts.push(`bcc=${emails.map(encodeURIComponent).join(",")}`);
+  if (subject.trim()) {
+    parts.push(`su=${encodeURIComponent(subject.trim())}`);
+  }
+  if (body.trim()) {
+    parts.push(`body=${encodeURIComponent(body.trim())}`);
+  }
+  return `https://mail.google.com/mail/?${parts.join("&")}`;
+}
+
+// Outlook cuts mailto links off near 2 000 characters; Gmail takes longer links.
+const mailApps: Record<MailApp, { label: string; link: typeof mailtoFor; limit: number }> = {
+  outlook: { label: "Outlook", link: mailtoFor, limit: 1800 },
+  gmail: { label: "Gmail", link: gmailFor, limit: 6000 },
+};
+
+// The choice is remembered per browser, so the teacher's computer stays on Gmail
+// and ours on Outlook.
+const appKey = "mnrbio-newsletter-app";
+const appListeners = new Set<() => void>();
+let pickedApp: MailApp | null = null;
+
+function readApp(): MailApp {
+  if (pickedApp) return pickedApp;
+  try {
+    return window.localStorage.getItem(appKey) === "gmail" ? "gmail" : "outlook";
+  } catch {
+    return "outlook";
+  }
+}
+
+function subscribeApp(listener: () => void) {
+  appListeners.add(listener);
+  return () => {
+    appListeners.delete(listener);
+  };
+}
+
+function chooseApp(app: MailApp) {
+  pickedApp = app;
+  try {
+    window.localStorage.setItem(appKey, app);
+  } catch {
+    // Private windows: the choice holds until the page closes.
+  }
+  appListeners.forEach((listener) => listener());
+}
+
+function mailBatches(app: MailApp, emails: string[], subject: string, body: string) {
+  const { link, limit } = mailApps[app];
   const batches: string[][] = [];
   let current: string[] = [];
-  let length = mailtoFor([], subject, body).length;
+  let length = link([], subject, body).length;
 
   for (const email of emails) {
     const extra = encodeURIComponent(email).length + 1;
-    if (current.length > 0 && length + extra > mailLimit) {
+    if (current.length > 0 && length + extra > limit) {
       batches.push(current);
       current = [];
-      length = mailtoFor([], subject, body).length;
+      length = link([], subject, body).length;
     }
     current.push(email);
     length += extra;
@@ -54,6 +107,7 @@ export function NewsletterDesk({ subscribers }: { subscribers: NewsletterSubscri
   const [notice, setNotice] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [remaining, setRemaining] = useState<string[]>([]);
+  const app = useSyncExternalStore(subscribeApp, readApp, () => "outlook" as const);
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -95,15 +149,23 @@ export function NewsletterDesk({ subscribers }: { subscribers: NewsletterSubscri
       setNotice("Kies eers iemand, of stuur aan almal.");
       return;
     }
-    const batches = mailBatches(emails, subject, body);
+    const batches = mailBatches(app, emails, subject, body);
     const first = batches[0] ?? [];
     const rest = batches.slice(1).flat();
-    window.location.href = mailtoFor(first, subject, body);
+    const url = mailApps[app].link(first, subject, body);
+    if (app === "gmail") {
+      window.open(url, "_blank", "noopener");
+    } else {
+      window.location.href = url;
+    }
     setRemaining(rest);
+    const where = app === "gmail" ? "Gmail" : "jou e-posprogram";
     setNotice(
       rest.length > 0
-        ? `Die eerste ${first.length} adresse maak in jou e-posprogram oop. ${rest.length} is te veel vir een brief.`
-        : "Jou e-posprogram maak oop. Almal sit in BCC.",
+        ? `Die eerste ${first.length} adresse maak in ${where} oop. ${rest.length} is te veel vir een brief.`
+        : app === "gmail"
+          ? "Gmail maak in ’n nuwe oortjie oop. Almal sit in BCC."
+          : "Jou e-posprogram maak oop. Almal sit in BCC.",
     );
   }
 
@@ -112,7 +174,8 @@ export function NewsletterDesk({ subscribers }: { subscribers: NewsletterSubscri
       <section className="rounded-2xl border border-white/10 p-5">
         <p className="font-display text-lg font-bold text-white">Skryf ’n brief</p>
         <p className="mt-1 text-sm leading-6 text-white/55">
-          Die brief maak in Outlook of jou gewone e-posprogram oop. Adresse sit in BCC, so niemand sien die ander nie.
+          Outlook gebruik jou rekenaar se e-posprogram. Gmail maak in die blaaier oop en stuur van {contactEmail} af.
+          Adresse sit in BCC, so niemand sien die ander nie.
         </p>
         <div className="mt-4 grid gap-3">
           <label className="desk-label">
@@ -128,7 +191,23 @@ export function NewsletterDesk({ subscribers }: { subscribers: NewsletterSubscri
             />
           </label>
         </div>
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <span className="text-sm font-bold text-white/70">Stuur met</span>
+          <div className="desk-tabs" role="group" aria-label="Stuur met">
+            {(Object.keys(mailApps) as MailApp[]).map((option) => (
+              <button
+                key={option}
+                type="button"
+                className={`desk-tab cursor-pointer ${app === option ? "is-active" : ""}`}
+                aria-pressed={app === option}
+                onClick={() => chooseApp(option)}
+              >
+                {mailApps[option].label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
           <button type="button" className="desk-btn desk-btn-navy desk-btn-sm" onClick={() => send(subscribers.map((item) => item.email))}>
             Stuur aan almal
           </button>

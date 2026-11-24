@@ -15,7 +15,7 @@ export default async function NewsletterPage() {
   return (
     <AdminPage
       title="Nuusbrief"
-      description="Adresse uit die voetskrif. Stuur ’n brief uit jou eie e-posprogram. Almal sit in BCC."
+      description="Adresse uit die voetskrif. Stuur ’n brief met Outlook of Gmail. Almal sit in BCC."
     >
       <AdminPanel title={`${subscribers.length} adresse`} icon="inbox">
         {subscribers.length === 0 ? (
