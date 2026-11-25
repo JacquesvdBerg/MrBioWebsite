@@ -16,6 +16,7 @@ export const productKindOptions = [
   "Werkkaarte",
   "Volledige pak",
   "Eksamenpak",
+  "Hersiening",
   "Opsomming",
   "Bundel",
 ] as const;
